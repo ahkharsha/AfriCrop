@@ -1,76 +1,187 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* globals.css */
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+@import "tailwindcss"; /* V4: Import main Tailwind CSS */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+/* Define your CSS variables for colors (these were in :root) */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
 
-    --primary: 142.1 76.2% 36.3%; /* afriGreen-500 equivalent */
-    --primary-foreground: 355.7 100% 97.3%; /* white */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+  --primary: 142.1 76.2% 36.3%; /* afriGreen-500 equivalent */
+  --primary-foreground: 355.7 100% 97.3%; /* white */
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 142.1 76.2% 36.3%; /* afriGreen-500 equivalent */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
 
-    --radius: 0.5rem;
-  }
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 142.1 76.2% 36.3%; /* afriGreen-500 equivalent */
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 96.1%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 96.1%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 96.1%;
-
-    --primary: 142.1 76.2% 36.3%;
-    --primary-foreground: 355.7 100% 97.3%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 96.1%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 96.1%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 96.1%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 142.1 76.2% 36.3%;
-  }
+  --radius: 0.5rem; /* This would typically be defined as --radius: 0.5rem; in your general CSS, but if it's for Tailwind's theme, it belongs in @theme */
 }
 
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 96.1%;
+
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 96.1%;
+
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 96.1%;
+
+  --primary: 142.1 76.2% 36.3%;
+  --primary-foreground: 355.7 100% 97.3%;
+
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 96.1%;
+
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 96.1%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 96.1%;
+
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 142.1 76.2% 36.3%;
+}
+
+/* V4: Define all your custom theme properties here using @theme */
+@theme {
+  /* Colors */
+  --color-border: hsl(var(--border)); /* V4: --color-... namespace */
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* Custom AfriCrop DAO palette - direct hex values are fine here */
+  --color-afriGreen-50: #F0FDF4;
+  --color-afriGreen-100: #DCFCE7;
+  --color-afriGreen-200: #BBF7D0;
+  --color-afriGreen-300: #86EFAC;
+  --color-afriGreen-400: #4ADE80;
+  --color-afriGreen-500: #22C55E;
+  --color-afriGreen-600: #16A34A;
+  --color-afriGreen-700: #15803D;
+  --color-afriGreen-800: #166534;
+  --color-afriGreen-900: #14532D;
+  --color-afriGreen-950: #0F3C21;
+
+  --color-afriBrown-50: #FDFCF6;
+  --color-afriBrown-100: #F8F6EF;
+  --color-afriBrown-200: #F1EDE0;
+  --color-afriBrown-300: #E4DCCA;
+  --color-afriBrown-400: #D5C3A8;
+  --color-afriBrown-500: #C7AE87;
+  --color-afriBrown-600: #B69A72;
+  --color-afriBrown-700: #9E855F;
+  --color-afriBrown-800: #846D4C;
+  --color-afriBrown-900: #69553A;
+  --color-afriBrown-950: #342B1D;
+
+  --color-afriGold-50: #FFFBEB;
+  --color-afriGold-100: #FEF3C7;
+  --color-afriGold-200: #FDE68A;
+  --color-afriGold-300: #FCD34D;
+  --color-afriGold-400: #FBBE24;
+  --color-afriGold-500: #F59E0B;
+  --color-afriGold-600: #D97706;
+  --color-afriGold-700: #B45309;
+  --color-afriGold-800: #92400E;
+  --color-afriGold-900: #78350F;
+  --color-afriGold-950: #451A03;
+
+  --color-afriGrey-50: #FAFAFA;
+  --color-afriGrey-100: #F5F5F5;
+  --color-afriGrey-200: #E5E5E5;
+  --color-afriGrey-300: #D4D4D4;
+  --color-afriGrey-400: #A3A3A3;
+  --color-afriGrey-500: #737373;
+  --color-afriGrey-600: #525252;
+  --color-afriGrey-700: #404040;
+  --color-afriGrey-800: #262626;
+  --color-afriGrey-900: #171717;
+  --color-afriGrey-950: #0A0A0A;
+
+  /* Border Radius */
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  /* Fonts (you'll need to define --font-geist-sans etc. if you use them) */
+  --font-sans: system-ui, sans-serif; /* Placeholder; replace with your actual font variable if using */
+  /* If you were using `fontFamily.sans` from defaultTheme, you might need to adjust your font setup */
+  /* For 'Inter', you would typically import it and use a CSS variable for it like: --font-inter: 'Inter', sans-serif; */
+  /* Then: --font-sans: var(--font-inter); */
+
+  /* Keyframes and animation (can also go into @theme) */
+  --animation-accordion-down: accordion-down 0.2s ease-out;
+  --animation-accordion-up: accordion-up 0.2s ease-out;
+
+  /* The actual keyframe definitions go outside @theme, like regular CSS */
+  /* No, wait, if you defined them in the config, they will translate to CSS variables */
+  /* Let's double check this for v4, but usually keyframes are global */
+  /* For now, put them here as they were in config: */
+  /* No, keyframes are not directly defined as CSS variables like colors */
+  /* Keyframes and Animations are *typically* defined at the global level and then applied with utility classes. */
+  /* If your components use `animate-accordion-down` etc., and they rely on these keyframes, they need to be global. */
+  /* So, move `keyframes` and `animation` out of `@theme` and into `@layer base` or globally. */
+}
+
+/* Global keyframes (move these out of the @theme block if they were inside, as they are not theme variables) */
+@keyframes accordion-down {
+  from { height: "0" }
+  to { height: "var(--radix-accordion-content-height)" }
+}
+@keyframes accordion-up {
+  from { height: "var(--radix-accordion-content-height)" }
+  to { height: "0" }
+}
+
+/* Apply base styles using @layer base (as suggested by your friend's fix) */
 @layer base {
-  * {
-    @apply border border-border;
-  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground; /* These work with your --background and --foreground CSS variables */
   }
 }
