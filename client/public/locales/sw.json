@@ -1,0 +1,15 @@
+{
+  "header": {
+    "dashboard": "Dashibodi",
+    "crops": "Mazao Yangu",
+    "education": "Elimu",
+    "governance": "Utawala",
+    "profile": "Wasifu"
+  },
+  "dashboard": {
+    "title": "Dashibodi ya Shamba",
+    "sustainability": "Alama ya Uendelevu",
+    "carbonCredits": "Vikaratasi vya Kaboni",
+    "leaderboard": "Ubao wa Viongozi wa Jamii"
+  }
+}

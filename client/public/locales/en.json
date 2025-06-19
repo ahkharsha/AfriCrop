@@ -1,0 +1,15 @@
+{
+  "header": {
+    "dashboard": "Dashboard",
+    "crops": "My Crops",
+    "education": "Education",
+    "governance": "Governance",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "title": "Farm Dashboard",
+    "sustainability": "Sustainability Score",
+    "carbonCredits": "Carbon Credits",
+    "leaderboard": "Community Leaderboard"
+  }
+}
