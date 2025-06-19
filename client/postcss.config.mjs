@@ -1,5 +1,5 @@
-// postcss.config.js
-module.exports = {
+// postcss.config.mjs (Correct for ESM)
+export default { 
   plugins: {
     tailwindcss: {},
     autoprefixer: {},

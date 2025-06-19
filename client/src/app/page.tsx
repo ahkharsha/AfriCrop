@@ -54,7 +54,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="text-center mb-16 px-4 max-w-4xl">
         <Image
-          src="/africrop-logo.png"
+          src="/africrop-logo.jpg"
           alt="AfriCrop DAO Logo"
           width={120}
           height={120}

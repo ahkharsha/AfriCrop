@@ -37,7 +37,7 @@ const Header: React.FC = () => {
         {/* Logo and App Name */}
         <Link href="/" className="flex items-center space-x-3">
           <Image
-            src="/africrop-logo.png"
+            src="/africrop-logo.jpg"
             alt="AfriCrop DAO Logo"
             width={40}
             height={40}

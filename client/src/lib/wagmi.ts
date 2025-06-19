@@ -37,7 +37,7 @@ const metadata = {
   name: 'AfriCrop DAO',
   description: 'Revolutionary Agricultural Governance Platform',
   url: 'https://africropdao.vercel.app', // Your project website
-  icons: ['https://africropdao.vercel.app/africrop-logo.png'] // Your project icon
+  icons: ['https://africropdao.vercel.app/africrop-logo.jpg'] // Your project icon
 }
 
 // 4. Create Ethers config
