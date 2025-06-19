@@ -1,103 +1,124 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
+import { Leaf, Handshake, Map, Award, Gem, BarChart, Users, Wallet } from 'lucide-react'; // Icons
+
+export default function HomePage() {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      title: t('reputation_system_title'),
+      description: t('reputation_system_desc'),
+      icon: Leaf,
+      link: "/dashboard"
+    },
+    {
+      title: t('dao_governance_title'),
+      description: t('dao_governance_desc'),
+      icon: Handshake,
+      link: "/dao/proposals"
+    },
+    {
+      title: t('land_management_title'),
+      description: t('land_management_desc'),
+      icon: Map,
+      link: "/land-management/parcels"
+    },
+    {
+      title: t('performance_challenges_title'),
+      description: t('performance_challenges_desc'),
+      icon: Award,
+      link: "/performance-challenges/leagues"
+    },
+    {
+      title: t('nft_marketplace_title'),
+      description: t('nft_marketplace_desc'),
+      icon: Gem,
+      link: "/nft-marketplace/collections"
+    },
+    {
+      title: t('defi_yield_farming_title'),
+      description: t('defi_yield_farming_desc'),
+      icon: Wallet,
+      link: "/defi/yield-farming"
+    }
+  ];
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-16rem)] bg-afriBrown-50 py-12 rounded-xl shadow-lg">
+      {/* Hero Section */}
+      <section className="text-center mb-16 px-4 max-w-4xl">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+          src="/africrop-logo.png"
+          alt="AfriCrop DAO Logo"
+          width={120}
+          height={120}
+          className="mx-auto mb-6 rounded-full shadow-lg border-4 border-afriGreen-500"
         />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-afriGreen-800 mb-6 leading-tight">
+          {t('app_name')}
+        </h1>
+        <p className="text-xl sm:text-2xl text-afriGreen-700 mb-8 font-semibold">
+          {t('slogan')}
+        </p>
+        <p className="text-lg sm:text-xl text-afriBrown-700 max-w-2xl mx-auto mb-10">
+          {t('hero_description_1')} <br />
+          {t('hero_description_2')}
+        </p>
+        <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+          <Link href="/dashboard" passHref>
+            <Button size="lg" className="bg-afriGreen-600 hover:bg-afriGreen-700 text-white shadow-xl transform hover:scale-105 transition-transform duration-300">
+              {t('explore_dashboard')}
+            </Button>
+          </Link>
+          <Link href="/dao/proposals" passHref>
+            <Button size="lg" variant="outline" className="border-afriGreen-600 text-afriGreen-600 hover:bg-afriGreen-50 shadow-xl transform hover:scale-105 transition-transform duration-300">
+              {t('view_proposals')}
+            </Button>
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* Features Section */}
+      <section className="w-full max-w-6xl px-4">
+        <h2 className="text-3xl sm:text-4xl font-bold text-center text-afriGreen-800 mb-12">
+          Core Platform Modules
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <Card key={index} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+              <CardHeader>
+                <div className="flex items-center justify-center p-3 rounded-full bg-afriGreen-100 text-afriGreen-600 mb-4 mx-auto w-16 h-16">
+                  <feature.icon size={32} />
+                </div>
+                <CardTitle className="text-center text-afriGreen-700 text-2xl">
+                  {feature.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-center pb-6">
+                <CardDescription className="text-afriBrown-600 mb-6 min-h-[60px] flex items-center justify-center">
+                  {feature.description}
+                </CardDescription>
+                <Link href={feature.link} passHref>
+                  <Button variant="outline" className="border-afriGold-500 text-afriGold-700 hover:bg-afriGold-50">
+                    {index === 0 && t('explore_dashboard')}
+                    {index === 1 && t('view_proposals')}
+                    {index === 2 && t('enter_land_management')}
+                    {index === 3 && t('join_challenges')}
+                    {index === 4 && t('browse_nfts')}
+                    {index === 5 && t('start_earning')}
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
