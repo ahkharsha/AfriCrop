@@ -28,7 +28,7 @@ const sepoliaChain = {
   chainId: sepolia.id,
   name: sepolia.name,
   currency: sepolia.nativeCurrency.symbol,
-  explorerUrl: sepolia.blockExplorers?.etherscan?.url,
+  explorerUrl: sepolia.blockExplorers?.default?.url,
   rpcUrl: sepolia.rpcUrls.default.http[0],
 };
 
