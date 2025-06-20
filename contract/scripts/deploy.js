@@ -1,17 +1,25 @@
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
 
 async function main() {
-  const lock = await hre.ethers.deployContract("MultiSigWallet");
+  const [deployer] = await ethers.getSigners();
 
-  await lock.waitForDeployment();
+  console.log("Deploying AfriCropDAO with account:", deployer.address);
+  const balance = await ethers.provider.getBalance(deployer.address);
+  console.log("Available account balance:", balance.toString());
 
-  console.log(`Lock Address: ${lock.target}`);
+  const AfriCropDAO = await ethers.getContractFactory("AfriCropDAO");
+
+  const dao = await AfriCropDAO.deploy();
+
+  await dao.waitForDeployment();
+
+  console.log("AfriCropDAO deployed to:", await dao.getAddress());
+  console.log("Owner set to:", await dao.owner());
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
-
-//npx hardhat run scripts/deploy.js --network polygon_amoy
-//npx hardhat run scripts/deploy.js --network localhost
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

@@ -1,5 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
+
+const NEXT_PUBLIC_RPC_URL = "https://testnet.evm.nodes.onflow.org";
+const NEXT_PUBLIC_PRIVATE_KEY = "";
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -8,17 +10,18 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 1000,
+        runs: 200,
       },
+      viaIR: true,
     },
   },
   networks: {
     hardhat: {
       chainId: 31337,
     },
-    ethereumSepolia: {
-      url: process.env.NEXT_PUBLIC_SEPOLIA_RPC,
-      accounts: [`0x${process.env.NEXT_PUBLIC_PRIVATE_KEY}`],
+    holesky: {
+      url: NEXT_PUBLIC_RPC_URL,
+      accounts: [`0x${NEXT_PUBLIC_PRIVATE_KEY}`],
     },
   },
 };
