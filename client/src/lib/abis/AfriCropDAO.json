@@ -1,0 +1,14 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "AfriCropDAO__AlreadyRegistered",
+    "type": "error"
+  },
+  // Include all ABI definitions from your smart contract
+  // This should match the ABI from your compiled contract
+]

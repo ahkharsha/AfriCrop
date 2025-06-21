@@ -1,0 +1,24 @@
+{
+  "Index": {
+    "title": "AfriCrop DAO",
+    "description": "Jukwaa la utawala wa kilimo la kijamii kwa wakulima wa Kiafrika",
+    "getStarted": "Anza",
+    "learnMore": "Jifunze Zaidi"
+  },
+  "Navigation": {
+    "dashboard": "Dashibodi",
+    "crops": "Mazao Yangu",
+    "marketplace": "Soko",
+    "governance": "Utawala",
+    "education": "Elimu",
+    "climate": "Athari ya Hali ya Hewa",
+    "silo": "Ghala Yangu",
+    "english": "Kiingereza",
+    "french": "Kifaransa",
+    "swahili": "Kiswahili",
+    "hausa": "Kihausa",
+    "arabic": "Kiarabu",
+    "currentLanguage": "Kiswahili"
+  }
+  // Include all other translations following the same pattern
+}

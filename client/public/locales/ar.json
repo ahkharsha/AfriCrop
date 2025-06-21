@@ -1,0 +1,24 @@
+{
+  "Index": {
+    "title": "AfriCrop DAO",
+    "description": "منصة حوكمة زراعية لامركزية للمزارعين الأفارقة",
+    "getStarted": "ابدأ الآن",
+    "learnMore": "تعلم المزيد"
+  },
+  "Navigation": {
+    "dashboard": "لوحة التحكم",
+    "crops": "محاصيلي",
+    "marketplace": "السوق",
+    "governance": "الحوكمة",
+    "education": "التعليم",
+    "climate": "التأثير المناخي",
+    "silo": "صومعتي",
+    "english": "الإنجليزية",
+    "french": "الفرنسية",
+    "swahili": "السواحيلية",
+    "hausa": "الهوسا",
+    "arabic": "العربية",
+    "currentLanguage": "العربية"
+  }
+  // Include all other translations following the same pattern
+}

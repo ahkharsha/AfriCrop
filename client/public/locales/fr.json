@@ -1,0 +1,24 @@
+{
+  "Index": {
+    "title": "AfriCrop DAO",
+    "description": "Plateforme de gouvernance agricole décentralisée pour les agriculteurs africains",
+    "getStarted": "Commencer",
+    "learnMore": "En savoir plus"
+  },
+  "Navigation": {
+    "dashboard": "Tableau de bord",
+    "crops": "Mes Cultures",
+    "marketplace": "Marché",
+    "governance": "Gouvernance",
+    "education": "Éducation",
+    "climate": "Impact Climatique",
+    "silo": "Mon Silo",
+    "english": "Anglais",
+    "french": "Français",
+    "swahili": "Swahili",
+    "hausa": "Haoussa",
+    "arabic": "Arabe",
+    "currentLanguage": "Français"
+  }
+  // Include all other translations following the same pattern
+}

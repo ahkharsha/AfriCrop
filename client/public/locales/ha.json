@@ -1,0 +1,24 @@
+{
+  "Index": {
+    "title": "AfriCrop DAO",
+    "description": "Tsarin mulkin noma na baya ga jama'a don manoman Afirka",
+    "getStarted": "Fara",
+    "learnMore": "Kara Koyo"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "crops": "Amfanin Gona Na",
+    "marketplace": "Kasuwa",
+    "governance": "Mulki",
+    "education": "Ilimi",
+    "climate": "Tasirin Yanayi",
+    "silo": "Silo Na",
+    "english": "Turanci",
+    "french": "Faransanci",
+    "swahili": "Hausa",
+    "hausa": "Hausa",
+    "arabic": "Larabci",
+    "currentLanguage": "Hausa"
+  }
+  // Include all other translations following the same pattern
+}
