@@ -1,34 +1,85 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss"; /* V4: Import main Tailwind CSS */
 
-:root {
-  --primary-green: #3A5A40;
-  --primary-green-light: #588157;
-  --primary-green-dark: #344E41;
-  --secondary-brown: #A68A64;
-  --secondary-brown-light: #D4A373;
-  --secondary-brown-dark: #7F5539;
-  --sustainability-accent: #8DB38B;
-  --sustainability-accent-light: #A3B18A;
-  --warning-accent: #F4E285;
-  --error-accent: #E56B6F;
-  --text-primary: #1A1A1A;
-  --text-secondary: #4A4A4A;
-  --background-light: #F8F9FA;
-  --background-dark: #212529;
+@layer base {
+  :root {
+    /* Color Definitions */
+    --primary-green: #3A5A40;
+    --primary-green-light: #588157;
+    --primary-green-dark: #344E41;
+    --secondary-brown: #A68A64;
+    --secondary-brown-light: #D4A373;
+    --secondary-brown-dark: #7F5539;
+    --sustainability-accent: #8DB38B;
+    --sustainability-accent-light: #A3B18A;
+    --warning-accent: #F4E285;
+    --error-accent: #E56B6F;
+    --text-primary: #1A1A1A;
+    --text-secondary: #4A4A4A;
+    --background-light: #F8F9FA;
+    --background-dark: #212529;
+
+    /* Semantic Color Mapping */
+    --color-primary: var(--primary-green);
+    --color-primary-light: var(--primary-green-light);
+    --color-primary-dark: var(--primary-green-dark);
+    --color-secondary: var(--secondary-brown);
+    --color-secondary-light: var(--secondary-brown-light);
+    --color-secondary-dark: var(--secondary-brown-dark);
+  }
+
+  /* Base Styles */
+  body {
+    @apply bg-background-light text-text-primary;
+  }
+
+  /* Custom Classes */
+  .earth-gradient {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-brown) 100%);
+  }
+
+  .progress-ring {
+    transition: stroke-dashoffset 0.35s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
 }
 
-body {
-  @apply bg-background-light text-text-primary;
+@layer utilities {
+  /* Text Colors */
+  .text-primary { color: var(--color-primary) }
+  .text-secondary { color: var(--color-secondary) }
+  .text-sustainability { color: var(--sustainability-accent) }
+  .text-warning { color: var(--warning-accent) }
+  .text-error { color: var(--error-accent) }
+
+  /* Background Colors */
+  .bg-primary { background-color: var(--color-primary) }
+  .bg-secondary { background-color: var(--color-secondary) }
+  .bg-sustainability { background-color: var(--sustainability-accent) }
+  .bg-warning { background-color: var(--warning-accent) }
+  .bg-error { background-color: var(--error-accent) }
+
+  /* Border Colors */
+  .border-primary { border-color: var(--color-primary) }
+  .border-secondary { border-color: var(--color-secondary) }
+
+  /* Hover States */
+  .hover\:bg-primary:hover { background-color: var(--color-primary-dark) }
+  .hover\:bg-secondary:hover { background-color: var(--color-secondary-dark) }
+
+  /* Focus States */
+  .focus\:ring-primary:focus { --tw-ring-color: var(--color-primary-light) }
 }
 
-.earth-gradient {
-  background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-brown) 100%);
-}
-
-.progress-ring {
-  transition: stroke-dashoffset 0.35s;
-  transform: rotate(-90deg);
-  transform-origin: 50% 50%;
+/* Component Styles */
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary-dark;
+  }
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+  }
 }
