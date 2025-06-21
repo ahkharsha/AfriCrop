@@ -1,10 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ipfs.io',
+      },
+    ],
+  },
+  // Enable React Strict Mode
   reactStrictMode: true,
+  // Internationalized Routing
   i18n: {
-    locales: ['en', 'fr', 'ar', 'sw', 'ha'],
-    defaultLocale: 'en'
-  }
-};
+    locales: ['en', 'fr', 'sw', 'ha', 'ar'],
+    defaultLocale: 'en',
+  },
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
