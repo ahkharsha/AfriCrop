@@ -1,9 +1,9 @@
-import HeroSection from '../components/ui/HeroSection'
-import FeaturesGrid from '../components/ui/FeaturesGrid'
-import StatsSection from '../components/ui/StatsSection'
-import CTA from '../components/ui/CTA'
+import { HeroSection } from '../components/ui/HeroSection'
+import { FeaturesGrid } from '../components/ui/FeaturesGrid'
+import { StatsSection } from '../components/ui/StatsSection'
+import { CTA } from '../components/ui/CTA'
 
-export function Home() {
+export default function Home() { 
   return (
     <>
       <HeroSection />
