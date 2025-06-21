@@ -1,40 +1,60 @@
-@import "tailwindcss"; /* V4: Import main Tailwind CSS */
+@import "tailwindcss";
 
 @layer base {
   :root {
     /* Color Definitions */
-    --primary-green: #3A5A40;
-    --primary-green-light: #588157;
-    --primary-green-dark: #344E41;
-    --secondary-brown: #A68A64;
-    --secondary-brown-light: #D4A373;
-    --secondary-brown-dark: #7F5539;
-    --sustainability-accent: #8DB38B;
-    --sustainability-accent-light: #A3B18A;
-    --warning-accent: #F4E285;
-    --error-accent: #E56B6F;
-    --text-primary: #1A1A1A;
-    --text-secondary: #4A4A4A;
-    --background-light: #F8F9FA;
-    --background-dark: #212529;
+    --color-primary: 58 90 64; /* #3A5A40 in RGB */
+    --color-primary-light: 88 129 87; /* #588157 */
+    --color-primary-dark: 52 78 65; /* #344E41 */
+    --color-secondary: 166 138 100; /* #A68A64 */
+    --color-secondary-light: 212 163 115; /* #D4A373 */
+    --color-secondary-dark: 127 85 57; /* #7F5539 */
+    --color-sustainability: 141 179 139; /* #8DB38B */
+    --color-sustainability-light: 163 177 138; /* #A3B18A */
+    --color-warning: 244 226 133; /* #F4E285 */
+    --color-error: 229 107 111; /* #E56B6F */
+    --color-text-primary: 26 26 26; /* #1A1A1A */
+    --color-text-secondary: 74 74 74; /* #4A4A4A */
+    --color-background-light: 248 249 250; /* #F8F9FA */
+    --color-background-dark: 33 37 41; /* #212529 */
+  }
 
-    /* Semantic Color Mapping */
-    --color-primary: var(--primary-green);
-    --color-primary-light: var(--primary-green-light);
-    --color-primary-dark: var(--primary-green-dark);
-    --color-secondary: var(--secondary-brown);
-    --color-secondary-light: var(--secondary-brown-light);
-    --color-secondary-dark: var(--secondary-brown-dark);
+  /* Theme Extension */
+  @theme {
+    /* Color Palette */
+    --colors-primary: rgb(var(--color-primary));
+    --colors-primary-light: rgb(var(--color-primary-light));
+    --colors-primary-dark: rgb(var(--color-primary-dark));
+    --colors-secondary: rgb(var(--color-secondary));
+    --colors-secondary-light: rgb(var(--color-secondary-light));
+    --colors-secondary-dark: rgb(var(--color-secondary-dark));
+    --colors-sustainability: rgb(var(--color-sustainability));
+    --colors-sustainability-light: rgb(var(--color-sustainability-light));
+    --colors-warning: rgb(var(--color-warning));
+    --colors-error: rgb(var(--color-error));
+    
+    /* Text Colors */
+    --colors-text-primary: rgb(var(--color-text-primary));
+    --colors-text-secondary: rgb(var(--color-text-secondary));
+    
+    /* Background Colors */
+    --colors-background-light: rgb(var(--color-background-light));
+    --colors-background-dark: rgb(var(--color-background-dark));
+    
+    /* Font Family */
+    --font-family-sans: 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
   }
 
   /* Base Styles */
   body {
-    @apply bg-background-light text-text-primary;
+    background: var(--colors-background-light);
+    color: var(--colors-text-primary);
+    font-family: var(--font-family-sans);
   }
 
   /* Custom Classes */
   .earth-gradient {
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-brown) 100%);
+    background: linear-gradient(135deg, var(--colors-primary) 0%, var(--colors-secondary) 100%);
   }
 
   .progress-ring {
@@ -45,41 +65,8 @@
 }
 
 @layer utilities {
-  /* Text Colors */
-  .text-primary { color: var(--color-primary) }
-  .text-secondary { color: var(--color-secondary) }
-  .text-sustainability { color: var(--sustainability-accent) }
-  .text-warning { color: var(--warning-accent) }
-  .text-error { color: var(--error-accent) }
-
-  /* Background Colors */
-  .bg-primary { background-color: var(--color-primary) }
-  .bg-secondary { background-color: var(--color-secondary) }
-  .bg-sustainability { background-color: var(--sustainability-accent) }
-  .bg-warning { background-color: var(--warning-accent) }
-  .bg-error { background-color: var(--error-accent) }
-
-  /* Border Colors */
-  .border-primary { border-color: var(--color-primary) }
-  .border-secondary { border-color: var(--color-secondary) }
-
-  /* Hover States */
-  .hover\:bg-primary:hover { background-color: var(--color-primary-dark) }
-  .hover\:bg-secondary:hover { background-color: var(--color-secondary-dark) }
-
-  /* Focus States */
-  .focus\:ring-primary:focus { --tw-ring-color: var(--color-primary-light) }
-}
-
-/* Component Styles */
-@layer components {
-  .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-dark;
-  }
-  .btn-secondary {
-    @apply bg-secondary text-white hover:bg-secondary-dark;
-  }
-  .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+  /* Custom Utilities */
+  .text-balance {
+    text-wrap: balance;
   }
 }
