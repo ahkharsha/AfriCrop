@@ -1,6 +1,6 @@
 // src/utils/contract.ts
 import { createConfig, http } from 'wagmi'
-import { curtis, flowTestnet, sepolia } from 'wagmi/chains'
+import { curtis } from 'wagmi/chains'
 import { getDefaultConfig } from 'connectkit'
 
 export const config = createConfig(
@@ -15,7 +15,7 @@ export const config = createConfig(
   })
 )
 
-export const contractAddress = '0x88A7e7Ad5D4Aeac40e03b0921Add5453b8Fe422c' // Replace with actual address
+export const contractAddress = '0x0d44d332eBE03164A50798194603784155aec0CA' // Replace with actual address
 
 export const contractABI = [
     {
@@ -2106,6 +2106,11 @@ export const contractABI = [
           "internalType": "enum AfriCropDAO.CropStage",
           "name": "_newStage",
           "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_lossPercentage",
+          "type": "uint256"
         }
       ],
       "name": "updateCropStage",

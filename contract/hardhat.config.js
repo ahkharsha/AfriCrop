@@ -1,8 +1,9 @@
+require("dotenv").config(); // Load environment variables
 require("@nomicfoundation/hardhat-toolbox");
 
-const NEXT_PUBLIC_RPC_URL = "https://curtis.rpc.caldera.xyz/http";
+const { NEXT_PUBLIC_PRIVATE_KEY } = process.env;
 
-const NEXT_PUBLIC_PRIVATE_KEY = "";
+const RPC_URL = "https://curtis.rpc.caldera.xyz/http";
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -21,7 +22,7 @@ module.exports = {
       chainId: 31337,
     },
     curtis_ape: {
-      url: NEXT_PUBLIC_RPC_URL,
+      url: RPC_URL,
       accounts: [`0x${NEXT_PUBLIC_PRIVATE_KEY}`],
     },
   },
