@@ -1,6 +1,6 @@
 // src/utils/contract.ts
 import { createConfig, http } from 'wagmi'
-import { curtis, flowTestnet } from 'wagmi/chains'
+import { curtis, flowTestnet, sepolia } from 'wagmi/chains'
 import { getDefaultConfig } from 'connectkit'
 
 
