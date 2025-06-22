@@ -93,5 +93,12 @@
     "farmerNotRegistered": "Farmer not registered",
     "insufficientFunds": "Insufficient funds",
     "genericError": "Something went wrong"
+  },
+  "Climate": {
+    "activeCrops": "Active Crops",
+    "harvestEfficiency": "Harvest Efficiency",
+    "carbonImpact": "Carbon Impact",
+    "sustainabilityScore": "Sustainability",
+    "carbonTitle": "Climate Impact Dashboard"
   }
 }

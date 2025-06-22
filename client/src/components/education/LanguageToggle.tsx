@@ -1,28 +1,41 @@
+'use client' 
+
 import React from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Select } from '../ui/Select'
 
 export const LanguageToggle = () => {
   const router = useRouter()
+  const pathname = usePathname()
   const t = useTranslations('Navigation')
 
-  const changeLanguage = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const locale = e.target.value
-    router.push(`/${locale}`)
+  // Extract current locale from pathname (default to 'en' if not found)
+  const currentLocale = pathname.split('/')[1] || 'en'
+
+  const changeLanguage = (value: string) => {
+    const newPathname = pathname.replace(`/${currentLocale}`, `/${value}`)
+    router.push(newPathname)
   }
+
+  const languageOptions = [
+    { value: 'en', label: t('english') },
+    { value: 'fr', label: t('french') },
+    { value: 'sw', label: t('swahili') },
+    { value: 'ha', label: t('hausa') },
+    { value: 'ar', label: t('arabic') }
+  ]
+
+  // Find the current language label
+  const currentLanguage = languageOptions.find(opt => opt.value === currentLocale)?.label || t('english')
 
   return (
     <Select
-      onChange={changeLanguage}
-      defaultValue={t('currentLanguage')}
-      className="w-24"
-    >
-      <option value="en">{t('english')}</option>
-      <option value="fr">{t('french')}</option>
-      <option value="sw">{t('swahili')}</option>
-      <option value="ha">{t('hausa')}</option>
-      <option value="ar">{t('arabic')}</option>
-    </Select>
+      value={currentLocale}
+      onValueChange={changeLanguage}
+      options={languageOptions}
+      className="w-32"
+      aria-label={t('languageSelector')}
+    />
   )
 }

@@ -1,12 +1,13 @@
 import React from 'react'
 import { useTranslations } from 'next-intl'
-import { Farmer } from '@/types'
+import { type Farmer } from '@/types'
 
-const getLeague = (reputation: number) => {
-  if (reputation >= 800) return 'master'
-  if (reputation >= 600) return 'diamond'
-  if (reputation >= 400) return 'platinum'
-  if (reputation >= 200) return 'gold'
+const getLeague = (reputation: bigint) => {
+  const repNumber = Number(reputation)
+  if (repNumber >= 800) return 'master'
+  if (repNumber >= 600) return 'diamond'
+  if (repNumber >= 400) return 'platinum'
+  if (repNumber >= 200) return 'gold'
   return 'bronze'
 }
 
@@ -21,6 +22,8 @@ const leagueColors = {
 const LeagueBadge: React.FC<{ farmer: Farmer }> = ({ farmer }) => {
   const t = useTranslations('Dashboard')
   const league = getLeague(farmer.reputationPoints)
+  const repNumber = Number(farmer.reputationPoints)
+  const progress = Math.min(Math.floor((repNumber / 1000) * 100), 100)
 
   return (
     <div className="flex items-center gap-4">
@@ -34,12 +37,7 @@ const LeagueBadge: React.FC<{ farmer: Farmer }> = ({ farmer }) => {
           {t(`leagues.${league}`)}
         </h3>
         <p className="text-sm text-secondary-600">
-          {t('leagueProgress', {
-            progress: Math.min(
-              Math.floor((farmer.reputationPoints / 1000) * 100),
-              100
-            ),
-          })}
+          {t('leagueProgress', { progress })}
         </p>
       </div>
     </div>

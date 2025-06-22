@@ -6,37 +6,61 @@ const selectVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          'text-primary-900 ring-primary-300 focus:ring-primary-500 bg-white',
-        error:
-          'text-red-900 ring-red-300 focus:ring-red-500 bg-white',
-        success:
-          'text-green-900 ring-green-300 focus:ring-green-500 bg-white',
+        default: 'text-primary-900 ring-primary-300 focus:ring-primary-500 bg-white',
+        error: 'text-red-900 ring-red-300 focus:ring-red-500 bg-white',
+        success: 'text-green-900 ring-green-300 focus:ring-green-500 bg-white',
       },
-      size: {
-        sm: 'text-sm',
-        md: 'text-base',
-        lg: 'text-lg',
+      selectSize: {
+        sm: 'text-sm h-8',
+        md: 'text-base h-10',
+        lg: 'text-lg h-12',
       },
     },
     defaultVariants: {
       variant: 'default',
-      size: 'md',
+      selectSize: 'md',
     },
   }
 )
 
 export interface SelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement>,
+  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'>,
     VariantProps<typeof selectVariants> {
   label?: string
   description?: string
   error?: string
   options: { value: string; label: string }[]
+  placeholder?: string
+  onValueChange?: (value: string) => void
 }
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, variant, size, label, description, error, options, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      selectSize,
+      label,
+      description,
+      error,
+      options,
+      placeholder,
+      onChange,
+      onValueChange,
+      value,
+      ...props
+    },
+    ref
+  ) => {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (onValueChange) {
+        onValueChange(e.target.value)
+      }
+      if (onChange) {
+        onChange(e)
+      }
+    }
+
     return (
       <div className="space-y-1">
         {label && (
@@ -45,10 +69,13 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           </label>
         )}
         <select
-          className={selectVariants({ variant, size, className })}
+          className={selectVariants({ variant, selectSize, className })}
           ref={ref}
+          value={value}
+          onChange={handleChange}
           {...props}
         >
+          {placeholder && <option value="">{placeholder}</option>}
           {options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}

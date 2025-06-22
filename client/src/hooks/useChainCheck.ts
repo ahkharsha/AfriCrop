@@ -1,9 +1,10 @@
-import { useAccount, useNetwork } from 'wagmi'
+import { useAccount, useChainId, useSwitchChain } from 'wagmi'
 import { sepolia } from 'wagmi/chains'
 
 export const useChainCheck = () => {
-  const { chain } = useNetwork()
+  const chainId = useChainId()
   const { isConnected } = useAccount()
+  const { switchChain } = useSwitchChain()
   
   // For production, we'll uncomment this and comment the Sepolia check
   // const apeChain = {
@@ -23,14 +24,24 @@ export const useChainCheck = () => {
   //   },
   // }
 
-  const isCorrectChain = chain?.id === sepolia.id
-  // const isCorrectChain = chain?.id === apeChain.id
+  const isCorrectChain = chainId === sepolia.id
+  // const isCorrectChain = chainId === apeChain.id
+
+  const handleSwitchChain = async () => {
+    try {
+      await switchChain({ chainId: sepolia.id })
+      // await switchChain({ chainId: apeChain.id })
+    } catch (error) {
+      console.error('Failed to switch chain:', error)
+    }
+  }
 
   return {
     isConnected,
     isCorrectChain,
-    currentChain: chain,
+    currentChainId: chainId,
     targetChain: sepolia,
     // targetChain: apeChain,
+    switchChain: handleSwitchChain
   }
 }

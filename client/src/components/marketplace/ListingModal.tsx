@@ -3,17 +3,18 @@ import { useTranslations } from 'next-intl'
 import { Modal } from '../ui/Modal'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
+import { type Crop } from '@/types'
 
 interface ListingModalProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: {
-    cropId: number
-    priceInWei: number
-    quantityToSell: number
+    cropId: bigint
+    priceInWei: bigint
+    quantityToSell: bigint
     plantsDiedOffPercentage: number
   }) => void
-  availableCrops: { id: number; cropType: string }[]
+  availableCrops: Crop[]
 }
 
 export const ListingModal: React.FC<ListingModalProps> = ({
@@ -24,15 +25,19 @@ export const ListingModal: React.FC<ListingModalProps> = ({
 }) => {
   const t = useTranslations('Marketplace')
   const [formData, setFormData] = React.useState({
-    cropId: 0,
-    priceInWei: 0,
-    quantityToSell: 0,
+    cropId: BigInt(0),
+    priceInWei: BigInt(0),
+    quantityToSell: BigInt(0),
     plantsDiedOffPercentage: 0,
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit(formData)
+    onSubmit({
+      ...formData,
+      priceInWei: BigInt(formData.priceInWei),
+      quantityToSell: BigInt(formData.quantityToSell),
+    })
     onClose()
   }
 
@@ -41,16 +46,16 @@ export const ListingModal: React.FC<ListingModalProps> = ({
       <form onSubmit={handleSubmit} className="space-y-4">
         <select
           className="w-full p-2 border border-primary-300 rounded-lg"
-          value={formData.cropId}
+          value={formData.cropId.toString()}
           onChange={(e) =>
-            setFormData({ ...formData, cropId: Number(e.target.value) })
+            setFormData({ ...formData, cropId: BigInt(e.target.value) })
           }
           required
         >
-          <option value="">{t('selectCrop')}</option>
+          <option value="0">{t('selectCrop')}</option>
           {availableCrops.map((crop) => (
-            <option key={crop.id} value={crop.id}>
-              {t(`cropTypes.${crop.cropType.toLowerCase()}`)} (#{crop.id})
+            <option key={crop.id.toString()} value={crop.id.toString()}>
+              {t(`cropTypes.${crop.cropType.toLowerCase()}`)} (#{crop.id.toString()})
             </option>
           ))}
         </select>
@@ -60,9 +65,9 @@ export const ListingModal: React.FC<ListingModalProps> = ({
           type="number"
           min="0"
           step="0.0001"
-          value={formData.priceInWei}
+          value={formData.priceInWei.toString()}
           onChange={(e) =>
-            setFormData({ ...formData, priceInWei: Number(e.target.value) })
+            setFormData({ ...formData, priceInWei: BigInt(e.target.value) })
           }
           required
         />
@@ -71,9 +76,9 @@ export const ListingModal: React.FC<ListingModalProps> = ({
           label={t('quantity')}
           type="number"
           min="1"
-          value={formData.quantityToSell}
+          value={formData.quantityToSell.toString()}
           onChange={(e) =>
-            setFormData({ ...formData, quantityToSell: Number(e.target.value) })
+            setFormData({ ...formData, quantityToSell: BigInt(e.target.value) })
           }
           required
         />

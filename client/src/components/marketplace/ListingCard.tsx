@@ -1,19 +1,12 @@
-import React from 'react'
 import { useTranslations } from 'next-intl'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { type MarketListing } from '@/types'
 import { formatEth } from '@/lib/utils'
 import { ShoppingCart } from 'lucide-react'
 
 interface ListingCardProps {
-  listing: {
-    listingId: number
-    cropId: number
-    seller: string
-    priceInWei: bigint
-    quantityToSell: number
-    cropType: string
-  }
+  listing: MarketListing
 }
 
 export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
@@ -24,17 +17,21 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
       <div className="p-4 space-y-4">
         <div className="flex justify-between">
           <h3 className="text-lg font-semibold text-primary-700">
-            {t(`cropTypes.${listing.cropType.toLowerCase()}`)}
+            {t('listing')} #{listing.listingId.toString()}
           </h3>
           <span className="text-sm bg-primary-100 text-primary-700 px-2 py-1 rounded">
-            #{listing.listingId}
+            {listing.isActive ? t('active') : t('inactive')}
           </span>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
+            <p className="text-secondary-500">{t('cropId')}</p>
+            <p className="font-medium">{listing.cropId.toString()}</p>
+          </div>
+          <div>
             <p className="text-secondary-500">{t('quantity')}</p>
-            <p className="font-medium">{listing.quantityToSell}</p>
+            <p className="font-medium">{listing.quantityToSell.toString()}</p>
           </div>
           <div>
             <p className="text-secondary-500">{t('price')}</p>

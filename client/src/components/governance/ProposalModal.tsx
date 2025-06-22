@@ -1,7 +1,8 @@
 import React from 'react'
 import { useTranslations } from 'next-intl'
 import { Modal } from '../ui/Modal'
-import { Input } from '../ui/Input'
+import { Textarea } from '../ui/TextArea' // Make sure filename matches exactly
+import { Input } from '../ui/Input' // Add this import
 import { Select } from '../ui/Select'
 import { Button } from '../ui/Button'
 import { PROPOSAL_TYPES } from '@/lib/constants'
@@ -46,7 +47,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
             label: t(`proposalTypes.${type}`),
           }))}
           value={formData.proposalType}
-          onChange={(e) =>
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
             setFormData({ ...formData, proposalType: e.target.value })
           }
           required
@@ -55,18 +56,17 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
         <Input
           label={t('title')}
           value={formData.title}
-          onChange={(e) =>
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setFormData({ ...formData, title: e.target.value })
           }
           required
         />
 
-        <Input
+        <Textarea
           label={t('description')}
-          as="textarea"
           rows={4}
           value={formData.description}
-          onChange={(e) =>
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             setFormData({ ...formData, description: e.target.value })
           }
           required
@@ -78,7 +78,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
           min="0.01"
           step="0.01"
           value={formData.stakeAmount}
-          onChange={(e) =>
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setFormData({ ...formData, stakeAmount: Number(e.target.value) })
           }
           required

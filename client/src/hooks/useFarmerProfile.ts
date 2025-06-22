@@ -1,32 +1,35 @@
-import { useContractRead, useAccount } from 'wagmi'
+// hooks/useFarmerProfile.ts
+import { useReadContract, useAccount } from 'wagmi'
 import { AfriCropDAOABI } from '@/lib/abis/AfriCropDAO'
 import { Address } from 'viem'
-import { useChainCheck } from './useChainCheck'
+import { type Farmer } from '@/types'
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as Address
 
 export const useFarmerProfile = () => {
   const { address } = useAccount()
-  const { isCorrectChain } = useChainCheck()
 
-  const { data: farmer, isLoading } = useContractRead({
+  const { data } = useReadContract({
     address: contractAddress,
     abi: AfriCropDAOABI,
     functionName: 'farmers',
     args: [address],
-    enabled: !!address && isCorrectChain,
   })
 
+  // Cast the returned data to our Farmer type
+  const farmer = data as unknown as Farmer | null
+
   return {
-    farmer: farmer || {
-      walletAddress: address,
-      reputationPoints: 0,
-      sustainabilityScore: 0,
-      knowledgePoints: 0,
-      harvestPoints: 0,
-      isRegistered: false,
-    },
-    isLoading,
+    farmer: farmer ? {
+      walletAddress: farmer.walletAddress,
+      reputationPoints: farmer.reputationPoints,
+      sustainabilityScore: farmer.sustainabilityScore,
+      knowledgePoints: farmer.knowledgePoints,
+      harvestPoints: farmer.harvestPoints,
+      lastProposalStakeTime: farmer.lastProposalStakeTime,
+      isRegistered: farmer.isRegistered,
+    } : null,
+    isLoading: false,
     error: null,
   }
 }

@@ -1,40 +1,37 @@
-import { useContractRead, useAccount } from 'wagmi'
+// hooks/useEducation.ts
+import { useReadContract, useAccount } from 'wagmi'
 import { AfriCropDAOABI } from '@/lib/abis/AfriCropDAO'
 import { Address } from 'viem'
-import { useChainCheck } from './useChainCheck'
+import { type Lesson, type MentorshipSession } from '@/types'
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as Address
 
 export const useEducation = () => {
   const { address } = useAccount()
-  const { isCorrectChain } = useChainCheck()
 
-  const { data: lessons } = useContractRead({
+  const { data: lessons } = useReadContract({
     address: contractAddress,
     abi: AfriCropDAOABI,
     functionName: 'getAllLessons',
-    enabled: isCorrectChain,
   })
 
-  const { data: completedLessons } = useContractRead({
+  const { data: completedLessons } = useReadContract({
     address: contractAddress,
     abi: AfriCropDAOABI,
     functionName: 'getCompletedLessons',
     args: [address],
-    enabled: !!address && isCorrectChain,
   })
 
-  const { data: mentorships } = useContractRead({
+  const { data: mentorships } = useReadContract({
     address: contractAddress,
     abi: AfriCropDAOABI,
     functionName: 'getMentorships',
     args: [address],
-    enabled: !!address && isCorrectChain,
   })
 
   return {
-    lessons: lessons || [],
-    mentorships: mentorships || [],
+    lessons: (lessons || []) as Lesson[],
+    mentorships: (mentorships || []) as MentorshipSession[],
     isLoading: false,
     error: null,
   }

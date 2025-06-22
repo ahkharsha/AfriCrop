@@ -1,7 +1,9 @@
-import { useContractRead, useAccount } from 'wagmi'
+// hooks/useCrops.ts
+import { useReadContract, useAccount } from 'wagmi'
 import { AfriCropDAOABI } from '@/lib/abis/AfriCropDAO'
 import { Address } from 'viem'
 import { useChainCheck } from './useChainCheck'
+import { type Crop } from '@/types'
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as Address
 
@@ -9,25 +11,23 @@ export const useCrops = () => {
   const { address } = useAccount()
   const { isCorrectChain } = useChainCheck()
 
-  const { data: farmerCrops, isLoading: isLoadingCrops } = useContractRead({
+  const { data: farmerCrops } = useReadContract({
     address: contractAddress,
     abi: AfriCropDAOABI,
     functionName: 'getFarmerCrops',
     args: [address],
-    enabled: !!address && isCorrectChain,
   })
 
-  const { data: crops, isLoading: isLoadingCropDetails } = useContractRead({
+  const { data: crops } = useReadContract({
     address: contractAddress,
     abi: AfriCropDAOABI,
     functionName: 'getCropsBatch',
     args: [farmerCrops || []],
-    enabled: !!farmerCrops && isCorrectChain,
   })
 
   return {
-    crops: crops || [],
-    isLoading: isLoadingCrops || isLoadingCropDetails,
+    crops: (crops || []) as Crop[],
+    isLoading: false,
     error: null,
   }
 }

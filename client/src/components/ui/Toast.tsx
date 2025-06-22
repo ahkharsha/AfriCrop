@@ -1,5 +1,5 @@
 import React from 'react'
-import { Toast as ToastPrimitive } from '@radix-ui/react-toast'
+import * as ToastPrimitive from '@radix-ui/react-toast'
 import { cva } from 'class-variance-authority'
 import { X } from 'lucide-react'
 
@@ -36,7 +36,7 @@ export const Toast: React.FC<ToastProps> = ({
   variant = 'default',
 }) => {
   return (
-    <ToastPrimitive open={open} onOpenChange={onOpenChange}>
+    <ToastPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <div className={toastVariants({ variant })}>
         <div className="flex-1">
           <ToastPrimitive.Title className="font-medium text-primary-900">
@@ -50,6 +50,6 @@ export const Toast: React.FC<ToastProps> = ({
           <X className="h-4 w-4 text-primary-500" />
         </ToastPrimitive.Close>
       </div>
-    </ToastPrimitive>
+    </ToastPrimitive.Root>
   )
 }

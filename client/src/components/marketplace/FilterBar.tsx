@@ -27,7 +27,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-6">
       <Select
-        placeholder={t('allCrops')}
         options={[
           { value: '', label: t('allCrops') },
           ...CROP_TYPES.map((type) => ({
@@ -40,6 +39,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ onFilterChange }) => {
           setFilters({ ...filters, cropType: e.target.value })
         }
         className="min-w-[200px]"
+        placeholder={t('allCrops')}
       />
 
       <div className="flex gap-4">

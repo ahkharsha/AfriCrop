@@ -1,13 +1,14 @@
+// components/dashboard/StatsGrid.tsx
 import { useTranslations } from 'next-intl'
+import { type Farmer } from '@/types'
 import { Card } from '../ui/Card'
 import ProgressRing from '../ui/ProgressRing'
-import { type Farmer } from '@/types'
 
-interface StatsCardProps {
+interface StatsGridProps {
   farmer: Farmer
 }
 
-export const StatsCard: React.FC<StatsCardProps> = ({ farmer }) => {
+export const StatsGrid: React.FC<StatsGridProps> = ({ farmer }) => {
   const t = useTranslations('Dashboard')
 
   const stats = [
@@ -46,7 +47,6 @@ export const StatsCard: React.FC<StatsCardProps> = ({ farmer }) => {
               progress={(stat.value / stat.max) * 100}
               size={100}
               strokeWidth={8}
-              color={`var(--color-primary-${400 + index * 100})`}
             />
             <h4 className="mt-4 font-semibold text-primary-700">{stat.title}</h4>
             <p className="text-sm text-secondary-600 mt-1">

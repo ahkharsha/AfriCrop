@@ -1,9 +1,13 @@
+'use client'
+
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { Providers } from '../providers'
 import { Footer } from '@/components/navigation/Footer'
 import { Navbar } from '@/components/navigation/Navbar'
 import { Sidebar } from '@/components/navigation/Sidebar'
+import { notFound } from 'next/navigation'
+import { useMessages } from 'next-intl'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -14,10 +18,15 @@ export default function RootLayout({
   children: React.ReactNode
   params: { locale: string }
 }) {
+  // Validate that the incoming `locale` parameter is valid
+  if (!['en', 'fr', 'sw', 'ha', 'ar'].includes(locale)) notFound()
+
+  const messages = useMessages()
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.className} bg-primary-50 text-primary-900 min-h-screen flex flex-col`}>
-        <Providers>
+        <Providers locale={locale} messages={messages}>
           <Navbar />
           <div className="flex flex-1">
             <Sidebar />

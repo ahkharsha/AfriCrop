@@ -1,6 +1,6 @@
 import React from 'react'
 import { useTranslations } from 'next-intl'
-import { ProgressRing } from '../ui/ProgressRing'
+import ProgressRing from '../ui/ProgressRing'
 
 interface VotingPowerProps {
   reputation: number

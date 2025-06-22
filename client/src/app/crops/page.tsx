@@ -3,7 +3,6 @@ import { CropCard } from '@/components/crops/CropCard'
 import { Button } from '@/components/ui/Button'
 import { useCrops } from '@/hooks/useCrops'
 import { useChainCheck } from '@/hooks/useChainCheck'
-import { FarmerProfile } from '@/components/dashboard/FarmerProfile'
 
 export default function CropsPage() {
   const t = useTranslations('Crops')

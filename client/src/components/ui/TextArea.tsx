@@ -1,7 +1,8 @@
+// components/ui/Textarea.tsx
 import React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 
-const inputVariants = cva(
+const textareaVariants = cva(
   'block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:outline-none transition-all duration-200',
   {
     variants: {
@@ -13,7 +14,7 @@ const inputVariants = cva(
         success:
           'text-green-900 ring-green-300 placeholder:text-green-400 focus:ring-green-500 bg-white',
       },
-      inputSize: {  // Changed from 'size' to 'inputSize'
+      size: {
         sm: 'text-sm px-2',
         md: 'text-base px-3',
         lg: 'text-lg px-4',
@@ -21,22 +22,21 @@ const inputVariants = cva(
     },
     defaultVariants: {
       variant: 'default',
-      inputSize: 'md',  // Updated to match new variant name
+      size: 'md',
     },
   }
 )
 
-export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, // Exclude size from HTML attributes
-    VariantProps<typeof inputVariants> {
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+    VariantProps<typeof textareaVariants> {
   label?: string
   description?: string
   error?: string
-  size?: number // Re-add size as optional number for HTML input
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, variant, inputSize, size, label, description, error, ...props }, ref) => {
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, variant, size, label, description, error, ...props }, ref) => {
     return (
       <div className="space-y-1">
         {label && (
@@ -44,10 +44,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input
-          className={inputVariants({ variant, inputSize, className })}
+        <textarea
+          className={textareaVariants({ variant, size, className })}
           ref={ref}
-          size={size} // Pass size to the input element
           {...props}
         />
         {description && !error && (
@@ -59,6 +58,6 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   }
 )
 
-Input.displayName = 'Input'
+Textarea.displayName = 'Textarea'
 
-export { Input }
+export { Textarea }

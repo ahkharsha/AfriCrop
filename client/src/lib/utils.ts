@@ -1,19 +1,20 @@
-export const formatDate = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleDateString()
+// utils.ts
+export const formatEth = (wei: bigint): string => {
+  return (Number(wei) / 1e18).toFixed(4)
 }
 
-export const formatEth = (wei: bigint) => {
-  return Number(wei) / 1e18
+export const formatDate = (timestamp: bigint): string => {
+  return new Date(Number(timestamp) * 1000).toLocaleDateString()
 }
 
-export const formatNumber = (num: number, decimals = 2) => {
-  return num.toLocaleString(undefined, {
+export const formatNumber = (num: bigint, decimals = 2): string => {
+  return Number(num).toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
   })
 }
 
-export const truncateAddress = (address: string) => {
+export const truncateAddress = (address: `0x${string}`): string => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 

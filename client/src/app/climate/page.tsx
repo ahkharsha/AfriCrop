@@ -1,14 +1,18 @@
+// app/climate/page.tsx
 import { useTranslations } from 'next-intl'
-import { CarbonCard } from '@/components/climate/CarbonCard'
+import { SustainabilityCard } from '@/components/climate/SustainabilityCard'
 import { Leaderboard } from '@/components/climate/Leaderboard'
-import { ImpactChart } from '@/components/climate/ImpactChart'
-import { useClimate } from '@/hooks/useClimate'
+import { useFarmerProfile } from '@/hooks/useFarmerProfile'
 import { useChainCheck } from '@/hooks/useChainCheck'
+import { useClimate } from '@/hooks/useClimate'
 
 export default function ClimatePage() {
   const t = useTranslations('Climate')
   const { isConnected, isCorrectChain } = useChainCheck()
-  const { carbonData, leaderboard, isLoading } = useClimate()
+  {/* Fixed by copilot */}
+  type Farmer = { sustainabilityScore?: bigint } // Add other fields as needed
+  const { farmer } = useFarmerProfile() as { farmer: Farmer }
+  const { leaderboard } = useClimate()
 
   if (!isConnected || !isCorrectChain) {
     return (
@@ -23,14 +27,15 @@ export default function ClimatePage() {
       <h1 className="text-2xl font-bold text-primary-700">{t('title')}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <CarbonCard data={carbonData} />
-          <ImpactChart data={carbonData} />
+          <SustainabilityCard 
+            sustainabilityScore={farmer.sustainabilityScore ? Number(farmer.sustainabilityScore) : 0} 
+          />
+    
         </div>
         <div>
-          <Leaderboard data={leaderboard} />
+          {/* Fixed by copilot */}
+          <Leaderboard data={Array.isArray(leaderboard) ? leaderboard : []} /> 
         </div>
       </div>
-    </div>
   )
 }

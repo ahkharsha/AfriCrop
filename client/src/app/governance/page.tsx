@@ -3,6 +3,7 @@ import { ProposalCard } from '@/components/governance/ProposalCard'
 import { Button } from '@/components/ui/Button'
 import { useGovernance } from '@/hooks/useGovernance'
 import { useChainCheck } from '@/hooks/useChainCheck'
+import { type Proposal } from '@/types'
 
 export default function GovernancePage() {
   const t = useTranslations('Governance')
@@ -33,6 +34,9 @@ export default function GovernancePage() {
     )
   }
 
+  // Safely handle proposals array
+  const safeProposals = Array.isArray(proposals) ? proposals : []
+
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
@@ -41,8 +45,8 @@ export default function GovernancePage() {
       </div>
 
       <div className="space-y-4">
-        {proposals.map((proposal) => (
-          <ProposalCard key={proposal.id} proposal={proposal} />
+        {safeProposals.map((proposal: Proposal) => (
+          <ProposalCard key={proposal.id.toString()} proposal={proposal} />
         ))}
       </div>
     </div>

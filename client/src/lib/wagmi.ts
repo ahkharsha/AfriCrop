@@ -1,18 +1,20 @@
-import { createConfig, configureChains, sepolia } from 'wagmi'
-import { publicProvider } from 'wagmi/providers/public'
+import { createConfig } from 'wagmi'
+import { sepolia } from 'wagmi/chains'
 import { getDefaultConfig } from 'connectkit'
-
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [sepolia],
-  [publicProvider()]
-)
 
 export const config = createConfig(
   getDefaultConfig({
-    appName: 'AfriCrop DAO',
+    // Required API Keys
+    // alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_ID,
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
-    chains,
-    publicClient,
-    webSocketPublicClient,
+
+    // Required
+    appName: 'AfriCrop DAO',
+
+    // Optional
+    appDescription: 'Decentralized agricultural governance platform',
+    appUrl: 'https://africrop-dao.vercel.app',
+    appIcon: 'https://africrop-dao.vercel.app/logo.png',
+    chains: [sepolia],
   })
 )
