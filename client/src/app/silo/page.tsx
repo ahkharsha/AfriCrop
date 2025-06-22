@@ -1,12 +1,12 @@
 'use client'
 
 import { useAccount, useReadContract } from 'wagmi'
-import { contractAddress, contractABI } from '../utils/contract'
-import { useTranslations } from '../utils/i18n'
-import Nav from '../components/Nav'
-import Footer from '../components/Footer'
-import CropCard from '../app/components/CropCard'
-import ListingCard from '../app/components/ListintCard'
+import { contractAddress, contractABI } from '@/utils/contract'
+import { useTranslations } from '@/utils/i18n'
+import Nav from '@/components/Nav'
+import Footer from '@/components/Footer'
+import CropCard from '@/components/CropCard'
+import ListingCard from '@/components/ListintCard'
 
 type FarmerCropResponse = bigint[]
 type MarketListing = {
