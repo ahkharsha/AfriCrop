@@ -503,7 +503,8 @@ contract AfriCropDAO is Ownable {
 
     function updateCropStage(
         uint256 _cropId,
-        CropStage _newStage
+        CropStage _newStage,
+        uint256 _lossPercentage // New parameter added (0-100)
     ) public onlyRegisteredFarmer {
         Crop storage crop = crops[_cropId];
         if (crop.farmerAddress != msg.sender) {
@@ -517,7 +518,6 @@ contract AfriCropDAO is Ownable {
             if (crop.stage != CropStage.SOWN) {
                 revert AfriCropDAO__InvalidCropStage(_cropId, CropStage.SOWN);
             }
-            // Add sustainability points when moving from SOWN to GROWING
             uint256 sustainabilityPoints = _mul(
                 crop.initialSeeds,
                 cropSustainabilityScores[crop.cropType]
@@ -530,17 +530,18 @@ contract AfriCropDAO is Ownable {
                     CropStage.GROWING
                 );
             }
-            crop.harvestedTimestamp = block.timestamp;
-            crop.harvestedOutput = _mul(crop.initialSeeds, 90) / 100; // Assume 10% loss
+            require(_lossPercentage <= 100, "Loss percentage too high"); // Safety check
 
-            // Add harvest points when harvesting
+            crop.harvestedTimestamp = block.timestamp;
+            crop.harvestedOutput =
+                _mul(crop.initialSeeds, (100 - _lossPercentage)) /
+                100; // Dynamic loss
+
             uint256 harvestPoints = _mul(
                 crop.harvestedOutput,
                 cropHarvestPoints[crop.cropType]
             );
             _updateHarvestPoints(msg.sender, harvestPoints, true);
-
-            // Add reputation points when harvesting
             _updateReputation(msg.sender, _div(harvestPoints, 10), true);
         }
 
