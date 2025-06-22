@@ -1,7 +1,8 @@
-@import "tailwindcss";
+/* src/app/globals.css */
+@import 'tailwindcss';
 
 :root {
-  --primary-50: #f0fdf4;
+  /* --primary-50: #f0fdf4;
   --primary-100: #dcfce7;
   --primary-200: #bbf7d0;
   --primary-300: #86efac;
@@ -21,15 +22,14 @@
   --secondary-600: #475569;
   --secondary-700: #334155;
   --secondary-800: #1e293b;
-  --secondary-900: #0f172a;
+  --secondary-900: #0f172a; */
 }
 
 /* Base styles */
-body {
+/* body {
   font-family: 'Inter', sans-serif;
 }
 
-/* Custom components */
 .btn {
   @apply px-4 py-2 rounded-lg font-medium transition-colors;
 }
@@ -38,4 +38,4 @@ body {
 }
 .btn-outline {
   @apply border border-primary-600 text-primary-600 hover:bg-primary-50;
-}
+} */

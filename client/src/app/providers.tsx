@@ -1,11 +1,17 @@
 // src/app/providers.tsx
 'use client'
 
-import { ConnectKitProvider, useModal } from 'connectkit'
-import { WagmiConfig, useAccount, useSwitchChain } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { WagmiProvider } from 'wagmi'
 import { config } from '../utils/contract'
+import { ConnectKitProvider } from 'connectkit'
 import { curtis } from 'wagmi/chains'
+import { useAccount, useSwitchChain } from 'wagmi'
+import { useModal } from 'connectkit'
 import { useEffect } from 'react'
+
+// Create a client
+const queryClient = new QueryClient()
 
 function ChainValidator({ children }: { children: React.ReactNode }) {
   const { chain } = useAccount()
@@ -20,19 +26,21 @@ function ChainValidator({ children }: { children: React.ReactNode }) {
       }
       setOpen(true)
     }
-  }, [chain])
+  }, [chain, switchChain, setOpen])
 
   return <>{children}</>
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiConfig config={config}>
-      <ConnectKitProvider>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <ConnectKitProvider>
           <ChainValidator>
             {children}
           </ChainValidator>
-      </ConnectKitProvider>
-    </WagmiConfig>
+        </ConnectKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }

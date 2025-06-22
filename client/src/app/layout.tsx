@@ -8,8 +8,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className="bg-primary-50 text-primary-900 min-h-screen">
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <Providers>
           <div className="max-w-6xl mx-auto px-4">
             {children}

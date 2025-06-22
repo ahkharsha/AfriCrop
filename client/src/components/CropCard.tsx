@@ -1,8 +1,8 @@
 'use client'
 
 import { useReadContract } from 'wagmi'
-import { contractAddress, contractABI } from '../../utils/contract'
-import { useTranslations } from '../../utils/i18n'
+import { contractAddress, contractABI } from '../utils/contract'
+import { useTranslations } from '../utils/i18n'
 
 type CropData = [
   id: bigint,

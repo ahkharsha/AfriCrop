@@ -46,5 +46,9 @@
   "mySilo": "My Silo",
   "allCrops": "All My Crops",
   "marketListings": "My Market Listings",
-  "lesson": "Lesson"
+  "lesson": "Lesson",
+  "price": "Price",
+  "quantity": "Quantity",
+  "purchase": "Purchase",
+  "silo": "Silo"
 }

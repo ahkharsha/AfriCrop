@@ -1,6 +1,6 @@
 'use client'
 
-import { useTranslations } from '../../utils/i18n'
+import { useTranslations } from '../utils/i18n'
 
 type Listing = {
   listingId: bigint
