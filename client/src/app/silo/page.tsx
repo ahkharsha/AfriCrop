@@ -1,3 +1,4 @@
+// src/app/silo/page.tsx
 'use client'
 
 import { useAccount, useReadContract } from 'wagmi'

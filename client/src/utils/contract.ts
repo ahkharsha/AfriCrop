@@ -3,36 +3,19 @@ import { createConfig, http } from 'wagmi'
 import { curtis, flowTestnet, sepolia } from 'wagmi/chains'
 import { getDefaultConfig } from 'connectkit'
 
-
-// Use this for APE CHAIN
-
-// export const config = createConfig(
-//   getDefaultConfig({
-//     // alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_ID,
-//     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-//     appName: 'AfriCropDAO',
-//     chains: [curtis],
-//     transports: {
-//       [curtis.id]: http(),
-//     },
-//   })
-// )
-
-// export const contractAddress = '0xF859e215A276EC632Fb46DCca4EbccF99C8993D2' // Replace with actual address
-
 export const config = createConfig(
   getDefaultConfig({
     // alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_ID,
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
     appName: 'AfriCropDAO',
-    chains: [flowTestnet],
+    chains: [curtis],
     transports: {
-      [flowTestnet.id]: http(),
+      [curtis.id]: http(),
     },
   })
 )
 
-export const contractAddress = '0x94037Dff7be2e2Aa8d1B5f62C76CF6581e0D8FC0' // Replace with actual address
+export const contractAddress = '0x88A7e7Ad5D4Aeac40e03b0921Add5453b8Fe422c' // Replace with actual address
 
 export const contractABI = [
     {
@@ -54,11 +37,6 @@ export const contractABI = [
         }
       ],
       "name": "AfriCropDAO__AlreadyVoted",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "AfriCropDAO__CannotVoteOnExpiredProposal",
       "type": "error"
     },
     {
@@ -136,16 +114,6 @@ export const contractABI = [
       "type": "error"
     },
     {
-      "inputs": [],
-      "name": "AfriCropDAO__MentorAlreadyAssigned",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "AfriCropDAO__MentorshipNotCompleted",
-      "type": "error"
-    },
-    {
       "inputs": [
         {
           "internalType": "address",
@@ -159,6 +127,22 @@ export const contractABI = [
         }
       ],
       "name": "AfriCropDAO__NotCropOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "available",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "requested",
+          "type": "uint256"
+        }
+      ],
+      "name": "AfriCropDAO__NotEnoughInSilo",
       "type": "error"
     },
     {
@@ -184,8 +168,14 @@ export const contractABI = [
       "type": "error"
     },
     {
-      "inputs": [],
-      "name": "AfriCropDAO__NotMentorOrMentee",
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cropId",
+          "type": "uint256"
+        }
+      ],
+      "name": "AfriCropDAO__NotSelling",
       "type": "error"
     },
     {
@@ -196,7 +186,7 @@ export const contractABI = [
           "type": "uint256"
         }
       ],
-      "name": "AfriCropDAO__NotSelling",
+      "name": "AfriCropDAO__NotStored",
       "type": "error"
     },
     {
@@ -224,11 +214,6 @@ export const contractABI = [
         }
       ],
       "name": "AfriCropDAO__StakeRequired",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "AfriCropDAO__VotingPeriodNotActive",
       "type": "error"
     },
     {
@@ -401,38 +386,25 @@ export const contractABI = [
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "internalType": "string",
-          "name": "action",
-          "type": "string"
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "cropId",
+          "type": "uint256"
         },
         {
           "indexed": true,
           "internalType": "address",
-          "name": "user",
+          "name": "farmerAddress",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "data",
+          "name": "quantity",
           "type": "uint256"
         }
       ],
-      "name": "DebugAction",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "bool",
-          "name": "enabled",
-          "type": "bool"
-        }
-      ],
-      "name": "DebugModeToggled",
+      "name": "CropStored",
       "type": "event"
     },
     {
@@ -523,7 +495,7 @@ export const contractABI = [
         {
           "indexed": false,
           "internalType": "string",
-          "name": "ipfsHash",
+          "name": "title",
           "type": "string"
         },
         {
@@ -566,69 +538,6 @@ export const contractABI = [
       "inputs": [
         {
           "indexed": true,
-          "internalType": "uint256",
-          "name": "sessionId",
-          "type": "uint256"
-        }
-      ],
-      "name": "MentorshipAccepted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "sessionId",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "mentor",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "mentee",
-          "type": "address"
-        }
-      ],
-      "name": "MentorshipCompleted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "sessionId",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "mentee",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "mentor",
-          "type": "address"
-        }
-      ],
-      "name": "MentorshipRequested",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
           "internalType": "address",
           "name": "previousOwner",
           "type": "address"
@@ -649,25 +558,6 @@ export const contractABI = [
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "paramKey",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "newValue",
-          "type": "uint256"
-        }
-      ],
-      "name": "ParameterChangeExecuted",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
           "name": "proposalId",
           "type": "uint256"
         },
@@ -676,6 +566,12 @@ export const contractABI = [
           "internalType": "address",
           "name": "proposer",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
         },
         {
           "indexed": false,
@@ -799,12 +695,6 @@ export const contractABI = [
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "votingPower",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
           "internalType": "bool",
           "name": "vote",
           "type": "bool"
@@ -830,19 +720,6 @@ export const contractABI = [
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "_sessionId",
-          "type": "uint256"
-        }
-      ],
-      "name": "acceptMentorship",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
           "name": "",
           "type": "uint256"
         }
@@ -861,32 +738,73 @@ export const contractABI = [
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
+          "internalType": "string",
+          "name": "_title",
+          "type": "string"
         },
         {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "activeMentorships",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
+          "internalType": "string",
+          "name": "_content",
+          "type": "string"
+        },
         {
           "internalType": "string",
-          "name": "_ipfsHash",
+          "name": "_question1",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option1A",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option1B",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option1C",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_question2",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option2A",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option2B",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option2C",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_question3",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option3A",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option3B",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_option3C",
           "type": "string"
         },
         {
@@ -948,19 +866,6 @@ export const contractABI = [
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_sessionId",
-          "type": "uint256"
-        }
-      ],
-      "name": "completeMentorship",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "",
           "type": "address"
@@ -985,6 +890,11 @@ export const contractABI = [
     {
       "inputs": [
         {
+          "internalType": "string",
+          "name": "_title",
+          "type": "string"
+        },
+        {
           "internalType": "enum AfriCropDAO.ProposalType",
           "name": "_proposalType",
           "type": "uint8"
@@ -1003,21 +913,6 @@ export const contractABI = [
           "internalType": "uint256",
           "name": "_amount",
           "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_paramKey",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_paramValue",
-          "type": "uint256"
-        },
-        {
-          "internalType": "string",
-          "name": "_researchGrantDetailsIPFSHash",
-          "type": "string"
         }
       ],
       "name": "createProposal",
@@ -1029,6 +924,44 @@ export const contractABI = [
         }
       ],
       "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum AfriCropDAO.CropType",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "cropHarvestPoints",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum AfriCropDAO.CropType",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "cropSustainabilityScores",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1092,68 +1025,6 @@ export const contractABI = [
     },
     {
       "inputs": [],
-      "name": "debugMode",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_user",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_points",
-          "type": "uint256"
-        }
-      ],
-      "name": "debug_AddReputation",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_user",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_lessonId",
-          "type": "uint256"
-        }
-      ],
-      "name": "debug_CompleteLesson",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_cropId",
-          "type": "uint256"
-        }
-      ],
-      "name": "debug_ForceHarvest",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "donateToTreasury",
       "outputs": [],
       "stateMutability": "payable",
@@ -1186,6 +1057,30 @@ export const contractABI = [
         }
       ],
       "name": "farmerCrops",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "farmerStoredCrops",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1297,12 +1192,182 @@ export const contractABI = [
     },
     {
       "inputs": [],
+      "name": "getActiveProposals",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "proposer",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "internalType": "enum AfriCropDAO.ProposalType",
+              "name": "proposalType",
+              "type": "uint8"
+            },
+            {
+              "internalType": "string",
+              "name": "description",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stakeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "yesVotes",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "noVotes",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "executed",
+              "type": "bool"
+            },
+            {
+              "internalType": "enum AfriCropDAO.ProposalStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "address",
+              "name": "targetAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct AfriCropDAO.ProposalView[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "getAllFarmers",
       "outputs": [
         {
           "internalType": "address[]",
           "name": "",
           "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAllLessons",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "content",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "question1",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option1A",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option1B",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option1C",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "question2",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option2A",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option2B",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option2C",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "question3",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option3A",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option3B",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option3C",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "knowledgePointsReward",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct AfriCropDAO.Lesson[]",
+          "name": "",
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
@@ -1399,6 +1464,25 @@ export const contractABI = [
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_farmerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getFarmerStoredCrops",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "_lessonId",
           "type": "uint256"
@@ -1415,7 +1499,72 @@ export const contractABI = [
             },
             {
               "internalType": "string",
-              "name": "ipfsHash",
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "content",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "question1",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option1A",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option1B",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option1C",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "question2",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option2A",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option2B",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option2C",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "question3",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option3A",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option3B",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "option3C",
               "type": "string"
             },
             {
@@ -1427,25 +1576,6 @@ export const contractABI = [
           "internalType": "struct AfriCropDAO.Lesson",
           "name": "",
           "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_farmerAddress",
-          "type": "address"
-        }
-      ],
-      "name": "getMentorshipSessions",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "",
-          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",
@@ -1475,9 +1605,9 @@ export const contractABI = [
       "name": "getProposalTypes",
       "outputs": [
         {
-          "internalType": "string[4]",
+          "internalType": "string[2]",
           "name": "",
-          "type": "string[4]"
+          "type": "string[2]"
         }
       ],
       "stateMutability": "pure",
@@ -1581,6 +1711,30 @@ export const contractABI = [
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTopFarmersBySustainability",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "getTreasuryBalance",
       "outputs": [
@@ -1610,7 +1764,72 @@ export const contractABI = [
         },
         {
           "internalType": "string",
-          "name": "ipfsHash",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "question1",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option1A",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option1B",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option1C",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "question2",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option2A",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option2B",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option2C",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "question3",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option3A",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option3B",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "option3C",
           "type": "string"
         },
         {
@@ -1637,11 +1856,6 @@ export const contractABI = [
         {
           "internalType": "uint256",
           "name": "_quantityToSell",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_plantsDiedOffPercentage",
           "type": "uint256"
         }
       ],
@@ -1700,55 +1914,6 @@ export const contractABI = [
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "mentorshipSessions",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "id",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "mentor",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "mentee",
-          "type": "address"
-        },
-        {
-          "internalType": "bool",
-          "name": "accepted",
-          "type": "bool"
-        },
-        {
-          "internalType": "bool",
-          "name": "completed",
-          "type": "bool"
-        },
-        {
-          "internalType": "uint256",
-          "name": "startTimestamp",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "endTimestamp",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "owner",
       "outputs": [
@@ -1782,6 +1947,11 @@ export const contractABI = [
           "type": "address"
         },
         {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
           "internalType": "enum AfriCropDAO.ProposalType",
           "name": "proposalType",
           "type": "uint8"
@@ -1794,16 +1964,6 @@ export const contractABI = [
         {
           "internalType": "uint256",
           "name": "stakeAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "startBlock",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "endBlock",
           "type": "uint256"
         },
         {
@@ -1835,21 +1995,6 @@ export const contractABI = [
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "paramKey",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "paramValue",
-          "type": "uint256"
-        },
-        {
-          "internalType": "string",
-          "name": "researchGrantDetailsIPFSHash",
-          "type": "string"
         }
       ],
       "stateMutability": "view",
@@ -1904,19 +2049,6 @@ export const contractABI = [
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_mentorAddress",
-          "type": "address"
-        }
-      ],
-      "name": "requestMentorship",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "enum AfriCropDAO.CropType",
           "name": "_cropType",
           "type": "uint8"
@@ -1940,12 +2072,12 @@ export const contractABI = [
     {
       "inputs": [
         {
-          "internalType": "bool",
-          "name": "_status",
-          "type": "bool"
+          "internalType": "uint256",
+          "name": "_cropId",
+          "type": "uint256"
         }
       ],
-      "name": "toggleDebugMode",
+      "name": "storeCrop",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

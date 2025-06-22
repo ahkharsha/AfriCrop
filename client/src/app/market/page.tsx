@@ -1,4 +1,4 @@
-// src/app/market.tsx
+// src/app/market/page.tsx
 'use client'
 
 import { useReadContract } from 'wagmi'
