@@ -1,24 +1,30 @@
 {
-  "Index": {
-    "title": "AfriCrop DAO",
-    "description": "منصة حوكمة زراعية لامركزية للمزارعين الأفارقة",
-    "getStarted": "ابدأ الآن",
-    "learnMore": "تعلم المزيد"
-  },
-  "Navigation": {
-    "dashboard": "لوحة التحكم",
-    "crops": "محاصيلي",
-    "marketplace": "السوق",
-    "governance": "الحوكمة",
-    "education": "التعليم",
-    "climate": "التأثير المناخي",
-    "silo": "صومعتي",
-    "english": "الإنجليزية",
-    "french": "الفرنسية",
-    "swahili": "السواحيلية",
-    "hausa": "الهوسا",
-    "arabic": "العربية",
-    "currentLanguage": "العربية"
-  }
-  // Include all other translations following the same pattern
-}
+  "welcome": "مرحبًا بكم في AfriCropDAO",
+  "connectWallet": "قم بتوصيل محفظتك للبدء",
+  "myCrops": "محاصيلي",
+  "manageYourCrops": "عرض وإدارة أنشطتك الزراعية",
+  "marketplace": "السوق",
+  "buySellCrops": "شراء وبيع المنتجات الزراعية",
+  "governance": "الحوكمة",
+  "participateInDAO": "شارك في قرارات DAO",
+  "home": "الرئيسية",
+  "crops": "المحاصيل",
+  "education": "التعليم",
+  "sowNewCrop": "زرع محصول جديد",
+  "crop": "المحصول",
+  "type": "النوع",
+  "stage": "المرحلة",
+  "seeds": "البذور",
+  "manageCrop": "إدارة المحصول",
+  "maize": "ذرة",
+  "rice": "أرز",
+  "wheat": "قمح",
+  "cassava": "كسافا",
+  "beans": "فاصوليا",
+  "sorghum": "ذرة رفيعة",
+  "millet": "دخن",
+  "yam": "يام",
+  "potatoes": "بطاطس",
+  "coffee": "قهوة",
+  "cotton": "قطن"
+} 

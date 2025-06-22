@@ -1,24 +1,30 @@
 {
-  "Index": {
-    "title": "AfriCrop DAO",
-    "description": "Tsarin mulkin noma na baya ga jama'a don manoman Afirka",
-    "getStarted": "Fara",
-    "learnMore": "Kara Koyo"
-  },
-  "Navigation": {
-    "dashboard": "Dashboard",
-    "crops": "Amfanin Gona Na",
-    "marketplace": "Kasuwa",
-    "governance": "Mulki",
-    "education": "Ilimi",
-    "climate": "Tasirin Yanayi",
-    "silo": "Silo Na",
-    "english": "Turanci",
-    "french": "Faransanci",
-    "swahili": "Hausa",
-    "hausa": "Hausa",
-    "arabic": "Larabci",
-    "currentLanguage": "Hausa"
-  }
-  // Include all other translations following the same pattern
+  "welcome": "Barka da zuwa AfriCropDAO",
+  "connectWallet": "Haɗa walat ɗinka don farawa",
+  "myCrops": "Amfanin gona na",
+  "manageYourCrops": "Duba kuma sarrafa ayyukanku na noma",
+  "marketplace": "Kasuwa",
+  "buySellCrops": "Sayar da sayan kayayyakin noma",
+  "governance": "Mulki",
+  "participateInDAO": "Shiga cikin yanke shawara na DAO",
+  "home": "Gida",
+  "crops": "Amfanin gona",
+  "education": "Ilimi",
+  "sowNewCrop": "Shuka sabon amfanin gona",
+  "crop": "Amfanin gona",
+  "type": "Nau'i",
+  "stage": "Mataki",
+  "seeds": "Tsaba",
+  "manageCrop": "Sarrafa amfanin gona",
+  "maize": "Masara",
+  "rice": "Shinkafa",
+  "wheat": "Alkama",
+  "cassava": "Rogo",
+  "beans": "Wake",
+  "sorghum": "Dawa",
+  "millet": "Gero",
+  "yam": "Doya",
+  "potatoes": "Dankali",
+  "coffee": "Kofi",
+  "cotton": "Auduga"
 }

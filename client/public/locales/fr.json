@@ -1,24 +1,30 @@
 {
-  "Index": {
-    "title": "AfriCrop DAO",
-    "description": "Plateforme de gouvernance agricole décentralisée pour les agriculteurs africains",
-    "getStarted": "Commencer",
-    "learnMore": "En savoir plus"
-  },
-  "Navigation": {
-    "dashboard": "Tableau de bord",
-    "crops": "Mes Cultures",
-    "marketplace": "Marché",
-    "governance": "Gouvernance",
-    "education": "Éducation",
-    "climate": "Impact Climatique",
-    "silo": "Mon Silo",
-    "english": "Anglais",
-    "french": "Français",
-    "swahili": "Swahili",
-    "hausa": "Haoussa",
-    "arabic": "Arabe",
-    "currentLanguage": "Français"
-  }
-  // Include all other translations following the same pattern
+  "welcome": "Bienvenue sur AfriCropDAO",
+  "connectWallet": "Connectez votre portefeuille pour commencer",
+  "myCrops": "Mes cultures",
+  "manageYourCrops": "Voir et gérer vos activités agricoles",
+  "marketplace": "Marché",
+  "buySellCrops": "Acheter et vendre des produits agricoles",
+  "governance": "Gouvernance",
+  "participateInDAO": "Participez aux décisions de la DAO",
+  "home": "Accueil",
+  "crops": "Cultures",
+  "education": "Éducation",
+  "sowNewCrop": "Semer une nouvelle culture",
+  "crop": "Culture",
+  "type": "Type",
+  "stage": "Étape",
+  "seeds": "Graines",
+  "manageCrop": "Gérer la culture",
+  "maize": "Maïs",
+  "rice": "Riz",
+  "wheat": "Blé",
+  "cassava": "Manioc",
+  "beans": "Haricots",
+  "sorghum": "Sorgho",
+  "millet": "Mil",
+  "yam": "Igname",
+  "potatoes": "Pommes de terre",
+  "coffee": "Café",
+  "cotton": "Coton"
 }

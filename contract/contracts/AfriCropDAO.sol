@@ -956,22 +956,64 @@ contract AfriCropDAO is Ownable {
     ) public view returns (uint256[] memory) {
         return activeMentorships[_farmerAddress];
     }
-    
+
     // Additional view functions for frontend
     function getCropTypes() external pure returns (string[11] memory) {
         return [
-            "MAIZE", "RICE", "WHEAT", "CASSAVA", "BEANS",
-            "SORGHUM", "MILLET", "YAM", "POTATOES", "COFFEE", 
+            "MAIZE",
+            "RICE",
+            "WHEAT",
+            "CASSAVA",
+            "BEANS",
+            "SORGHUM",
+            "MILLET",
+            "YAM",
+            "POTATOES",
+            "COFFEE",
             "COTTON"
         ];
     }
 
     function getProposalTypes() external pure returns (string[4] memory) {
         return [
-            "ADMIN_CHANGE", 
-            "FUND_ALLOCATION", 
-            "PARAMETER_CHANGE", 
+            "ADMIN_CHANGE",
+            "FUND_ALLOCATION",
+            "PARAMETER_CHANGE",
             "RESEARCH_GRANT"
         ];
+    }
+
+    // Add to AfriCropDAO.sol
+    function getAllFarmers() external view returns (address[] memory) {
+        return registeredFarmers;
+    }
+
+    function getSustainabilityScores()
+        external
+        view
+        returns (address[] memory, uint256[] memory)
+    {
+        address[] memory farmersList = new address[](registeredFarmers.length);
+        uint256[] memory scores = new uint256[](registeredFarmers.length);
+
+        for (uint i = 0; i < registeredFarmers.length; i++) {
+            farmersList[i] = registeredFarmers[i];
+            scores[i] = farmers[registeredFarmers[i]].sustainabilityScore;
+        }
+
+        return (farmersList, scores);
+    }
+
+    function getTopCrops(uint256 limit) external view returns (Crop[] memory) {
+        uint256 resultSize = limit > _cropIds.current()
+            ? _cropIds.current()
+            : limit;
+        Crop[] memory result = new Crop[](resultSize);
+
+        for (uint256 i = 1; i <= resultSize; i++) {
+            result[i - 1] = crops[i];
+        }
+
+        return result;
     }
 }

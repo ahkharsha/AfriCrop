@@ -1,24 +1,30 @@
 {
-  "Index": {
-    "title": "AfriCrop DAO",
-    "description": "Jukwaa la utawala wa kilimo la kijamii kwa wakulima wa Kiafrika",
-    "getStarted": "Anza",
-    "learnMore": "Jifunze Zaidi"
-  },
-  "Navigation": {
-    "dashboard": "Dashibodi",
-    "crops": "Mazao Yangu",
-    "marketplace": "Soko",
-    "governance": "Utawala",
-    "education": "Elimu",
-    "climate": "Athari ya Hali ya Hewa",
-    "silo": "Ghala Yangu",
-    "english": "Kiingereza",
-    "french": "Kifaransa",
-    "swahili": "Kiswahili",
-    "hausa": "Kihausa",
-    "arabic": "Kiarabu",
-    "currentLanguage": "Kiswahili"
-  }
-  // Include all other translations following the same pattern
+  "welcome": "Karibu kwa AfriCropDAO",
+  "connectWallet": "Unganisha wallet yako kuanza",
+  "myCrops": "Mazao yangu",
+  "manageYourCrops": "Angalia na udumize shughuli zako za kilimo",
+  "marketplace": "Soko",
+  "buySellCrops": "Nunua na uza mazao",
+  "governance": "Utawala",
+  "participateInDAO": "Shiriki katika maamuzi ya DAO",
+  "home": "Nyumbani",
+  "crops": "Mazao",
+  "education": "Elimu",
+  "sowNewCrop": "Panda mmea mpya",
+  "crop": "Mazao",
+  "type": "Aina",
+  "stage": "Hatua",
+  "seeds": "Mbegu",
+  "manageCrop": "Dumiza mazao",
+  "maize": "Mahindi",
+  "rice": "Mchele",
+  "wheat": "Ngano",
+  "cassava": "Mihogo",
+  "beans": "Maharage",
+  "sorghum": "Mtama",
+  "millet": "Ulezi",
+  "yam": "Viazi vitamu",
+  "potatoes": "Viazi",
+  "coffee": "Kahawa",
+  "cotton": "Pamba"
 }

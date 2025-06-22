@@ -1,76 +1,41 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary-50: #f0f7f0;
-  --color-primary-100: #d9eed9;
-  --color-primary-200: #b8ddb8;
-  --color-primary-300: #8db38b;
-  --color-primary-400: #5d8a5b;
-  --color-primary-500: #3a5a40;
-  --color-primary-600: #2d4732;
-  --color-primary-700: #233928;
-  --color-primary-800: #1c2e21;
-  --color-primary-900: #16261c;
+:root {
+  --primary-50: #f0fdf4;
+  --primary-100: #dcfce7;
+  --primary-200: #bbf7d0;
+  --primary-300: #86efac;
+  --primary-400: #4ade80;
+  --primary-500: #22c55e;
+  --primary-600: #16a34a;
+  --primary-700: #15803d;
+  --primary-800: #166534;
+  --primary-900: #14532d;
 
-  --color-secondary-50: #f9f7f4;
-  --color-secondary-100: #f0eae2;
-  --color-secondary-200: #e0d4c4;
-  --color-secondary-300: #c9b79e;
-  --color-secondary-400: #a68a64;
-  --color-secondary-500: #8a6e4d;
-  --color-secondary-600: #735a41;
-  --color-secondary-700: #5c4835;
-  --color-secondary-800: #4d3d2f;
-  --color-secondary-900: #42352a;
-
-  --color-accent-50: #f8f5e9;
-  --color-accent-100: #f4e285;
-  --color-accent-200: #eed55a;
-  --color-accent-300: #e7c62e;
-  --color-accent-400: #d9b41d;
-  --color-accent-500: #c09e18;
-  --color-accent-600: #a08515;
-  --color-accent-700: #816912;
-  --color-accent-800: #6a570f;
-  --color-accent-900: #57470d;
+  --secondary-50: #f8fafc;
+  --secondary-100: #f1f5f9;
+  --secondary-200: #e2e8f0;
+  --secondary-300: #cbd5e1;
+  --secondary-400: #94a3b8;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+  --secondary-700: #334155;
+  --secondary-800: #1e293b;
+  --secondary-900: #0f172a;
 }
 
-@layer base {
-  body {
-    @apply antialiased;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-bold text-primary-800;
-  }
-  
-  a {
-    @apply text-accent-500 hover:text-accent-600 transition-colors;
-  }
+/* Base styles */
+body {
+  font-family: 'Inter', sans-serif;
 }
 
-@layer components {
-  .btn {
-    @apply inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-500 disabled:opacity-50 disabled:pointer-events-none;
-  }
-  
-  .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 text-sm shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
-  }
-  
-  .btn-secondary {
-    @apply bg-secondary-500 hover:bg-secondary-600 text-white px-4 py-2 text-sm;
-  }
-  
-  .btn-accent {
-    @apply bg-accent-400 hover:bg-accent-500 text-primary-900 px-4 py-2 text-sm shadow-md hover:shadow-lg;
-  }
-  
-  .btn-outline {
-    @apply border border-primary-300 hover:bg-primary-50 text-primary-700 px-4 py-2 text-sm;
-  }
-  
-  .card {
-    @apply bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow;
-  }
+/* Custom components */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-colors;
+}
+.btn-primary {
+  @apply bg-primary-600 text-white hover:bg-primary-700;
+}
+.btn-outline {
+  @apply border border-primary-600 text-primary-600 hover:bg-primary-50;
 }
