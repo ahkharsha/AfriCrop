@@ -1,72 +1,41 @@
-@import "tailwindcss";
+/* src/app/globals.css */
+@import 'tailwindcss';
 
-@layer base {
-  :root {
-    /* Color Definitions */
-    --color-primary: 58 90 64; /* #3A5A40 in RGB */
-    --color-primary-light: 88 129 87; /* #588157 */
-    --color-primary-dark: 52 78 65; /* #344E41 */
-    --color-secondary: 166 138 100; /* #A68A64 */
-    --color-secondary-light: 212 163 115; /* #D4A373 */
-    --color-secondary-dark: 127 85 57; /* #7F5539 */
-    --color-sustainability: 141 179 139; /* #8DB38B */
-    --color-sustainability-light: 163 177 138; /* #A3B18A */
-    --color-warning: 244 226 133; /* #F4E285 */
-    --color-error: 229 107 111; /* #E56B6F */
-    --color-text-primary: 26 26 26; /* #1A1A1A */
-    --color-text-secondary: 74 74 74; /* #4A4A4A */
-    --color-background-light: 248 249 250; /* #F8F9FA */
-    --color-background-dark: 33 37 41; /* #212529 */
-  }
+:root {
+  /* --primary-50: #f0fdf4;
+  --primary-100: #dcfce7;
+  --primary-200: #bbf7d0;
+  --primary-300: #86efac;
+  --primary-400: #4ade80;
+  --primary-500: #22c55e;
+  --primary-600: #16a34a;
+  --primary-700: #15803d;
+  --primary-800: #166534;
+  --primary-900: #14532d;
 
-  /* Theme Extension */
-  @theme {
-    /* Color Palette */
-    --colors-primary: rgb(var(--color-primary));
-    --colors-primary-light: rgb(var(--color-primary-light));
-    --colors-primary-dark: rgb(var(--color-primary-dark));
-    --colors-secondary: rgb(var(--color-secondary));
-    --colors-secondary-light: rgb(var(--color-secondary-light));
-    --colors-secondary-dark: rgb(var(--color-secondary-dark));
-    --colors-sustainability: rgb(var(--color-sustainability));
-    --colors-sustainability-light: rgb(var(--color-sustainability-light));
-    --colors-warning: rgb(var(--color-warning));
-    --colors-error: rgb(var(--color-error));
-    
-    /* Text Colors */
-    --colors-text-primary: rgb(var(--color-text-primary));
-    --colors-text-secondary: rgb(var(--color-text-secondary));
-    
-    /* Background Colors */
-    --colors-background-light: rgb(var(--color-background-light));
-    --colors-background-dark: rgb(var(--color-background-dark));
-    
-    /* Font Family */
-    --font-family-sans: 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  }
-
-  /* Base Styles */
-  body {
-    background: var(--colors-background-light);
-    color: var(--colors-text-primary);
-    font-family: var(--font-family-sans);
-  }
-
-  /* Custom Classes */
-  .earth-gradient {
-    background: linear-gradient(135deg, var(--colors-primary) 0%, var(--colors-secondary) 100%);
-  }
-
-  .progress-ring {
-    transition: stroke-dashoffset 0.35s;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-  }
+  --secondary-50: #f8fafc;
+  --secondary-100: #f1f5f9;
+  --secondary-200: #e2e8f0;
+  --secondary-300: #cbd5e1;
+  --secondary-400: #94a3b8;
+  --secondary-500: #64748b;
+  --secondary-600: #475569;
+  --secondary-700: #334155;
+  --secondary-800: #1e293b;
+  --secondary-900: #0f172a; */
 }
 
-@layer utilities {
-  /* Custom Utilities */
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Base styles */
+/* body {
+  font-family: 'Inter', sans-serif;
 }
+
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-colors;
+}
+.btn-primary {
+  @apply bg-primary-600 text-white hover:bg-primary-700;
+}
+.btn-outline {
+  @apply border border-primary-600 text-primary-600 hover:bg-primary-50;
+} */

@@ -1,9 +1,6 @@
-import { Inter } from 'next/font/google'
-import { ToastProvider } from '@/components/ui/toast'
-import { Providers } from '@/providers'
+// src/app/layout.tsx
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import { Providers } from './providers'
 
 export default function RootLayout({
   children,
@@ -12,11 +9,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen`}>
+      <body>
         <Providers>
-          <ToastProvider>
+          <div className="max-w-6xl mx-auto px-4">
             {children}
-          </ToastProvider>
+          </div>
         </Providers>
       </body>
     </html>

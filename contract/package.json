@@ -11,6 +11,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.0",
     "@thirdweb-dev/cli": "^0.14.12",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "wagmi": "^2.15.6"
   }
 }

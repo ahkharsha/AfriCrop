@@ -1,82 +1,64 @@
 'use client'
 
-import { useAccount } from 'wagmi'
-import { useCrops } from '@/hooks/useCrops'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { CropCard } from '@/components/crops/CropCard'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useAccount, useReadContract } from 'wagmi'
+import { contractAddress, contractABI } from '@/utils/contract'
+import { useTranslations } from '@/utils/i18n'
+import Nav from '@/components/Nav'
+import Footer from '@/components/Footer'
+import CropCard from '@/components/CropCard'
+import ListingCard from '@/components/ListintCard'
+
+type FarmerCropResponse = bigint[]
+type MarketListing = {
+  listingId: bigint
+  cropId: bigint
+  seller: string
+  priceInWei: bigint
+  quantityToSell: bigint
+  listingTimestamp: bigint
+  isActive: boolean
+}
 
 export default function SiloPage() {
   const { address } = useAccount()
-  const { crops, isLoading } = useCrops(address)
+  const t = useTranslations()
+  
+  const { data: farmerCrops } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getFarmerCrops',
+    args: [address],
+  }) as { data: FarmerCropResponse | undefined }
 
-  const groupedCrops = {
-    sown: crops.filter(crop => crop.stage === 0),
-    growing: crops.filter(crop => crop.stage === 1),
-    harvested: crops.filter(crop => crop.stage === 2),
-    selling: crops.filter(crop => crop.stage === 3),
-    sold: crops.filter(crop => crop.stage === 4),
-  }
+  const { data: listings } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getActiveMarketListings',
+  }) as { data: MarketListing[] | undefined }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Your Silo</h1>
-
-      <Tabs defaultValue="sown" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="sown">Sown</TabsTrigger>
-          <TabsTrigger value="growing">Growing</TabsTrigger>
-          <TabsTrigger value="harvested">Harvested</TabsTrigger>
-          <TabsTrigger value="selling">Selling</TabsTrigger>
-          <TabsTrigger value="sold">Sold</TabsTrigger>
-        </TabsList>
-
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
-            {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-48 w-full rounded-lg" />
+    <div>
+      <Nav />
+      <main className="py-8">
+        <h1 className="text-2xl font-bold mb-6">{t('mySilo')}</h1>
+        
+        <section className="mb-12">
+          <h2 className="text-xl font-semibold mb-4">{t('allCrops')}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {farmerCrops?.map((cropId) => (
+              <CropCard key={cropId.toString()} cropId={Number(cropId)} />
             ))}
           </div>
-        ) : (
-          <>
-            <TabsContent value="sown">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedCrops.sown.map(crop => (
-                  <CropCard key={crop.id} crop={crop} />
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="growing">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedCrops.growing.map(crop => (
-                  <CropCard key={crop.id} crop={crop} />
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="harvested">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedCrops.harvested.map(crop => (
-                  <CropCard key={crop.id} crop={crop} />
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="selling">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedCrops.selling.map(crop => (
-                  <CropCard key={crop.id} crop={crop} />
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="sold">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedCrops.sold.map(crop => (
-                  <CropCard key={crop.id} crop={crop} />
-                ))}
-              </div>
-            </TabsContent>
-          </>
-        )}
-      </Tabs>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-4">{t('marketListings')}</h2>
+          {listings?.filter(l => l.seller === address).map((listing) => (
+            <ListingCard key={listing.listingId.toString()} listing={listing} />
+          ))}
+        </section>
+      </main>
+      <Footer />
     </div>
   )
 }

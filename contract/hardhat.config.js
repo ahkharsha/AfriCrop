@@ -1,6 +1,8 @@
 require("@nomicfoundation/hardhat-toolbox");
 
 const NEXT_PUBLIC_RPC_URL = "https://testnet.evm.nodes.onflow.org";
+// const NEXT_PUBLIC_RPC_URL = "https://curtis.rpc.caldera.xyz/http";
+
 const NEXT_PUBLIC_PRIVATE_KEY = "";
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -19,7 +21,7 @@ module.exports = {
     hardhat: {
       chainId: 31337,
     },
-    holesky: {
+    curtis_ape: {
       url: NEXT_PUBLIC_RPC_URL,
       accounts: [`0x${NEXT_PUBLIC_PRIVATE_KEY}`],
     },
