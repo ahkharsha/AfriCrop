@@ -2,9 +2,9 @@
 'use client'
 
 import { useAccount, useReadContract } from 'wagmi'
-import { contractAddress, contractABI } from '../utils/contract'
-import { useTranslations } from '../utils/i18n'
-import Nav from '../components/Nav'
+import { contractAddress, contractABI } from '@/utils/contract'
+import { useTranslations } from '@/utils/i18n'
+import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 
 // Define the exact return type from the farmers mapping

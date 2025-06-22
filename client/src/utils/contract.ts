@@ -1,21 +1,39 @@
 // src/utils/contract.ts
 import { createConfig, http } from 'wagmi'
-import { curtis } from 'wagmi/chains'
+import { curtis, flowTestnet } from 'wagmi/chains'
 import { getDefaultConfig } from 'connectkit'
+
+
+// Use this for APE CHAIN
+
+// export const config = createConfig(
+//   getDefaultConfig({
+//     // alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_ID,
+//     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+//     appName: 'AfriCropDAO',
+//     chains: [curtis],
+//     transports: {
+//       [curtis.id]: http(),
+//     },
+//   })
+// )
+
+// export const contractAddress = '0xF859e215A276EC632Fb46DCca4EbccF99C8993D2' // Replace with actual address
 
 export const config = createConfig(
   getDefaultConfig({
     // alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_ID,
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
     appName: 'AfriCropDAO',
-    chains: [curtis],
+    chains: [flowTestnet],
     transports: {
-      [curtis.id]: http(),
+      [flowTestnet.id]: http(),
     },
   })
 )
 
-export const contractAddress = '0xF859e215A276EC632Fb46DCca4EbccF99C8993D2' // Replace with actual address
+export const contractAddress = '0x94037Dff7be2e2Aa8d1B5f62C76CF6581e0D8FC0' // Replace with actual address
+
 export const contractABI = [
     {
       "inputs": [],

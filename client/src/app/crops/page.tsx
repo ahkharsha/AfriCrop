@@ -2,10 +2,10 @@
 'use client'
 
 import { useAccount, useReadContract, useWriteContract } from 'wagmi'
-import { contractAddress, contractABI } from '../utils/contract'
-import { useTranslations } from '../utils/i18n'
-import Nav from '../components/Nav'
-import Footer from '../components/Footer'
+import { contractAddress, contractABI } from '@/utils/contract'
+import { useTranslations } from '@/utils/i18n'
+import Nav from '@/components/Nav'
+import Footer from '@/components/Footer'
 
 // Define the Crop type matching your Solidity struct
 type Crop = [
