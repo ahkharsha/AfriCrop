@@ -1,5 +1,7 @@
-// tailwind.config.js
-module.exports = {
+// tailwind.config.ts
+import type { Config } from 'tailwindcss'
+
+export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
     "./app/**/*.{js,ts,jsx,tsx}",
@@ -31,13 +33,27 @@ module.exports = {
           800: 'var(--secondary-800)',
           900: 'var(--secondary-900)',
         },
+        accent: {
+          yellow: 'var(--accent-yellow)',
+          orange: 'var(--accent-orange)',
+          red: 'var(--accent-red)',
+          purple: 'var(--accent-purple)',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        heading: ['Poppins', 'sans-serif'],
       },
       boxShadow: {
         card: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        button: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'button-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      },
+      borderRadius: {
+        xl: '1rem',
+        '2xl': '1.5rem',
+        '3xl': '2rem',
       },
     },
   },
@@ -45,4 +61,4 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
   ],
-}
+} satisfies Config
