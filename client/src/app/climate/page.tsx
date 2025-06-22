@@ -1,4 +1,4 @@
-// src/app/climate.tsx
+// src/app/climate/page.tsx
 'use client'
 
 import { useAccount, useReadContract } from 'wagmi'

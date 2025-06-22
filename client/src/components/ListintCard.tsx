@@ -1,3 +1,4 @@
+// src/components/ListingCard.tsx
 'use client'
 
 import { useTranslations } from '../utils/i18n'

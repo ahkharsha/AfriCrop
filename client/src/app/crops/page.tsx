@@ -1,4 +1,4 @@
-// src/app/crops.tsx
+// src/app/crops/page.tsx
 'use client'
 
 import { useAccount, useReadContract, useWriteContract } from 'wagmi'

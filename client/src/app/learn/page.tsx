@@ -1,4 +1,4 @@
-// src/app/learn.tsx
+// src/app/learn/page.tsx
 'use client'
 
 import { useReadContract } from 'wagmi'

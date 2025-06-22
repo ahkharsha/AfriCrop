@@ -1,3 +1,4 @@
+// src/components/CropCard.tsx
 'use client'
 
 import { useReadContract } from 'wagmi'
