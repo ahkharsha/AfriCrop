@@ -1,6 +1,8 @@
 require("@nomicfoundation/hardhat-toolbox");
 
 const NEXT_PUBLIC_RPC_URL = "https://curtis.rpc.caldera.xyz/http";
+// const NEXT_PUBLIC_RPC_URL = "https://testnet.evm.nodes.onflow.org";
+
 const NEXT_PUBLIC_PRIVATE_KEY = "";
 
 /** @type import('hardhat/config').HardhatUserConfig */
