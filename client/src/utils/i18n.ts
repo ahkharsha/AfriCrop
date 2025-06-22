@@ -1,4 +1,4 @@
-// src/utils/i18n.ts
+// src/utils/i18n.ts (1)
 'use client'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
@@ -18,7 +18,7 @@ i18n
       en: { translation: en },
       sw: { translation: sw },
       ha: { translation: ha },
-      fr: { translation: fr },
+      fr: { transaction: fr },
       ar: { translation: ar }
     },
     fallbackLng: 'en',
@@ -27,7 +27,7 @@ i18n
       escapeValue: false,
     },
     detection: {
-      order: ['navigator', 'htmlTag', 'path', 'subdomain'],
+      order: ['cookie', 'navigator', 'htmlTag', 'path', 'subdomain'],
       caches: ['cookie'],
     },
     react: {
@@ -39,12 +39,16 @@ export const useTranslations = () => {
   return (key: string) => i18n.t(key)
 }
 
-export const useLanguage = () => ({
-  lang: i18n.language,
-  setLang: (lng: string) => {
-    i18n.changeLanguage(lng)
-    window.location.reload() // Force refresh to update all text
+export const useLanguage = () => {
+  const changeLanguage = async (lng: string) => {
+    await i18n.changeLanguage(lng)
+    document.cookie = `i18next=${lng};path=/;max-age=31536000`
   }
-})
+
+  return {
+    lang: i18n.language,
+    setLang: changeLanguage
+  }
+}
 
 export default i18n

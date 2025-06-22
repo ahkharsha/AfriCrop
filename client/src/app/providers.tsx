@@ -9,6 +9,7 @@ import { curtis } from 'wagmi/chains'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { useModal } from 'connectkit'
 import { useEffect } from 'react'
+import { Toaster } from 'react-hot-toast'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,11 +26,11 @@ function ChainValidator({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     if (chain && chain.id !== curtis.id) {
-      const shouldSwitch = confirm('Please switch to Curtis Testnet (Chain ID 33111)')
-      if (shouldSwitch) {
-        switchChain({ chainId: curtis.id })
-      }
-      setOpen(true)
+      switchChain({ chainId: curtis.id }, {
+        onError: () => {
+          setOpen(true)
+        }
+      })
     }
   }, [chain, switchChain, setOpen])
 
@@ -43,6 +44,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ConnectKitProvider>
           <ChainValidator>
             {children}
+            <Toaster position="bottom-right" />
           </ChainValidator>
         </ConnectKitProvider>
       </QueryClientProvider>
