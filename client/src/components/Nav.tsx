@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { ConnectKitButton } from 'connectkit'
 import { useTranslations } from '../utils/i18n'
 import LanguageSwitcher from './LanguageSwitcher'
+import Image from 'next/image'
 
 export default function Nav() {
   const pathname = usePathname()
@@ -13,40 +14,53 @@ export default function Nav() {
 
   const links = [
     { href: '/', label: t('home') },
-    { href: '/crops', label: t('crops') },
+    { href: '/farm', label: t('myCrops') },
     { href: '/market', label: t('marketplace') },
-    { href: '/govern', label: t('governance') },
+    { href: '/dao', label: 'DAO' },
     { href: '/learn', label: t('education') },
     { href: '/climate', label: t('sustainability') },
     { href: '/silo', label: t('silo') }
   ]
 
   return (
-    <nav className="flex items-center justify-between py-4 border-b border-secondary-200 mb-8 px-4">
-      <div className="flex items-center space-x-8">
-        <Link href="/" className="font-bold text-xl">
-          AfriCropDAO
-        </Link>
-        <div className="hidden md:flex space-x-6">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`${
-                pathname === link.href 
-                  ? 'text-primary-600 font-medium' 
-                  : 'text-secondary-600 hover:text-primary-600'
-              } transition-colors`}
-            >
-              {link.label}
-            </Link>
-          ))}
+    <nav className="bg-primary-800 text-white py-4 px-6 shadow-lg">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center space-x-8">
+          <Link href="/" className="flex items-center space-x-2">
+            <Image 
+              src="/africrop-logo.jpg" 
+              alt="AfriCropDAO Logo" 
+              width={40} 
+              height={40}
+              className="rounded-full"
+            />
+            <span className="font-bold text-xl hidden sm:inline">AfriCropDAO</span>
+          </Link>
+          
+          <div className="hidden md:flex space-x-6">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`${
+                  pathname === link.href 
+                    ? 'text-white font-semibold border-b-2 border-white' 
+                    : 'text-primary-200 hover:text-white'
+                } transition-colors px-2 py-1`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
-      
-      <div className="flex items-center space-x-4">
-        <LanguageSwitcher />
-        <ConnectKitButton />
+        
+        <div className="flex items-center space-x-4">
+          <LanguageSwitcher />
+          <ConnectKitButton 
+            theme="rounded"
+            label="Connect Wallet"
+          />
+        </div>
       </div>
     </nav>
   )

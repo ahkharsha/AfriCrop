@@ -10,8 +10,13 @@ import { useAccount, useSwitchChain } from 'wagmi'
 import { useModal } from 'connectkit'
 import { useEffect } from 'react'
 
-// Create a client
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 20, // 20 seconds
+    },
+  },
+})
 
 function ChainValidator({ children }: { children: React.ReactNode }) {
   const { chain } = useAccount()

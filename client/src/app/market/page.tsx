@@ -1,61 +1,61 @@
 // src/app/market/page.tsx
 'use client'
 
-import { useReadContract } from 'wagmi'
+import { useReadContract, useAccount } from 'wagmi'
 import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
-
-// Define the MarketListing type matching your Solidity struct
-type MarketListing = {
-  listingId: bigint;
-  cropId: bigint;
-  seller: string;
-  priceInWei: bigint;
-  quantityToSell: bigint;
-  listingTimestamp: bigint;
-  isActive: boolean;
-};
+import ListingCard from '@/components/ListingCard'
+import Card from '@/components/Card'
+import { ShoppingBag, Filter } from 'lucide-react'
 
 export default function MarketPage() {
+  const { address } = useAccount()
   const t = useTranslations()
   
   const { data: listings } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getActiveMarketListings',
-  }) as { data: MarketListing[] | undefined }
+  }) as { data: any[] | undefined }
 
   return (
     <div>
       <Nav />
       <main className="py-8">
-        <h1 className="text-2xl font-bold mb-6">{t('marketplace')}</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings?.map((listing) => (
-            <ListingCard key={listing.listingId.toString()} listing={listing} />
-          ))}
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold">Marketplace</h1>
+              <p className="text-secondary-600 mt-2">
+                Buy and sell agricultural products directly
+              </p>
+            </div>
+            <button className="btn btn-outline flex items-center">
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+            </button>
+          </div>
+
+          {listings?.length ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {listings.map((listing) => (
+                <ListingCard key={listing.listingId.toString()} listing={listing} />
+              ))}
+            </div>
+          ) : (
+            <Card className="text-center py-12">
+              <ShoppingBag className="w-12 h-12 mx-auto text-secondary-400" />
+              <h3 className="text-xl font-semibold mt-4">No listings available</h3>
+              <p className="text-secondary-600 mt-2">
+                There are currently no crops listed for sale
+              </p>
+            </Card>
+          )}
         </div>
       </main>
       <Footer />
-    </div>
-  )
-}
-
-function ListingCard({ listing }: { listing: MarketListing }) {
-  const t = useTranslations()
-  
-  return (
-    <div className="bg-white p-6 rounded-xl shadow hover:shadow-md transition-shadow">
-      <h3 className="font-semibold text-lg mb-2">{t('listing')} #{listing.listingId.toString()}</h3>
-      <p className="text-secondary-600 mb-1">{t('crop')}: {t(listing.cropId.toString().toLowerCase())}</p>
-      <p className="text-secondary-600 mb-1">{t('price')}: {listing.priceInWei.toString()} wei</p>
-      <p className="text-secondary-600 mb-1">{t('quantity')}: {listing.quantityToSell.toString()}</p>
-      <button className="btn btn-primary w-full mt-4">
-        {t('purchase')}
-      </button>
     </div>
   )
 }

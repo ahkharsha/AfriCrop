@@ -4,14 +4,12 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
-// Import all translation files
 import en from '../../public/locales/en.json'
 import sw from '../../public/locales/sw.json'
 import ha from '../../public/locales/ha.json'
 import fr from '../../public/locales/fr.json'
 import ar from '../../public/locales/ar.json'
 
-// Initialize i18next
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -26,23 +24,27 @@ i18n
     fallbackLng: 'en',
     debug: process.env.NODE_ENV === 'development',
     interpolation: {
-      escapeValue: false, // React already safes from xss
+      escapeValue: false,
     },
     detection: {
       order: ['navigator', 'htmlTag', 'path', 'subdomain'],
       caches: ['cookie'],
+    },
+    react: {
+      useSuspense: false,
     }
   })
 
-// Simplified translation hook
 export const useTranslations = () => {
   return (key: string) => i18n.t(key)
 }
 
-// Simplified language hook
 export const useLanguage = () => ({
   lang: i18n.language,
-  setLang: (lng: string) => i18n.changeLanguage(lng)
+  setLang: (lng: string) => {
+    i18n.changeLanguage(lng)
+    window.location.reload() // Force refresh to update all text
+  }
 })
 
 export default i18n

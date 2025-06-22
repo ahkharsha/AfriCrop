@@ -1,14 +1,37 @@
 // src/components/Footer.tsx
 import { useTranslations } from '../utils/i18n'
+import Image from 'next/image'
 
 export default function Footer() {
   const t = useTranslations()
   
   return (
-    <footer className="border-t border-secondary-200 mt-12 py-6">
-      <div className="max-w-6xl mx-auto px-4 text-center text-secondary-600 text-sm">
-        <p>{t('footerText')}</p>
-        <p className="mt-2">© {new Date().getFullYear()} AfriCropDAO</p>
+    <footer className="bg-primary-900 text-white py-8">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center space-x-4 mb-4 md:mb-0">
+            <Image 
+              src="/africrop-logo.jpg" 
+              alt="AfriCropDAO Logo" 
+              width={50} 
+              height={50}
+              className="rounded-full"
+            />
+            <div>
+              <h3 className="font-bold text-lg">AfriCropDAO</h3>
+              <p className="text-primary-300 text-sm">{t('footerText')}</p>
+            </div>
+          </div>
+          
+          <div className="text-center md:text-right">
+            <p className="text-primary-300">
+              © {new Date().getFullYear()} AfriCropDAO. All rights reserved.
+            </p>
+            <p className="text-primary-400 text-sm mt-1">
+              Building sustainable farming through blockchain
+            </p>
+          </div>
+        </div>
       </div>
     </footer>
   )
