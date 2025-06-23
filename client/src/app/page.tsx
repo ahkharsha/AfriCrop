@@ -7,6 +7,7 @@ import { contractAddress, contractABI } from '@/utils/contract'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import StatsCard from '@/components/StatsCard'
+import FarmerQRCode from '@/components/FarmerQRCode'
 import { Crop, ShoppingBag, BookOpen, Users, Leaf } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -168,6 +169,7 @@ export default function Home() {
                     value={formatDate(farmerStats.lastActivity)}
                     icon={<Users className="w-5 h-5" />}
                   />
+                  <FarmerQRCode />
                 </div>
               )}
             </>
