@@ -117,5 +117,11 @@
   "community": "Community",
   "documentation": "Documentation",
   "feedback": "Feedback",
-  "version": "Version"
+  "version": "Version",
+  "farmerVerification": "Farmer Verification",
+  "scanQRToVerify": "Scan QR code to verify farmer details on blockchain",
+  "copyLink": "Copy verification link",
+  "farmerNotFound": "Farmer not found on blockchain",
+  "verificationNote": "This information is directly fetched from the blockchain and cannot be altered",
+  "farmerAddress": "Farmer Address"
 }
