@@ -97,7 +97,7 @@ export default function AdminPage() {
   if (address !== owner) {
     return (
       <div className="text-center py-12">
-        <p className="text-lg mb-4">Only contract owner can access this page</p>
+        <p className="text-lg mb-4">Only Admin can access this page</p>
       </div>
     )
   }
