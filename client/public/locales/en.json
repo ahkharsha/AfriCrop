@@ -123,5 +123,13 @@
   "copyLink": "Copy verification link",
   "farmerNotFound": "Farmer not found on blockchain",
   "verificationNote": "This information is directly fetched from the blockchain and cannot be altered",
-  "farmerAddress": "Farmer Address"
+  "farmerAddress": "Farmer Address",
+    "admin": "Admin",
+  "addLesson": "Add Lesson",
+  "lessonTitle": "Lesson Title",
+  "lessonContent": "Lesson Content",
+  "questions": "Questions",
+  "option": "Option {letter}",
+  "addLessonSuccess": "Lesson added successfully!",
+  "addLessonError": "Failed to add lesson"
 }
