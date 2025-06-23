@@ -1,4 +1,4 @@
-// src/components/QuizCard.tsx
+// src/components/QuizCard.tsx (1)
 'use client'
 
 import { useState } from 'react'
@@ -26,34 +26,34 @@ export default function QuizCard({
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md border border-secondary-200">
-      <h3 className="font-semibold text-lg mb-4">{question}</h3>
+    <div className="bg-white p-4 rounded-lg border border-secondary-200 shadow-sm">
+      <h3 className="font-semibold text-secondary-800 mb-3">{question}</h3>
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         {options.map((option, index) => (
           <button
             key={index}
             onClick={() => handleAnswer(index)}
             disabled={answered}
-            className={`w-full text-left p-3 rounded-lg border transition-all ${
+            className={`w-full text-left p-3 rounded-lg transition-all border ${
               answered
                 ? index === correctAnswer
-                  ? 'bg-green-100 border-green-500'
+                  ? 'bg-green-50 border-green-300'
                   : selected === index
-                    ? 'bg-red-100 border-red-500'
-                    : 'border-secondary-300'
+                    ? 'bg-red-50 border-red-300'
+                    : 'border-secondary-200'
                 : selected === index
-                  ? 'bg-primary-100 border-primary-500'
-                  : 'border-secondary-300 hover:border-primary-500'
+                  ? 'bg-primary-50 border-primary-300'
+                  : 'border-secondary-200 hover:border-primary-300'
             }`}
           >
             <div className="flex items-center">
               {answered && (
                 <span className="mr-2">
                   {index === correctAnswer ? (
-                    <Check className="w-5 h-5 text-green-500" />
+                    <Check className="w-4 h-4 text-green-500" />
                   ) : selected === index ? (
-                    <X className="w-5 h-5 text-red-500" />
+                    <X className="w-4 h-4 text-red-500" />
                   ) : null}
                 </span>
               )}

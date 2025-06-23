@@ -1,9 +1,9 @@
-// src/components/ListingCard.tsx
+// src/components/ListingCard.tsx (1)
 'use client'
 
 import { useTranslations } from '../utils/i18n'
 import Image from 'next/image'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Loader2 } from 'lucide-react'
 
 type Listing = {
   listingId: bigint
@@ -15,7 +15,15 @@ type Listing = {
   isActive: boolean
 }
 
-export default function ListingCard({ listing }: { listing: Listing }) {
+export default function ListingCard({ 
+  listing,
+  onPurchase,
+  loading
+}: { 
+  listing: Listing
+  onPurchase: () => void
+  loading: boolean
+}) {
   const t = useTranslations()
   
   const cropTypes = [
@@ -23,17 +31,22 @@ export default function ListingCard({ listing }: { listing: Listing }) {
     'sorghum', 'millet', 'yam', 'potatoes', 'coffee', 'cotton'
   ]
 
+  const cropImage = `/crops/${cropTypes[Number(listing.cropId)]}.png`
+
   return (
-    <div className="card group">
+    <div className="card group hover:shadow-lg transition-shadow">
       <div className="p-4 flex items-start space-x-4">
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 relative">
           <Image 
-            src={`/crops/${cropTypes[Number(listing.cropId)]}.png`}
+            src={cropImage}
             alt={t(cropTypes[Number(listing.cropId)])}
             width={80}
             height={80}
-            className="rounded-lg object-cover"
+            className="rounded-lg object-cover border border-secondary-200"
           />
+          <span className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-sm">
+            <span className="block w-3 h-3 rounded-full bg-green-500"></span>
+          </span>
         </div>
         
         <div className="flex-1">
@@ -56,9 +69,17 @@ export default function ListingCard({ listing }: { listing: Listing }) {
         </div>
       </div>
       
-      <div className="border-t border-secondary-200 p-4">
-        <button className="btn btn-primary w-full group-hover:bg-primary-700 transition-colors">
-          <ShoppingCart className="w-5 h-5 mr-2" />
+      <div className="border-t border-secondary-100 p-4 bg-secondary-50">
+        <button
+          onClick={onPurchase}
+          disabled={loading}
+          className="btn btn-primary w-full flex items-center justify-center"
+        >
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+          ) : (
+            <ShoppingCart className="w-4 h-4 mr-2" />
+          )}
           {t('purchase')}
         </button>
       </div>

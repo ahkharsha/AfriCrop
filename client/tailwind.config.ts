@@ -1,4 +1,4 @@
-// tailwind.config.ts
+// tailwind.config.ts (1)
 import type { Config } from 'tailwindcss'
 
 export default {
@@ -10,50 +10,48 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: 'var(--primary-50)',
-          100: 'var(--primary-100)',
-          200: 'var(--primary-200)',
-          300: 'var(--primary-300)',
-          400: 'var(--primary-400)',
-          500: 'var(--primary-500)',
-          600: 'var(--primary-600)',
-          700: 'var(--primary-700)',
-          800: 'var(--primary-800)',
-          900: 'var(--primary-900)',
+          50: '#f0fdf8',
+          100: '#dcfceb',
+          200: '#bbf7d6',
+          300: '#86efb0',
+          400: '#4ade84',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
         },
         secondary: {
-          50: 'var(--secondary-50)',
-          100: 'var(--secondary-100)',
-          200: 'var(--secondary-200)',
-          300: 'var(--secondary-300)',
-          400: 'var(--secondary-400)',
-          500: 'var(--secondary-500)',
-          600: 'var(--secondary-600)',
-          700: 'var(--secondary-700)',
-          800: 'var(--secondary-800)',
-          900: 'var(--secondary-900)',
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
         },
         accent: {
-          yellow: 'var(--accent-yellow)',
-          orange: 'var(--accent-orange)',
-          red: 'var(--accent-red)',
-          purple: 'var(--accent-purple)',
+          yellow: '#f59e0b',
+          orange: '#f97316',
+          red: '#ef4444',
+          purple: '#8b5cf6',
         },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         heading: ['Poppins', 'sans-serif'],
       },
-      boxShadow: {
-        card: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        button: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'button-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      animation: {
+        'fade-in': 'fadeIn 0.3s ease-in-out',
       },
-      borderRadius: {
-        xl: '1rem',
-        '2xl': '1.5rem',
-        '3xl': '2rem',
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },

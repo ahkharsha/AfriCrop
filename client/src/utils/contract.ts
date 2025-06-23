@@ -1,11 +1,10 @@
-// src/utils/contract.ts
+// src/utils/contract.ts (1)
 import { createConfig, http } from 'wagmi'
 import { curtis } from 'wagmi/chains'
 import { getDefaultConfig } from 'connectkit'
 
 export const config = createConfig(
   getDefaultConfig({
-    // alchemyId: process.env.NEXT_PUBLIC_ALCHEMY_ID,
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
     appName: 'AfriCropDAO',
     chains: [curtis],
