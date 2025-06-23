@@ -1,170 +1,76 @@
-// 'use client'
-
-// import { useAccount, useReadContract } from 'wagmi'
-// import { contractAddress, contractABI } from '@/utils/contract'
-// import { useTranslations } from '@/utils/i18n'
-// import Nav from '@/components/Nav'
-// import Footer from '@/components/Footer'
-// import { useWriteContract } from 'wagmi'
-// import { useEffect, useState } from 'react'
-// import { toast } from 'react-toastify'
-
-// export default function Home() {
-//   const { address, isConnected } = useAccount()
-//   const { writeContract } = useWriteContract()
-//   const t = useTranslations()
-//   const [showRegistration, setShowRegistration] = useState(false)
-
-//   const { data: farmer } = useReadContract({
-//     address: contractAddress,
-//     abi: contractABI,
-//     functionName: 'farmers',
-//     args: [address!],
-//   }) as { data: any }
-
-//   const { data: siloCrops } = useReadContract({
-//     address: contractAddress,
-//     abi: contractABI,
-//     functionName: 'getFarmerStoredCrops',
-//     args: [address],
-//   }) as { data: bigint[] | undefined }
-
-//   const { data: farmCrops } = useReadContract({
-//     address: contractAddress,
-//     abi: contractABI,
-//     functionName: 'getFarmerCrops',
-//     args: [address],
-//   }) as { data: bigint[] | undefined }
-
-//   useEffect(() => {
-//     if (isConnected && farmer && !farmer.isRegistered) {
-//       setShowRegistration(true)
-//     }
-//   }, [isConnected, farmer])
-
-//   const registerFarmer = () => {
-//     writeContract({
-//       address: contractAddress,
-//       abi: contractABI,
-//       functionName: 'registerFarmer',
-//     }, {
-//       onSuccess: () => {
-//         toast.success(t('registrationSuccess'))
-//         setShowRegistration(false)
-//         window.dispatchEvent(new Event('contractWrite'))
-//       },
-//       onError: (error) => {
-//         toast.error(t('registrationError'))
-//       }
-//     })
-//   }
-
-//   return (
-//     <div>
-//       <Nav />
-//       <main className="py-8">
-//         <h1 className="text-3xl font-bold mb-6">{t('welcome')}</h1>
-
-//         {showRegistration && (
-//           <div className="bg-primary-100 border-l-4 border-primary-500 p-4 mb-6">
-//             <div className="flex items-center justify-between">
-//               <div>
-//                 <p className="font-medium">{t('registerPrompt')}</p>
-//                 <p className="text-sm text-secondary-600">{t('registerBenefits')}</p>
-//               </div>
-//               <button 
-//                 onClick={registerFarmer}
-//                 className="btn btn-primary"
-//               >
-//                 {t('registerNow')}
-//               </button>
-//             </div>
-//           </div>
-//         )}
-
-//         {isConnected ? (
-//           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-//             <DashboardCard
-//               title={t('myFarm')}
-//               value={farmCrops?.length || 0}
-//               description={t('activeLands')}
-//               link="/farm"
-//             />
-//             <DashboardCard
-//               title={t('mySilo')}
-//               value={siloCrops?.length || 0}
-//               description={t('storedCrops')}
-//               link="/silo"
-//             />
-//             <DashboardCard
-//               title={t('marketplace')}
-//               value="0" // Will implement later
-//               description={t('activeListings')}
-//               link="/market"
-//             />
-//             <DashboardCard
-//               title={t('dao')}
-//               value={farmer?.reputationPoints?.toString() || '0'}
-//               description={t('reputationPoints')}
-//               link="/govern"
-//             />
-//           </div>
-//         ) : (
-//           <div className="text-center py-12">
-//             <p className="text-lg mb-4">{t('connectWallet')}</p>
-//           </div>
-//         )}
-//       </main>
-//       <Footer />
-//     </div>
-//   )
-// }
-
-// function DashboardCard({ title, value, description, link }: { 
-//   title: string, 
-//   value: string | number,
-//   description: string, 
-//   link: string 
-// }) {
-//   return (
-//     <a href={link} className="block bg-white p-6 rounded-xl shadow hover:shadow-md transition-shadow">
-//       <h2 className="text-xl font-semibold mb-2">{title}</h2>
-//       <p className="text-3xl font-bold text-primary-600 mb-2">{value}</p>
-//       <p className="text-secondary-600">{description}</p>
-//     </a>
-//   )
-// }
-
-// src/app/page.tsx
+// src/app/page.tsx (1)
 'use client'
 
 import { useAccount, useReadContract, useWriteContract } from 'wagmi'
 import { useTranslations } from '../utils/i18n'
-import Nav from '../components/Nav'
-import Footer from '@/components/Footer'
 import { contractAddress, contractABI } from '@/utils/contract'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import StatsCard from '@/components/StatsCard'
+import { Crop, ShoppingBag, BookOpen, Users, Leaf } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const { isConnected, address } = useAccount()
   const { writeContract } = useWriteContract()
+  const { push } = useRouter()
   const t = useTranslations()
   const [isRegistered, setIsRegistered] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [farmerStats, setFarmerStats] = useState({
+    reputation: 0,
+    sustainability: 0,
+    knowledge: 0,
+    harvest: 0,
+    activeCrops: 0,
+    storedCrops: 0,
+    marketCrops: 0,
+    lastActivity: 0
+  })
 
-  const { data: farmer } = useReadContract({
+  const { data: farmer, refetch: refetchFarmer } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'farmers',
     args: [address!],
-  }) as { data: any }
+  }) as { data: any, refetch: () => void }
+
+  const { data: farmCrops, refetch: refetchFarmCrops } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getFarmerCrops',
+    args: [address],
+  }) as { data: bigint[] | undefined, refetch: () => void }
+
+  const { data: siloCrops, refetch: refetchSiloCrops } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getFarmerStoredCrops',
+    args: [address],
+  }) as { data: bigint[] | undefined, refetch: () => void }
+
+  const { data: marketListings } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getActiveMarketListings',
+  }) as { data: any[] | undefined }
 
   useEffect(() => {
     if (farmer && farmer[6]) { // isRegistered field
       setIsRegistered(true)
+      setFarmerStats(prev => ({
+        ...prev,
+        reputation: Number(farmer[1]),
+        sustainability: Number(farmer[2]),
+        knowledge: Number(farmer[3]),
+        harvest: Number(farmer[4]),
+        lastActivity: Number(farmer[5]),
+        activeCrops: farmCrops?.length || 0,
+        storedCrops: siloCrops?.length || 0,
+        marketCrops: marketListings?.filter(l => l.seller === address)?.length || 0
+      }))
     }
-  }, [farmer])
+  }, [farmer, farmCrops, siloCrops, marketListings, address])
 
   const registerFarmer = () => {
     setLoading(true)
@@ -174,11 +80,12 @@ export default function Home() {
       functionName: 'registerFarmer',
     }, {
       onSuccess: () => {
-        toast.success('Successfully registered as farmer!')
+        toast.success(t('registrationSuccess'))
         setIsRegistered(true)
+        refetchFarmer()
       },
       onError: (error) => {
-        toast.error(`Registration failed: ${error.message}`)
+        toast.error(t('registrationError'))
       },
       onSettled: () => {
         setLoading(false)
@@ -186,62 +93,91 @@ export default function Home() {
     })
   }
 
+  const formatDate = (timestamp: number) => {
+    if (!timestamp) return 'Never'
+    return new Date(timestamp * 1000).toLocaleDateString()
+  }
+
   return (
-    <div>
-      <Nav />
+    <>
       <main className="py-8">
-        <h1 className="text-3xl font-bold mb-6">{t('welcome')}</h1>
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="text-3xl font-bold mb-6">{t('welcome')}</h1>
 
-        {isConnected ? (
-          <>
-            {!isRegistered ? (
-              <div className="bg-white p-6 rounded-xl shadow max-w-md mx-auto text-center">
-                <h2 className="text-xl font-semibold mb-4">Register as Farmer</h2>
-                <p className="mb-4 text-secondary-600">You need to register to start using AfriCropDAO</p>
-                <button 
-                  onClick={registerFarmer}
-                  disabled={loading}
-                  className="btn btn-primary w-full"
-                >
-                  {loading ? 'Registering...' : 'Register Now'}
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <DashboardCard
-                  title={t('myCrops')}
-                  description={t('manageYourCrops')}
-                  link="/farm"
-                />
-                <DashboardCard
-                  title={t('marketplace')}
-                  description={t('buySellCrops')}
-                  link="/market"
-                />
-                <DashboardCard
-                  title={t('governance')}
-                  description={t('participateInDAO')}
-                  link="/dao"
-                />
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-lg mb-4">{t('connectWallet')}</p>
-          </div>
-        )}
+          {isConnected ? (
+            <>
+              {!isRegistered ? (
+                <div className="bg-white p-6 rounded-xl shadow max-w-md mx-auto text-center">
+                  <h2 className="text-xl font-semibold mb-4">{t('registerAsFarmer')}</h2>
+                  <p className="mb-4 text-secondary-600">{t('registerPrompt')}</p>
+                  <button 
+                    onClick={registerFarmer}
+                    disabled={loading}
+                    className="btn btn-primary w-full"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center">
+                        <span className="animate-spin mr-2">🌀</span>
+                        {t('registering')}
+                      </span>
+                    ) : t('registerNow')}
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <StatsCard
+                    title={t('reputationPoints')}
+                    value={farmerStats.reputation}
+                    icon={<Users className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('sustainabilityScore')}
+                    value={farmerStats.sustainability}
+                    icon={<Leaf className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('knowledgePoints')}
+                    value={farmerStats.knowledge}
+                    icon={<BookOpen className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('harvestPoints')}
+                    value={farmerStats.harvest}
+                    icon={<Crop className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('activeLands')}
+                    value={farmerStats.activeCrops}
+                    icon={<Leaf className="w-5 h-5" />}
+                    link="/farm"
+                  />
+                  <StatsCard
+                    title={t('storedCrops')}
+                    value={farmerStats.storedCrops}
+                    icon={<ShoppingBag className="w-5 h-5" />}
+                    link="/silo"
+                  />
+                  <StatsCard
+                    title={t('marketListings')}
+                    value={farmerStats.marketCrops}
+                    icon={<ShoppingBag className="w-5 h-5" />}
+                    link="/market"
+                  />
+                  <StatsCard
+                    title={t('lastActivity')}
+                    value={formatDate(farmerStats.lastActivity)}
+                    icon={<Users className="w-5 h-5" />}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12 bg-white rounded-xl shadow">
+              <p className="text-lg mb-4">{t('connectWallet')}</p>
+            </div>
+          )}
+        </div>
       </main>
-      <Footer />
-    </div>
-  )
-}
-
-function DashboardCard({ title, description, link }: { title: string, description: string, link: string }) {
-  return (
-    <a href={link} className="block bg-white p-6 rounded-xl shadow hover:shadow-md transition-shadow">
-      <h2 className="text-xl font-semibold mb-2">{title}</h2>
-      <p className="text-secondary-600">{description}</p>
-    </a>
+    </>
   )
 }

@@ -1,8 +1,10 @@
-// src/app/layout.tsx
+// src/app/layout.tsx (1)
 import './globals.css'
 import { Providers } from './providers'
 import type { Metadata } from 'next'
 import { Inter, Poppins } from 'next/font/google'
+import Nav from '@/components/Nav'
+import Footer from '@/components/Footer'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -30,9 +32,13 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-primary-50">
         <Providers>
           <div className="flex flex-col min-h-screen">
-            <div className="flex-1">
-              {children}
-            </div>
+            <Nav />
+            <main className="flex-1">
+              <div className="max-w-7xl mx-auto px-4 py-8">
+                {children}
+              </div>
+            </main>
+            <Footer />
           </div>
         </Providers>
       </body>

@@ -1,11 +1,13 @@
-// src/components/CropCard.tsx
+// src/components/CropCard.tsx (1)
 'use client'
 
-import { useReadContract } from 'wagmi'
+import { useReadContract, useWriteContract } from 'wagmi'
 import { contractAddress, contractABI } from '../utils/contract'
 import { useTranslations } from '../utils/i18n'
 import Image from 'next/image'
 import ProgressBar from './ProgressBar'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
 
 type CropData = [
   id: bigint,
@@ -25,17 +27,21 @@ export default function CropCard({
   onStore
 }: { 
   cropId: number
-  onUpdateStage: (cropId: number, newStage: number) => void
+  onUpdateStage: (cropId: number, newStage: number, lossPercentage?: number) => void
   onStore: (cropId: number) => void
 }) {
   const t = useTranslations()
+  const { writeContract } = useWriteContract()
+  const [loading, setLoading] = useState(false)
+  const [lossPercentage, setLossPercentage] = useState('')
+  const [showLossInput, setShowLossInput] = useState(false)
   
-  const { data: crop } = useReadContract({
+  const { data: crop, refetch } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'crops',
     args: [BigInt(cropId)],
-  }) as { data: CropData | undefined }
+  }) as { data: CropData | undefined, refetch: () => void }
 
   if (!crop) return null
 
@@ -55,6 +61,74 @@ export default function CropCard({
 
   const stageInfo = cropStage(crop[6])
 
+  const handleUpdateStage = async (newStage: number) => {
+    if (newStage === 2) {
+      setShowLossInput(true)
+      return
+    }
+
+    setLoading(true)
+    try {
+      await writeContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'updateCropStage',
+        args: [BigInt(cropId), newStage, 0], // 0 loss for growing stage
+      })
+      toast.success(`Crop updated to ${stageInfo.text} successfully!`)
+      refetch()
+      if (newStage === 1) {
+        toast.success(`You earned ${Number(crop[7]) * 4} sustainability points!`)
+      }
+    } catch (error) {
+      toast.error('Failed to update crop stage')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleHarvest = async () => {
+    if (!lossPercentage) return
+    
+    setLoading(true)
+    try {
+      await writeContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'updateCropStage',
+        args: [BigInt(cropId), 2, Number(lossPercentage)],
+      })
+      toast.success(`Crop harvested successfully with ${lossPercentage}% loss!`)
+      const harvestPoints = (Number(crop[7]) * (100 - Number(lossPercentage)) / 100) * 2
+      toast.success(`You earned ${harvestPoints} harvest points!`)
+      refetch()
+      setShowLossInput(false)
+    } catch (error) {
+      toast.error('Failed to harvest crop')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleStore = async () => {
+    setLoading(true)
+    try {
+      await writeContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'storeCrop',
+        args: [BigInt(cropId)],
+      })
+      toast.success('Crop stored in silo successfully!')
+      onStore(cropId)
+      refetch()
+    } catch (error) {
+      toast.error('Failed to store crop')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="card border border-secondary-200 hover:border-primary-300 transition-colors">
       <div className="p-4 flex items-start space-x-4">
@@ -72,7 +146,7 @@ export default function CropCard({
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-bold text-lg capitalize">{t(cropTypes[Number(crop[2])])}</h3>
-              <p className="text-secondary-600 text-sm">Land #{cropId}</p>
+              <p className="text-secondary-600 text-sm">ID: {cropId}</p>
             </div>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${stageInfo.color} text-white`}>
               {stageInfo.text}
@@ -97,30 +171,61 @@ export default function CropCard({
       </div>
       
       <div className="border-t border-secondary-200 p-4">
-        {Number(crop[6]) === 0 && (
+        {showLossInput ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium mb-1">Loss Percentage</label>
+              <input
+                type="number"
+                value={lossPercentage}
+                onChange={(e) => setLossPercentage(e.target.value)}
+                className="input-field"
+                placeholder="0-100"
+                min="0"
+                max="100"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setShowLossInput(false)}
+                className="btn btn-outline flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleHarvest}
+                disabled={!lossPercentage || loading}
+                className="btn btn-primary flex-1"
+              >
+                {loading ? 'Processing...' : 'Confirm Harvest'}
+              </button>
+            </div>
+          </div>
+        ) : Number(crop[6]) === 0 ? (
           <button 
-            onClick={() => onUpdateStage(cropId, 1)}
+            onClick={() => handleUpdateStage(1)}
+            disabled={loading}
             className="btn btn-outline w-full"
           >
-            Mark as Growing
+            {loading ? 'Processing...' : 'Mark as Growing'}
           </button>
-        )}
-        {Number(crop[6]) === 1 && (
+        ) : Number(crop[6]) === 1 ? (
           <button 
-            onClick={() => onUpdateStage(cropId, 2)}
+            onClick={() => setShowLossInput(true)}
+            disabled={loading}
             className="btn btn-outline w-full"
           >
-            Mark as Harvested
+            {loading ? 'Processing...' : 'Mark as Harvested'}
           </button>
-        )}
-        {Number(crop[6]) === 2 && (
+        ) : Number(crop[6]) === 2 ? (
           <button 
-            onClick={() => onStore(cropId)}
+            onClick={handleStore}
+            disabled={loading}
             className="btn btn-primary w-full"
           >
-            Store in Silo
+            {loading ? 'Processing...' : 'Store in Silo'}
           </button>
-        )}
+        ) : null}
       </div>
     </div>
   )

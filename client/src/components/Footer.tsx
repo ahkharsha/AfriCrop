@@ -1,12 +1,16 @@
-// src/components/Footer.tsx
+// src/components/Footer.tsx (1)
+'use client'
+
 import { useTranslations } from '../utils/i18n'
 import Image from 'next/image'
+import { useAccount } from 'wagmi'
 
 export default function Footer() {
   const t = useTranslations()
+  const { isConnected } = useAccount()
   
   return (
-    <footer className="bg-primary-900 text-white py-8">
+    <footer className={`bg-primary-900 text-white py-8 ${!isConnected ? 'mt-auto' : ''}`}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center space-x-4 mb-4 md:mb-0">
@@ -25,10 +29,10 @@ export default function Footer() {
           
           <div className="text-center md:text-right">
             <p className="text-primary-300">
-              © {new Date().getFullYear()} AfriCropDAO. All rights reserved.
+              © {new Date().getFullYear()} AfriCropDAO. {t('allRightsReserved')}
             </p>
             <p className="text-primary-400 text-sm mt-1">
-              Building sustainable farming through blockchain
+              {t('sustainableFarming')}
             </p>
           </div>
         </div>

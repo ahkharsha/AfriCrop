@@ -1,19 +1,29 @@
-// src/components/Card.tsx
+// src/components/Card.tsx (1)
 import { ReactNode } from 'react'
+import { useTranslations } from '../utils/i18n'
 
 export default function Card({
   children,
   className = '',
   title,
   action,
+  onClick
 }: {
   children: ReactNode
   className?: string
   title?: string
   action?: ReactNode
+  onClick?: () => void
 }) {
+  const t = useTranslations()
+  
   return (
-    <div className={`bg-white rounded-2xl shadow-lg overflow-hidden ${className}`}>
+    <div 
+      className={`bg-white rounded-2xl shadow-lg overflow-hidden ${className} ${
+        onClick ? 'cursor-pointer hover:shadow-xl transition-shadow' : ''
+      }`}
+      onClick={onClick}
+    >
       {(title || action) && (
         <div className="border-b border-secondary-200 p-4 flex justify-between items-center">
           {title && <h3 className="font-semibold text-lg text-secondary-800">{title}</h3>}

@@ -1,20 +1,23 @@
-// src/components/StatsCard.tsx
+// src/components/StatsCard.tsx (1)
 'use client'
 
 import { ReactNode } from 'react'
+import Link from 'next/link'
 
 export default function StatsCard({
   title,
   value,
   icon,
   trend,
-  className = ''
+  className = '',
+  link
 }: {
   title: string
   value: string | number
   icon: ReactNode
   trend?: 'up' | 'down' | 'neutral'
   className?: string
+  link?: string
 }) {
   const trendColors = {
     up: 'text-green-500',
@@ -22,8 +25,8 @@ export default function StatsCard({
     neutral: 'text-yellow-500'
   }
 
-  return (
-    <div className={`bg-white p-4 rounded-xl shadow-sm border border-secondary-200 ${className}`}>
+  const content = (
+    <div className={`bg-white p-6 rounded-xl shadow-sm border border-secondary-200 hover:shadow-md transition-shadow ${className}`}>
       <div className="flex justify-between items-start">
         <div>
           <p className="text-secondary-600 text-sm">{title}</p>
@@ -44,4 +47,10 @@ export default function StatsCard({
       )}
     </div>
   )
+
+  return link ? (
+    <Link href={link} className="block">
+      {content}
+    </Link>
+  ) : content
 }

@@ -4,15 +4,15 @@
 import { useAccount, useReadContract } from 'wagmi'
 import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
-import Nav from '@/components/Nav'
-import Footer from '@/components/Footer'
 import Card from '@/components/Card'
 import StatsCard from '@/components/StatsCard'
 import { Leaf, Award, Droplet, Cloud } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function ClimatePage() {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const t = useTranslations()
+  const router = useRouter()
   
   const { data: farmer } = useReadContract({
     address: contractAddress,
@@ -28,106 +28,118 @@ export default function ClimatePage() {
     args: [20],
   }) as { data: [string[], bigint[]] | undefined }
 
-  return (
-    <div>
-      <Nav />
-      <main className="py-8">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-2">Sustainability Dashboard</h1>
-          <p className="text-secondary-600 mb-8">
-            Track your environmental impact and compare with other farmers
-          </p>
+  if (!isConnected) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg mb-4">{t('connectWallet')}</p>
+      </div>
+    )
+  }
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatsCard
-              title="Your Sustainability Score"
-              value={farmer ? farmer[2].toString() : '0'}
-              icon={<Leaf className="w-5 h-5 text-green-500" />}
-              trend="up"
-            />
-            <StatsCard
-              title="Knowledge Points"
-              value={farmer ? farmer[3].toString() : '0'}
-              icon={<Award className="w-5 h-5 text-blue-500" />}
-              trend="neutral"
-            />
-            <StatsCard
-              title="Water Conservation"
-              value="85%"
-              icon={<Droplet className="w-5 h-5 text-blue-400" />}
-              trend="up"
-            />
-            <StatsCard
-              title="Carbon Footprint"
-              value="Low"
-              icon={<Cloud className="w-5 h-5 text-gray-500" />}
-              trend="down"
-            />
+  if (!farmer?.[6]) { // isRegistered field
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg mb-4">{t('registerFarmerFirst')}</p>
+      </div>
+    )
+  }
+
+  return (
+    <main className="py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <h1 className="text-3xl font-bold mb-2">{t('sustainabilityDashboard')}</h1>
+        <p className="text-secondary-600 mb-8">
+          {t('trackEnvironmentalImpact')}
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatsCard
+            title={t('yourSustainabilityScore')}
+            value={farmer ? farmer[2].toString() : '0'}
+            icon={<Leaf className="w-5 h-5 text-green-500" />}
+            trend="up"
+          />
+          <StatsCard
+            title={t('knowledgePoints')}
+            value={farmer ? farmer[3].toString() : '0'}
+            icon={<Award className="w-5 h-5 text-blue-500" />}
+            trend="neutral"
+          />
+          <StatsCard
+            title={t('waterConservation')}
+            value="85%"
+            icon={<Droplet className="w-5 h-5 text-blue-400" />}
+            trend="up"
+          />
+          <StatsCard
+            title={t('carbonFootprint')}
+            value={t('low')}
+            icon={<Cloud className="w-5 h-5 text-gray-500" />}
+            trend="down"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card title={t('sustainabilityLeaderboard')}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-secondary-200">
+                      <th className="text-left py-3 px-4">{t('rank')}</th>
+                      <th className="text-left py-3 px-4">{t('farmer')}</th>
+                      <th className="text-right py-3 px-4">{t('score')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topFarmers?.[0]?.map((farmerAddress, index) => (
+                      <tr 
+                        key={farmerAddress} 
+                        className={`border-b border-secondary-100 ${
+                          farmerAddress === address ? 'bg-primary-50' : ''
+                        }`}
+                      >
+                        <td className="py-3 px-4">{index + 1}</td>
+                        <td className="py-3 px-4">
+                          {farmerAddress === address ? t('you') : `${farmerAddress.substring(0, 6)}...${farmerAddress.substring(38)}`}
+                        </td>
+                        <td className="text-right py-3 px-4 font-medium">
+                          {topFarmers[1][index].toString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card title="Sustainability Leaderboard">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-secondary-200">
-                        <th className="text-left py-3 px-4">Rank</th>
-                        <th className="text-left py-3 px-4">Farmer</th>
-                        <th className="text-right py-3 px-4">Score</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {topFarmers?.[0]?.map((farmerAddress, index) => (
-                        <tr 
-                          key={farmerAddress} 
-                          className={`border-b border-secondary-100 ${
-                            farmerAddress === address ? 'bg-primary-50' : ''
-                          }`}
-                        >
-                          <td className="py-3 px-4">{index + 1}</td>
-                          <td className="py-3 px-4">
-                            {farmerAddress === address ? 'You' : `${farmerAddress.substring(0, 6)}...${farmerAddress.substring(38)}`}
-                          </td>
-                          <td className="text-right py-3 px-4 font-medium">
-                            {topFarmers[1][index].toString()}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          <div>
+            <Card title={t('improvementTips')}>
+              <div className="space-y-4">
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <h4 className="font-semibold mb-2">{t('cropRotation')}</h4>
+                  <p className="text-sm text-secondary-600">
+                    {t('cropRotationTip')}
+                  </p>
                 </div>
-              </Card>
-            </div>
-
-            <div>
-              <Card title="Tips to Improve">
-                <div className="space-y-4">
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Crop Rotation</h4>
-                    <p className="text-sm text-secondary-600">
-                      Rotate between different crop types each season to maintain soil health.
-                    </p>
-                  </div>
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Water Conservation</h4>
-                    <p className="text-sm text-secondary-600">
-                      Use drip irrigation systems to reduce water usage by up to 30%.
-                    </p>
-                  </div>
-                  <div className="p-4 bg-yellow-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Organic Fertilizers</h4>
-                    <p className="text-sm text-secondary-600">
-                      Replace chemical fertilizers with compost to improve soil quality.
-                    </p>
-                  </div>
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-semibold mb-2">{t('waterConservation')}</h4>
+                  <p className="text-sm text-secondary-600">
+                    {t('waterConservationTip')}
+                  </p>
                 </div>
-              </Card>
-            </div>
+                <div className="p-4 bg-yellow-50 rounded-lg">
+                  <h4 className="font-semibold mb-2">{t('organicFertilizers')}</h4>
+                  <p className="text-sm text-secondary-600">
+                    {t('organicFertilizersTip')}
+                  </p>
+                </div>
+              </div>
+            </Card>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </main>
   )
 }

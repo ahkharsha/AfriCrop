@@ -1,4 +1,4 @@
-// src/app/providers.tsx
+// src/app/providers.tsx (1)
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -9,11 +9,12 @@ import { curtis } from 'wagmi/chains'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { useModal } from 'connectkit'
 import { useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 20, // 20 seconds
+      staleTime: 1000 * 5, // 20 seconds
     },
   },
 })
@@ -25,6 +26,7 @@ function ChainValidator({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     if (chain && chain.id !== curtis.id) {
+      toast.error('Please switch to Curtis Testnet (Chain ID 33111)')
       const shouldSwitch = confirm('Please switch to Curtis Testnet (Chain ID 33111)')
       if (shouldSwitch) {
         switchChain({ chainId: curtis.id })
@@ -40,7 +42,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>
+        <ConnectKitProvider
+          options={{
+            initialChainId: curtis.id,
+          }}
+        >
           <ChainValidator>
             {children}
           </ChainValidator>

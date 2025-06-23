@@ -1,9 +1,13 @@
-// src/components/ListingCard.tsx
+// src/components/ListingCard.tsx (1)
 'use client'
 
 import { useTranslations } from '../utils/i18n'
 import Image from 'next/image'
 import { ShoppingCart } from 'lucide-react'
+import { useWriteContract, useAccount } from 'wagmi'
+import { contractAddress, contractABI } from '@/utils/contract'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
 
 type Listing = {
   listingId: bigint
@@ -17,11 +21,37 @@ type Listing = {
 
 export default function ListingCard({ listing }: { listing: Listing }) {
   const t = useTranslations()
+  const { writeContract } = useWriteContract()
+  const { address } = useAccount()
+  const [loading, setLoading] = useState(false)
   
   const cropTypes = [
     'maize', 'rice', 'wheat', 'cassava', 'beans', 
     'sorghum', 'millet', 'yam', 'potatoes', 'coffee', 'cotton'
   ]
+
+  const handlePurchase = () => {
+    if (!address) return
+    
+    setLoading(true)
+    writeContract({
+      address: contractAddress,
+      abi: contractABI,
+      functionName: 'purchaseCrop',
+      args: [listing.listingId],
+      value: listing.priceInWei
+    }, {
+      onSuccess: () => {
+        toast.success(t('purchaseSuccessful'))
+      },
+      onError: (error) => {
+        toast.error(t('purchaseFailed') + ': ' + error.message)
+      },
+      onSettled: () => {
+        setLoading(false)
+      }
+    })
+  }
 
   return (
     <div className="card group">
@@ -43,13 +73,25 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           
           <div className="grid grid-cols-2 gap-4 mt-3">
             <div>
-              <p className="text-secondary-500 text-sm">Quantity</p>
+              <p className="text-secondary-500 text-sm">{t('quantity')}</p>
               <p className="font-medium">{listing.quantityToSell.toString()}</p>
             </div>
             <div>
-              <p className="text-secondary-500 text-sm">Price</p>
+              <p className="text-secondary-500 text-sm">{t('price')}</p>
               <p className="font-medium">
                 {(Number(listing.priceInWei) / 1e18).toFixed(4)} ETH
+              </p>
+            </div>
+            <div>
+              <p className="text-secondary-500 text-sm">{t('seller')}</p>
+              <p className="font-medium text-sm truncate">
+                {listing.seller.substring(0, 6)}...{listing.seller.substring(38)}
+              </p>
+            </div>
+            <div>
+              <p className="text-secondary-500 text-sm">{t('listed')}</p>
+              <p className="font-medium text-sm">
+                {new Date(Number(listing.listingTimestamp) * 1000).toLocaleDateString()}
               </p>
             </div>
           </div>
@@ -57,9 +99,26 @@ export default function ListingCard({ listing }: { listing: Listing }) {
       </div>
       
       <div className="border-t border-secondary-200 p-4">
-        <button className="btn btn-primary w-full group-hover:bg-primary-700 transition-colors">
-          <ShoppingCart className="w-5 h-5 mr-2" />
-          {t('purchase')}
+        <button
+          onClick={handlePurchase}
+          disabled={loading || listing.seller === address}
+          className={`btn w-full ${
+            listing.seller === address 
+              ? 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
+              : 'btn-primary group-hover:bg-primary-700 transition-colors'
+          }`}
+        >
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <span className="animate-spin mr-2">🌀</span>
+              {t('processing')}
+            </span>
+          ) : (
+            <>
+              <ShoppingCart className="w-5 h-5 mr-2" />
+              {listing.seller === address ? t('yourListing') : t('purchase')}
+            </>
+          )}
         </button>
       </div>
     </div>

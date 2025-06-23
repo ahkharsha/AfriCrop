@@ -1,4 +1,4 @@
-// src/components/Nav.tsx
+// src/components/Nav.tsx (1)
 'use client'
 
 import Link from 'next/link'
@@ -7,10 +7,12 @@ import { ConnectKitButton } from 'connectkit'
 import { useTranslations } from '../utils/i18n'
 import LanguageSwitcher from './LanguageSwitcher'
 import Image from 'next/image'
+import { useAccount } from 'wagmi'
 
 export default function Nav() {
   const pathname = usePathname()
   const t = useTranslations()
+  const { isConnected } = useAccount()
 
   const links = [
     { href: '/', label: t('home') },
@@ -37,28 +39,30 @@ export default function Nav() {
             <span className="font-bold text-xl hidden sm:inline">AfriCropDAO</span>
           </Link>
           
-          <div className="hidden md:flex space-x-6">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`${
-                  pathname === link.href 
-                    ? 'text-white font-semibold border-b-2 border-white' 
-                    : 'text-primary-200 hover:text-white'
-                } transition-colors px-2 py-1`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {isConnected && (
+            <div className="hidden md:flex space-x-6">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`${
+                    pathname === link.href 
+                      ? 'text-white font-semibold border-b-2 border-white' 
+                      : 'text-primary-200 hover:text-white'
+                  } transition-colors px-2 py-1`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
         
         <div className="flex items-center space-x-4">
           <LanguageSwitcher />
           <ConnectKitButton 
             theme="rounded"
-            label="Connect Wallet"
+            label={t('connectWallet')}
           />
         </div>
       </div>

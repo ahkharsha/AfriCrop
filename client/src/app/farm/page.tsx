@@ -4,10 +4,11 @@
 import { useAccount, useReadContract, useWriteContract } from 'wagmi'
 import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
-import Nav from '@/components/Nav'
-import Footer from '@/components/Footer'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import CropCard from '@/components/CropCard'
+import Card from '@/components/Card'
+import { Sprout } from 'lucide-react'
 
 type Crop = [
   id: bigint,
@@ -22,92 +23,143 @@ type Crop = [
 ]
 
 export default function FarmPage() {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const { writeContract } = useWriteContract()
   const t = useTranslations()
   const [selectedCropType, setSelectedCropType] = useState(0)
   const [seedsAmount, setSeedsAmount] = useState(100)
+  const [loading, setLoading] = useState(false)
 
-  const { data: farmerCrops } = useReadContract({
+  const { data: farmerCrops, refetch: refetchCrops } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getFarmerCrops',
     args: [address],
-  }) as { data: bigint[] | undefined }
+  }) as { data: bigint[] | undefined, refetch: () => void }
 
-  const sowCrop = () => {
-    writeContract({
-      address: contractAddress,
-      abi: contractABI,
-      functionName: 'sowCrop',
-      args: [selectedCropType, "farm123", seedsAmount],
-    }, {
-      onSuccess: () => {
-        toast.success('Crop sown successfully!')
-      },
-      onError: (error) => {
-        toast.error(`Failed to sow crop: ${error.message}`)
-      }
-    })
+  const { data: farmer } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'farmers',
+    args: [address!],
+  }) as { data: any }
+
+  const sowCrop = async () => {
+    if (!seedsAmount || seedsAmount <= 0) {
+      toast.error(t('invalidSeedAmount'))
+      return
+    }
+
+    setLoading(true)
+    try {
+      await writeContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'sowCrop',
+        args: [selectedCropType, "farm123", seedsAmount],
+      })
+      toast.success(t('cropSownSuccess'))
+      refetchCrops()
+    } catch (error: any) {
+      toast.error(t('sowCropError') + (error.shortMessage || error.message))
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const updateCropStage = (cropId: number, newStage: number) => {
-    writeContract({
-      address: contractAddress,
-      abi: contractABI,
-      functionName: 'updateCropStage',
-      args: [cropId, newStage],
-    }, {
-      onSuccess: () => {
-        toast.success('Crop stage updated!')
-      },
-      onError: (error) => {
-        toast.error(`Failed to update crop: ${error.message}`)
+  const updateCropStage = async (cropId: number, newStage: number, lossPercentage?: number) => {
+    setLoading(true)
+    try {
+      await writeContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'updateCropStage',
+        args: [BigInt(cropId), newStage, lossPercentage || 0],
+      })
+      
+      if (newStage === 1) {
+        // Calculate sustainability points (4 per seed for maize as defined in contract)
+        const points = seedsAmount * 4
+        toast.success(`${t('cropGrowingSuccess')} +${points} ${t('sustainabilityPoints')}`)
+      } else if (newStage === 2) {
+        // Calculate harvest points (2 per harvested plant for maize)
+        const harvested = seedsAmount * (100 - (lossPercentage || 0)) / 100
+        const points = harvested * 2
+        toast.success(`${t('cropHarvestedSuccess')} +${points} ${t('harvestPoints')}`)
       }
-    })
+      
+      refetchCrops()
+    } catch (error: any) {
+      toast.error(t('updateCropError') + (error.shortMessage || error.message))
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const storeCrop = (cropId: number) => {
-    writeContract({
-      address: contractAddress,
-      abi: contractABI,
-      functionName: 'storeCrop',
-      args: [cropId],
-    }, {
-      onSuccess: () => {
-        toast.success('Crop stored in silo!')
-      },
-      onError: (error) => {
-        toast.error(`Failed to store crop: ${error.message}`)
-      }
-    })
+  const storeCrop = async (cropId: number) => {
+    setLoading(true)
+    try {
+      await writeContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'storeCrop',
+        args: [BigInt(cropId)],
+      })
+      toast.success(t('cropStoredSuccess'))
+      refetchCrops()
+    } catch (error: any) {
+      toast.error(t('storeCropError') + (error.shortMessage || error.message))
+    } finally {
+      setLoading(false)
+    }
   }
 
   const cropTypes = [
-    { id: 0, name: 'maize', image: '/crops/maize.png' },
-    { id: 1, name: 'rice', image: '/crops/rice.png' },
-    { id: 2, name: 'wheat', image: '/crops/wheat.png' },
-    { id: 3, name: 'cassava', image: '/crops/cassava.png' },
-    { id: 4, name: 'beans', image: '/crops/beans.png' },
-    { id: 5, name: 'sorghum', image: '/crops/sorghum.png' },
-    { id: 6, name: 'millet', image: '/crops/millet.png' },
-    { id: 7, name: 'yam', image: '/crops/yam.png' },
-    { id: 8, name: 'potatoes', image: '/crops/potatoes.png' },
-    { id: 9, name: 'coffee', image: '/crops/coffee.png' },
-    { id: 10, name: 'cotton', image: '/crops/cotton.png' },
+    { id: 0, name: 'maize' },
+    { id: 1, name: 'rice' },
+    { id: 2, name: 'wheat' },
+    { id: 3, name: 'cassava' },
+    { id: 4, name: 'beans' },
+    { id: 5, name: 'sorghum' },
+    { id: 6, name: 'millet' },
+    { id: 7, name: 'yam' },
+    { id: 8, name: 'potatoes' },
+    { id: 9, name: 'coffee' },
+    { id: 10, name: 'cotton' },
   ]
 
+  if (!isConnected) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg mb-4">{t('connectWallet')}</p>
+      </div>
+    )
+  }
+
+  if (!farmer?.[6]) { // isRegistered field
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg mb-4">{t('registerFarmerFirst')}</p>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <Nav />
-      <main className="py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">My Farm</h1>
-          <div className="flex items-center space-x-4">
+    <main className="py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">{t('myFarm')}</h1>
+            <p className="text-secondary-600">
+              {farmerCrops?.length || 0} {t('activeLands')}
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
             <select 
               value={selectedCropType}
               onChange={(e) => setSelectedCropType(Number(e.target.value))}
-              className="border border-secondary-300 rounded-md px-3 py-2"
+              className="input-field flex-1 min-w-[150px]"
             >
               {cropTypes.map((type) => (
                 <option key={type.id} value={type.id}>
@@ -115,126 +167,61 @@ export default function FarmPage() {
                 </option>
               ))}
             </select>
-            <input
-              type="number"
-              value={seedsAmount}
-              onChange={(e) => setSeedsAmount(Number(e.target.value))}
-              min="1"
-              className="border border-secondary-300 rounded-md px-3 py-2 w-20"
-            />
-            <button onClick={sowCrop} className="btn btn-primary">
-              {t('sowNewCrop')}
+            
+            <div className="relative flex-1 w-full">
+              <input
+                type="number"
+                value={seedsAmount}
+                onChange={(e) => setSeedsAmount(Number(e.target.value))}
+                min="1"
+                className="input-field w-full pl-12"
+              />
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-500">
+                {t('seeds')}
+              </span>
+            </div>
+            
+            <button 
+              onClick={sowCrop}
+              disabled={loading}
+              className="btn btn-primary w-full sm:w-auto"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <span className="animate-spin mr-2">🌀</span>
+                  {t('sowing')}
+                </span>
+              ) : (
+                <>
+                  <Sprout className="w-4 h-4 mr-2" />
+                  {t('sowNewCrop')}
+                </>
+              )}
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {farmerCrops?.map((cropId: bigint) => (
-            <CropCard 
-              key={cropId.toString()} 
-              cropId={Number(cropId)} 
-              onUpdateStage={updateCropStage}
-              onStore={storeCrop}
-            />
-          ))}
-        </div>
-      </main>
-      <Footer />
-    </div>
-  )
-}
-
-function CropCard({ 
-  cropId, 
-  onUpdateStage,
-  onStore
-}: { 
-  cropId: number
-  onUpdateStage: (cropId: number, newStage: number) => void
-  onStore: (cropId: number) => void
-}) {
-  const { data: crop } = useReadContract({
-    address: contractAddress,
-    abi: contractABI,
-    functionName: 'crops',
-    args: [cropId],
-  }) as { data: Crop | undefined }
-  
-  const t = useTranslations()
-  
-  if (!crop) return null
-
-  const cropStage = (stage: bigint) => {
-    switch(Number(stage)) {
-      case 0: return t('sown')
-      case 1: return t('growing')
-      case 2: return t('harvested')
-      case 3: return t('selling')
-      case 4: return t('sold')
-      case 5: return t('cancelled')
-      default: return t('unknown')
-    }
-  }
-
-  const cropTypes = [
-    'maize', 'rice', 'wheat', 'cassava', 'beans', 
-    'sorghum', 'millet', 'yam', 'potatoes', 'coffee', 'cotton'
-  ]
-
-  return (
-    <div className="bg-white p-6 rounded-xl shadow hover:shadow-md transition-shadow">
-      <div className="flex items-center mb-4">
-        <img 
-          src={`/crops/${cropTypes[Number(crop[2])]}.png`} 
-          alt={t(cropTypes[Number(crop[2])])}
-          className="w-16 h-16 object-cover rounded-lg mr-4"
-        />
-        <div>
-          <h3 className="font-semibold text-lg">{t(cropTypes[Number(crop[2])])}</h3>
-          <p className="text-secondary-600 text-sm">Land #{cropId}</p>
-        </div>
-      </div>
-      
-      <div className="space-y-2 text-sm mb-4">
-        <p className="text-secondary-600">
-          <span className="font-medium">{t('stage')}:</span> {cropStage(crop[6])}
-        </p>
-        <p className="text-secondary-600">
-          <span className="font-medium">{t('seeds')}:</span> {crop[7].toString()}
-        </p>
-        {Number(crop[6]) > 1 && (
-          <p className="text-secondary-600">
-            <span className="font-medium">{t('harvested')}:</span> {crop[8].toString()}
-          </p>
+        {farmerCrops?.length ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {farmerCrops.map((cropId: bigint) => (
+              <CropCard 
+                key={cropId.toString()} 
+                cropId={Number(cropId)} 
+                onUpdateStage={updateCropStage}
+                onStore={storeCrop}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card className="text-center py-12">
+            <Sprout className="w-12 h-12 mx-auto text-secondary-400" />
+            <h3 className="text-xl font-semibold mt-4">{t('noActiveCrops')}</h3>
+            <p className="text-secondary-600 mt-2">
+              {t('sowYourFirstCrop')}
+            </p>
+          </Card>
         )}
       </div>
-
-      <div className="space-y-2">
-        {Number(crop[6]) === 0 && (
-          <button 
-            onClick={() => onUpdateStage(cropId, 1)}
-            className="btn btn-outline w-full"
-          >
-            Mark as Growing
-          </button>
-        )}
-        {Number(crop[6]) === 1 && (
-          <button 
-            onClick={() => onUpdateStage(cropId, 2)}
-            className="btn btn-outline w-full"
-          >
-            Mark as Harvested
-          </button>
-        )}
-        {Number(crop[6]) === 2 && (
-          <button 
-            onClick={() => onStore(cropId)}
-            className="btn btn-primary w-full"
-          >
-            Store in Silo
-          </button>
-        )}
-      </div>
-    </div>
+    </main>
   )
 }

@@ -1,12 +1,18 @@
-// src/components/LanguageSwitcher.tsx
+// src/components/LanguageSwitcher.tsx (1)
 'use client'
 
 import { useLanguage } from '../utils/i18n'
 import { Globe } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export default function LanguageSwitcher() {
   const { lang, setLang } = useLanguage()
+  const [mounted, setMounted] = useState(false)
   
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const languages = [
     { code: 'en', name: 'English' },
     { code: 'sw', name: 'Swahili' },
@@ -14,6 +20,8 @@ export default function LanguageSwitcher() {
     { code: 'fr', name: 'Français' },
     { code: 'ar', name: 'العربية' }
   ]
+
+  if (!mounted) return null
 
   return (
     <div className="relative group">
