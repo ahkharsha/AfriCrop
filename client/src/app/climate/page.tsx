@@ -6,7 +6,7 @@ import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
 import Card from '@/components/Card'
 import StatsCard from '@/components/StatsCard'
-import { Leaf, Award, Droplet, Cloud } from 'lucide-react'
+import { Leaf, Award, Droplet, Cloud, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function ClimatePage() {
@@ -14,19 +14,19 @@ export default function ClimatePage() {
   const t = useTranslations()
   const router = useRouter()
   
-  const { data: farmer } = useReadContract({
+  const { data: farmer, isLoading: farmerLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'farmers',
     args: [address!],
-  }) as { data: any }
+  }) as { data: any, isLoading: boolean }
 
-  const { data: topFarmers } = useReadContract({
+  const { data: topFarmers, isLoading: topFarmersLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getTopFarmersBySustainability',
     args: [20],
-  }) as { data: [string[], bigint[]] | undefined }
+  }) as { data: [string[], bigint[]] | undefined, isLoading: boolean }
 
   if (!isConnected) {
     return (
@@ -36,7 +36,15 @@ export default function ClimatePage() {
     )
   }
 
-  if (!farmer?.[6]) { // isRegistered field
+  if (farmerLoading || topFarmersLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+      </div>
+    )
+  }
+
+  if (!farmer?.[6]) {
     return (
       <div className="text-center py-12">
         <p className="text-lg mb-4">{t('registerFarmerFirst')}</p>

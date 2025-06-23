@@ -1,4 +1,4 @@
-// src/utils/i18n.ts (1)
+// src/utils/i18n.ts
 'use client'
 
 import i18n from 'i18next'
@@ -32,6 +32,7 @@ i18n
     detection: {
       order: ['cookie', 'navigator', 'htmlTag', 'path', 'subdomain'],
       caches: ['cookie'],
+      cookieMinutes: 525600, // 1 year
     },
     react: {
       useSuspense: false,

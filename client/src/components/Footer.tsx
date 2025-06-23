@@ -1,9 +1,11 @@
-// src/components/Footer.tsx (1)
+// src/components/Footer.tsx
 'use client'
 
 import { useTranslations } from '../utils/i18n'
 import Image from 'next/image'
 import { useAccount } from 'wagmi'
+import { Github, Linkedin } from 'lucide-react'
+import Link from 'next/link'
 
 export default function Footer() {
   const t = useTranslations()
@@ -24,7 +26,19 @@ export default function Footer() {
             <div>
               <h3 className="font-bold text-lg">AfriCropDAO</h3>
               <p className="text-primary-300 text-sm">{t('footerText')}</p>
+              <p className="text-primary-400 text-xs mt-1">
+                Built for APECHAIN Africa Hackathon UCC
+              </p>
             </div>
+          </div>
+          
+          <div className="flex items-center space-x-4 mb-4 md:mb-0">
+            <Link href="https://github.com/ahkharsha/AfriCrop-DAO" target="_blank">
+              <Github className="w-6 h-6 text-primary-300 hover:text-white transition-colors" />
+            </Link>
+            <Link href="https://www.linkedin.com/in/harsha-kumar-a-271a76203/" target="_blank">
+              <Linkedin className="w-6 h-6 text-primary-300 hover:text-white transition-colors" />
+            </Link>
           </div>
           
           <div className="text-center md:text-right">

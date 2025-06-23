@@ -1,13 +1,14 @@
-// src/components/ListingCard.tsx (1)
+// src/components/ListingCard.tsx
 'use client'
 
 import { useTranslations } from '../utils/i18n'
 import Image from 'next/image'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Loader2 } from 'lucide-react'
 import { useWriteContract, useAccount } from 'wagmi'
 import { contractAddress, contractABI } from '@/utils/contract'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { formatUnits } from 'viem'
 
 type Listing = {
   listingId: bigint
@@ -24,15 +25,30 @@ export default function ListingCard({ listing }: { listing: Listing }) {
   const { writeContract } = useWriteContract()
   const { address } = useAccount()
   const [loading, setLoading] = useState(false)
-  
+
   const cropTypes = [
-    'maize', 'rice', 'wheat', 'cassava', 'beans', 
+    'maize', 'rice', 'wheat', 'cassava', 'beans',
     'sorghum', 'millet', 'yam', 'potatoes', 'coffee', 'cotton'
   ]
 
+  const formatPrice = (priceWei: bigint) => {
+    try {
+      const priceApe = formatUnits(priceWei, 18)
+      const numericPrice = Number(priceApe)
+      
+      if (numericPrice >= 1) return numericPrice.toFixed(2)
+      if (numericPrice >= 0.01) return numericPrice.toFixed(4)
+      if (numericPrice > 0) return numericPrice.toFixed(8)
+      return '0'
+    } catch (error) {
+      console.error("Error formatting price:", error)
+      return '0'
+    }
+  }
+
   const handlePurchase = () => {
     if (!address) return
-    
+
     setLoading(true)
     writeContract({
       address: contractAddress,
@@ -57,7 +73,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
     <div className="card group">
       <div className="p-4 flex items-start space-x-4">
         <div className="flex-shrink-0">
-          <Image 
+          <Image
             src={`/crops/${cropTypes[Number(listing.cropId)]}.png`}
             alt={t(cropTypes[Number(listing.cropId)])}
             width={80}
@@ -65,12 +81,12 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             className="rounded-lg object-cover"
           />
         </div>
-        
+
         <div className="flex-1">
           <h3 className="font-bold text-lg capitalize">
             {t(cropTypes[Number(listing.cropId)])}
           </h3>
-          
+
           <div className="grid grid-cols-2 gap-4 mt-3">
             <div>
               <p className="text-secondary-500 text-sm">{t('quantity')}</p>
@@ -79,7 +95,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             <div>
               <p className="text-secondary-500 text-sm">{t('price')}</p>
               <p className="font-medium">
-                {(Number(listing.priceInWei) / 1e18).toFixed(4)} ETH
+                {formatPrice(listing.priceInWei)} APE
               </p>
             </div>
             <div>
@@ -97,22 +113,18 @@ export default function ListingCard({ listing }: { listing: Listing }) {
           </div>
         </div>
       </div>
-      
+
       <div className="border-t border-secondary-200 p-4">
         <button
           onClick={handlePurchase}
           disabled={loading || listing.seller === address}
-          className={`btn w-full ${
-            listing.seller === address 
-              ? 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
-              : 'btn-primary group-hover:bg-primary-700 transition-colors'
-          }`}
+          className={`btn w-full ${listing.seller === address
+            ? 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
+            : 'btn-primary group-hover:bg-primary-700 transition-colors'
+            }`}
         >
           {loading ? (
-            <span className="flex items-center justify-center">
-              <span className="animate-spin mr-2">🌀</span>
-              {t('processing')}
-            </span>
+            <Loader2 className="w-5 h-5 animate-spin mx-auto" />
           ) : (
             <>
               <ShoppingCart className="w-5 h-5 mr-2" />

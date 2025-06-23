@@ -1,4 +1,4 @@
-// src/components/CropCard.tsx (1)
+// src/components/CropCard.tsx
 'use client'
 
 import { useReadContract, useWriteContract } from 'wagmi'
@@ -8,6 +8,7 @@ import Image from 'next/image'
 import ProgressBar from './ProgressBar'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { Loader2, Award } from 'lucide-react'
 
 type CropData = [
   id: bigint,
@@ -43,7 +44,11 @@ export default function CropCard({
     args: [BigInt(cropId)],
   }) as { data: CropData | undefined, refetch: () => void }
 
-  if (!crop) return null
+  if (!crop) return (
+    <div className="card border border-secondary-200 p-6 flex justify-center items-center h-64">
+      <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+    </div>
+  )
 
   const cropTypes = [
     'maize', 'rice', 'wheat', 'cassava', 'beans', 
@@ -73,13 +78,19 @@ export default function CropCard({
         address: contractAddress,
         abi: contractABI,
         functionName: 'updateCropStage',
-        args: [BigInt(cropId), newStage, 0], // 0 loss for growing stage
+        args: [BigInt(cropId), newStage, 0],
       })
       toast.success(`Crop updated to ${stageInfo.text} successfully!`)
-      refetch()
       if (newStage === 1) {
-        toast.success(`You earned ${Number(crop[7]) * 4} sustainability points!`)
+        const points = Number(crop[7]) * 4
+        toast.custom((t) => (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-lg flex items-center">
+            <Award className="w-5 h-5 mr-2" />
+            <span>You earned {points} sustainability points!</span>
+          </div>
+        ), { duration: 5000 })
       }
+      refetch()
     } catch (error) {
       toast.error('Failed to update crop stage')
     } finally {
@@ -98,9 +109,13 @@ export default function CropCard({
         functionName: 'updateCropStage',
         args: [BigInt(cropId), 2, Number(lossPercentage)],
       })
-      toast.success(`Crop harvested successfully with ${lossPercentage}% loss!`)
       const harvestPoints = (Number(crop[7]) * (100 - Number(lossPercentage)) / 100) * 2
-      toast.success(`You earned ${harvestPoints} harvest points!`)
+      toast.custom((t) => (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-lg flex items-center">
+          <Award className="w-5 h-5 mr-2" />
+          <span>You earned {harvestPoints} harvest points!</span>
+        </div>
+      ), { duration: 5000 })
       refetch()
       setShowLossInput(false)
     } catch (error) {
@@ -157,12 +172,12 @@ export default function CropCard({
           
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div>
-              <p className="text-secondary-500">Seeds Planted</p>
+              <p className="text-secondary-500">{t('seedsPlanted')}</p>
               <p className="font-medium">{crop[7].toString()}</p>
             </div>
             {Number(crop[6]) >= 2 && (
               <div>
-                <p className="text-secondary-500">Harvested</p>
+                <p className="text-secondary-500">{t('harvested')}</p>
                 <p className="font-medium">{crop[8].toString()}</p>
               </div>
             )}
@@ -174,7 +189,7 @@ export default function CropCard({
         {showLossInput ? (
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Loss Percentage</label>
+              <label className="block text-sm font-medium mb-1">{t('lossPercentage')}</label>
               <input
                 type="number"
                 value={lossPercentage}
@@ -190,14 +205,16 @@ export default function CropCard({
                 onClick={() => setShowLossInput(false)}
                 className="btn btn-outline flex-1"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 onClick={handleHarvest}
                 disabled={!lossPercentage || loading}
                 className="btn btn-primary flex-1"
               >
-                {loading ? 'Processing...' : 'Confirm Harvest'}
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                ) : t('confirmHarvest')}
               </button>
             </div>
           </div>
@@ -207,7 +224,9 @@ export default function CropCard({
             disabled={loading}
             className="btn btn-outline w-full"
           >
-            {loading ? 'Processing...' : 'Mark as Growing'}
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+            ) : t('markAsGrowing')}
           </button>
         ) : Number(crop[6]) === 1 ? (
           <button 
@@ -215,7 +234,9 @@ export default function CropCard({
             disabled={loading}
             className="btn btn-outline w-full"
           >
-            {loading ? 'Processing...' : 'Mark as Harvested'}
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+            ) : t('markAsHarvested')}
           </button>
         ) : Number(crop[6]) === 2 ? (
           <button 
@@ -223,7 +244,9 @@ export default function CropCard({
             disabled={loading}
             className="btn btn-primary w-full"
           >
-            {loading ? 'Processing...' : 'Store in Silo'}
+            {loading ? (
+              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+            ) : t('storeInSilo')}
           </button>
         ) : null}
       </div>

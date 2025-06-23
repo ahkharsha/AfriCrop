@@ -1,22 +1,27 @@
 // src/app/market/page.tsx
 'use client'
 
+import { useEffect } from 'react'
 import { useReadContract, useAccount } from 'wagmi'
 import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
 import ListingCard from '@/components/ListingCard'
 import Card from '@/components/Card'
-import { ShoppingBag, Filter } from 'lucide-react'
+import { ShoppingBag, Filter, Loader2 } from 'lucide-react'
 
 export default function MarketPage() {
   const { address, isConnected } = useAccount()
   const t = useTranslations()
-  
-  const { data: listings } = useReadContract({
+
+  const { data: listings, isLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getActiveMarketListings',
-  }) as { data: any[] | undefined }
+  }) as { data: any[] | undefined, isLoading: boolean }
+
+  useEffect(() => {
+    console.log("Raw listings data:", listings)
+  }, [listings])
 
   const { data: farmer } = useReadContract({
     address: contractAddress,
@@ -33,10 +38,18 @@ export default function MarketPage() {
     )
   }
 
-  if (!farmer?.[6]) { // isRegistered field
+  if (!farmer?.[6]) {
     return (
       <div className="text-center py-12">
         <p className="text-lg mb-4">{t('registerFarmerFirst')}</p>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
       </div>
     )
   }

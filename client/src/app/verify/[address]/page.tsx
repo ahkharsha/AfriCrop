@@ -7,18 +7,26 @@ import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
 import Card from '@/components/Card'
 import StatsCard from '@/components/StatsCard'
-import { User, Leaf, BookOpen, Award } from 'lucide-react'
+import { User, Leaf, BookOpen, Award, Loader2 } from 'lucide-react'
 
 export default function VerifyFarmerPage() {
   const { address } = useParams()
   const t = useTranslations()
   
-  const { data: farmer } = useReadContract({
+  const { data: farmer, isLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'farmers',
     args: [address as `0x${string}`],
-  }) as { data: any }
+  }) as { data: any, isLoading: boolean }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+      </div>
+    )
+  }
 
   if (!farmer) {
     return (

@@ -8,22 +8,9 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import Card from '@/components/Card'
 import StatsCard from '@/components/StatsCard'
-import { Users, FileText, Vote, Clock } from 'lucide-react'
-
-type ProposalView = {
-  id: bigint
-  proposer: string
-  title: string
-  proposalType: bigint
-  description: string
-  stakeAmount: bigint
-  yesVotes: bigint
-  noVotes: bigint
-  executed: boolean
-  status: bigint
-  targetAddress: string
-  amount: bigint
-}
+import { Users, FileText, Vote, Clock, Gift } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import { formatUnits, parseUnits } from 'viem'
 
 export default function DaoPage() {
   const { address, isConnected } = useAccount()
@@ -36,18 +23,21 @@ export default function DaoPage() {
     targetAddress: '',
     amount: ''
   })
+  const [donationAmount, setDonationAmount] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showDonateModal, setShowDonateModal] = useState(false)
   const [loading, setLoading] = useState({
     create: false,
     vote: false,
-    execute: false
+    execute: false,
+    donate: false
   })
 
   const { data: proposals, refetch: refetchProposals } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getActiveProposals',
-  }) as { data: ProposalView[] | undefined, refetch: () => void }
+  }) as { data: any[] | undefined, refetch: () => void }
 
   const { data: treasuryBalance } = useReadContract({
     address: contractAddress,
@@ -68,10 +58,21 @@ export default function DaoPage() {
     functionName: 'getRegisteredFarmers',
   }) as { data: string[] | undefined }
 
+  // Format APE balance for display with 4 decimal places
+  const formatApeBalance = (balance: bigint | undefined) => {
+    if (!balance) return '0.0000 APE'
+    const apeAmount = formatUnits(balance, 18)
+    const formatted = Number(apeAmount).toLocaleString(undefined, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    })
+    return `${formatted} APE`
+  }
+
   const createProposal = async () => {
     if (!newProposal.title || !newProposal.description) return
-    
-    setLoading({...loading, create: true})
+
+    setLoading({ ...loading, create: true })
     try {
       await writeContract({
         address: contractAddress,
@@ -82,9 +83,9 @@ export default function DaoPage() {
           newProposal.type,
           newProposal.description,
           newProposal.targetAddress,
-          BigInt(newProposal.amount || '0')
+          newProposal.type === 1 ? parseUnits(newProposal.amount || '0', 18) : BigInt(0)
         ],
-        value: BigInt('10000000000000000'), // 0.01 ETH
+        value: parseUnits('0.01', 18), // 0.01 APE stake
       })
       toast.success('Proposal created successfully!')
       setShowCreateModal(false)
@@ -99,12 +100,33 @@ export default function DaoPage() {
     } catch (error: any) {
       toast.error(`Failed to create proposal: ${error.shortMessage || error.message}`)
     } finally {
-      setLoading({...loading, create: false})
+      setLoading({ ...loading, create: false })
+    }
+  }
+
+  const donateToTreasury = async () => {
+    if (!donationAmount) return
+
+    setLoading({ ...loading, donate: true })
+    try {
+      await writeContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'donateToTreasury',
+        value: parseUnits(donationAmount, 18),
+      })
+      toast.success('Donation successful! Thank you for your contribution.')
+      setShowDonateModal(false)
+      setDonationAmount('')
+    } catch (error: any) {
+      toast.error(`Donation failed: ${error.shortMessage || error.message}`)
+    } finally {
+      setLoading({ ...loading, donate: false })
     }
   }
 
   const voteOnProposal = async (proposalId: number, vote: boolean) => {
-    setLoading({...loading, vote: true})
+    setLoading({ ...loading, vote: true })
     try {
       await writeContract({
         address: contractAddress,
@@ -117,12 +139,12 @@ export default function DaoPage() {
     } catch (error: any) {
       toast.error(`Failed to vote: ${error.shortMessage || error.message}`)
     } finally {
-      setLoading({...loading, vote: false})
+      setLoading({ ...loading, vote: false })
     }
   }
 
   const executeProposal = async (proposalId: number) => {
-    setLoading({...loading, execute: true})
+    setLoading({ ...loading, execute: true })
     try {
       await writeContract({
         address: contractAddress,
@@ -135,12 +157,12 @@ export default function DaoPage() {
     } catch (error: any) {
       toast.error(`Failed to execute proposal: ${error.shortMessage || error.message}`)
     } finally {
-      setLoading({...loading, execute: false})
+      setLoading({ ...loading, execute: false })
     }
   }
 
   const getProposalType = (type: bigint) => {
-    switch(Number(type)) {
+    switch (Number(type)) {
       case 0: return t('adminChange')
       case 1: return t('fundAllocation')
       default: return t('unknown')
@@ -148,7 +170,7 @@ export default function DaoPage() {
   }
 
   const getStatus = (status: bigint) => {
-    switch(Number(status)) {
+    switch (Number(status)) {
       case 0: return t('pending')
       case 1: return t('active')
       case 2: return t('passed')
@@ -156,6 +178,12 @@ export default function DaoPage() {
       case 4: return t('executed')
       default: return t('unknown')
     }
+  }
+
+  const getDisabledReason = (proposal: any) => {
+    if (proposal.executed) return t('alreadyExecuted')
+    if (proposal.status !== BigInt(2)) return t('proposalNotPassed')
+    return t('cannotExecute')
   }
 
   if (!isConnected) {
@@ -175,7 +203,7 @@ export default function DaoPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatsCard
             title={t('treasuryBalance')}
-            value={treasuryBalance ? `${(Number(treasuryBalance) / 1e18).toFixed(2)} ETH` : '0 ETH'}
+            value={formatApeBalance(treasuryBalance)}
             icon={<FileText className="w-5 h-5" />}
           />
           <StatsCard
@@ -197,14 +225,23 @@ export default function DaoPage() {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">{t('activeProposals')}</h2>
-          <button 
-            onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary"
-          >
-            {t('createProposal')}
-          </button>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setShowDonateModal(true)}
+              className="btn btn-outline flex items-center"
+            >
+              <Gift className="w-4 h-4 mr-2" />
+              {t('donate')}
+            </button>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="btn btn-primary"
+            >
+              {t('createProposal')}
+            </button>
+          </div>
         </div>
-        
+
         <div className="space-y-4">
           {proposals?.length ? (
             proposals.map((proposal) => (
@@ -217,23 +254,22 @@ export default function DaoPage() {
                     </div>
                     <div className="text-sm text-right">
                       <p className="font-medium">{getProposalType(proposal.proposalType)}</p>
-                      <p className={`${
-                        proposal.status === BigInt(1) ? 'text-primary-600' :
-                        proposal.status === BigInt(2) ? 'text-green-600' :
-                        proposal.status === BigInt(3) ? 'text-red-600' : 'text-secondary-600'
-                      }`}>
+                      <p className={`${proposal.status === BigInt(1) ? 'text-primary-600' :
+                          proposal.status === BigInt(2) ? 'text-green-600' :
+                            proposal.status === BigInt(3) ? 'text-red-600' : 'text-secondary-600'
+                        }`}>
                         {getStatus(proposal.status)}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-between items-center mb-4">
                     <div className="w-full bg-secondary-200 rounded-full h-2.5">
-                      <div 
-                        className="bg-primary-600 h-2.5 rounded-full" 
+                      <div
+                        className="bg-primary-600 h-2.5 rounded-full"
                         style={{
-                          width: `${(Number(proposal.yesVotes) + Number(proposal.noVotes)) > 0 
-                            ? (Number(proposal.yesVotes) / (Number(proposal.yesVotes) + Number(proposal.noVotes)) * 100) 
+                          width: `${(Number(proposal.yesVotes) + Number(proposal.noVotes)) > 0
+                            ? (Number(proposal.yesVotes) / (Number(proposal.yesVotes) + Number(proposal.noVotes)) * 100)
                             : 0}%`
                         }}
                       ></div>
@@ -244,30 +280,45 @@ export default function DaoPage() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-                    <button 
+                    <button
                       onClick={() => voteOnProposal(Number(proposal.id), true)}
                       disabled={loading.vote}
                       className="btn btn-outline flex-1"
                     >
-                      {loading.vote ? 'Processing...' : t('voteYes')}
+                      {loading.vote ? (
+                        <span className="flex items-center justify-center">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {t('processing')}
+                        </span>
+                      ) : t('voteYes')}
                     </button>
-                    <button 
+                    <button
                       onClick={() => voteOnProposal(Number(proposal.id), false)}
                       disabled={loading.vote}
                       className="btn btn-outline flex-1"
                     >
-                      {loading.vote ? 'Processing...' : t('voteNo')}
+                      {loading.vote ? (
+                        <span className="flex items-center justify-center">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {t('processing')}
+                        </span>
+                      ) : t('voteNo')}
                     </button>
-                    <button 
+                    <button
                       onClick={() => executeProposal(Number(proposal.id))}
                       disabled={proposal.status !== BigInt(2) || proposal.executed || loading.execute}
-                      className={`btn flex-1 ${
-                        proposal.status === BigInt(2) && !proposal.executed 
-                          ? 'btn-primary' 
+                      className={`btn flex-1 ${proposal.status === BigInt(2) && !proposal.executed
+                          ? 'btn-primary'
                           : 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
-                      }`}
+                        }`}
+                      title={proposal.status !== BigInt(2) || proposal.executed ? getDisabledReason(proposal) : ''}
                     >
-                      {loading.execute ? 'Processing...' : t('execute')}
+                      {loading.execute ? (
+                        <span className="flex items-center justify-center">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {t('processing')}
+                        </span>
+                      ) : t('execute')}
                     </button>
                   </div>
                 </div>
@@ -290,42 +341,42 @@ export default function DaoPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <Card className="max-w-md w-full">
             <h2 className="text-xl font-bold mb-4">{t('createProposal')}</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">{t('title')}</label>
                 <input
                   type="text"
                   value={newProposal.title}
-                  onChange={(e) => setNewProposal({...newProposal, title: e.target.value})}
+                  onChange={(e) => setNewProposal({ ...newProposal, title: e.target.value })}
                   className="input-field"
                   placeholder={t('proposalTitlePlaceholder')}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t('description')}</label>
                 <textarea
                   value={newProposal.description}
-                  onChange={(e) => setNewProposal({...newProposal, description: e.target.value})}
+                  onChange={(e) => setNewProposal({ ...newProposal, description: e.target.value })}
                   className="input-field"
                   rows={3}
                   placeholder={t('proposalDescPlaceholder')}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-1">{t('type')}</label>
                 <select
                   value={newProposal.type}
-                  onChange={(e) => setNewProposal({...newProposal, type: Number(e.target.value)})}
+                  onChange={(e) => setNewProposal({ ...newProposal, type: Number(e.target.value) })}
                   className="input-field"
                 >
                   <option value={0}>{t('adminChange')}</option>
                   <option value={1}>{t('fundAllocation')}</option>
                 </select>
               </div>
-              
+
               {newProposal.type === 1 && (
                 <>
                   <div>
@@ -333,46 +384,97 @@ export default function DaoPage() {
                     <input
                       type="text"
                       value={newProposal.targetAddress}
-                      onChange={(e) => setNewProposal({...newProposal, targetAddress: e.target.value})}
+                      onChange={(e) => setNewProposal({ ...newProposal, targetAddress: e.target.value })}
                       className="input-field"
                       placeholder="0x..."
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium mb-1">{t('amountETH')}</label>
+                    <label className="block text-sm font-medium mb-1">{t('amountAPE')}</label>
                     <input
                       type="number"
                       value={newProposal.amount}
-                      onChange={(e) => setNewProposal({...newProposal, amount: e.target.value})}
+                      onChange={(e) => setNewProposal({ ...newProposal, amount: e.target.value })}
                       className="input-field"
                       placeholder="0.0"
-                      step="0.01"
+                      step="0.0001"
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      {newProposal.amount && `${newProposal.amount} APE = ${parseUnits(newProposal.amount || '0', 18).toString()} wei`}
+                    </p>
                   </div>
                 </>
               )}
-              
+
               <div className="flex justify-end space-x-4 pt-4">
-                <button 
+                <button
                   onClick={() => setShowCreateModal(false)}
                   className="btn btn-outline"
                 >
                   {t('cancel')}
                 </button>
-                <button 
+                <button
                   onClick={createProposal}
                   disabled={!newProposal.title || !newProposal.description || loading.create}
                   className="btn btn-primary"
                 >
                   {loading.create ? (
-                    <span className="flex items-center">
-                      <span className="animate-spin mr-2">🌀</span>
+                    <span className="flex items-center justify-center">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       {t('creating')}
                     </span>
                   ) : (
-                    `${t('create')} (0.01 ETH)`
+                    `${t('create')} (0.01 APE)`
                   )}
+                </button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Donate Modal */}
+      {showDonateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">{t('donateToTreasury')}</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('amountAPE')}</label>
+                <input
+                  type="number"
+                  value={donationAmount}
+                  onChange={(e) => setDonationAmount(e.target.value)}
+                  className="input-field"
+                  placeholder="0.0"
+                  step="0.0001"
+                  min="0.0001"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {donationAmount && `${donationAmount} APE = ${parseUnits(donationAmount || '0', 18).toString()} wei`}
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-4">
+                <button
+                  onClick={() => setShowDonateModal(false)}
+                  className="btn btn-outline"
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  onClick={donateToTreasury}
+                  disabled={!donationAmount || loading.donate}
+                  className="btn btn-primary"
+                >
+                  {loading.donate ? (
+                    <span className="flex items-center justify-center">
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {t('processing')}
+                    </span>
+                  ) : t('donate')}
                 </button>
               </div>
             </div>

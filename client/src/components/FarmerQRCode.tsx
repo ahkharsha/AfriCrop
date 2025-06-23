@@ -7,28 +7,37 @@ import { useTranslations } from '@/utils/i18n'
 import QRCode from 'react-qr-code'
 import { useState } from 'react'
 import Card from './Card'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, Loader2 } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 
 export default function FarmerQRCode() {
   const { address } = useAccount()
   const t = useTranslations()
   const [copied, setCopied] = useState(false)
   
-  const { data: farmer } = useReadContract({
+  const { data: farmer, isLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'farmers',
     args: [address!],
-  }) as { data: any }
+  }) as { data: any, isLoading: boolean }
 
-  if (!address || !farmer?.[6]) return null
+  if (!address || isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+      </div>
+    )
+  }
 
-  // Create verification URL that points to a verification page
+  if (!farmer?.[6]) return null
+
   const verificationUrl = `${window.location.origin}/verify/${address}`
   
   const copyToClipboard = () => {
     navigator.clipboard.writeText(verificationUrl)
     setCopied(true)
+    toast.success(t('linkCopied'))
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -49,13 +58,13 @@ export default function FarmerQRCode() {
           {t('scanQRToVerify')}
         </p>
         
-        <div className="flex items-center space-x-2">
-          <p className="text-sm text-secondary-500 truncate max-w-xs">
+        <div className="flex items-center space-x-2 w-full max-w-xs">
+          <p className="text-sm text-secondary-500 truncate flex-1">
             {verificationUrl}
           </p>
           <button 
             onClick={copyToClipboard}
-            className="text-primary-600 hover:text-primary-800"
+            className="text-primary-600 hover:text-primary-800 p-1"
             title={t('copyLink')}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

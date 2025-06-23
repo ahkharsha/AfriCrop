@@ -8,6 +8,7 @@ import CropCard from '@/components/CropCard'
 import Card from '@/components/Card'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { Loader2 } from 'lucide-react'
 
 export default function SiloPage() {
   const { address, isConnected } = useAccount()
@@ -18,29 +19,37 @@ export default function SiloPage() {
   const [selectedCrop, setSelectedCrop] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const { data: farmer } = useReadContract({
+  const { data: farmer, isLoading: farmerLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'farmers',
     args: [address!],
-  }) as { data: any }
+  }) as { data: any, isLoading: boolean }
 
-  const { data: storedCrops } = useReadContract({
+  const { data: storedCrops, isLoading: cropsLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getFarmerStoredCrops',
     args: [address],
-  }) as { data: bigint[] | undefined }
+  }) as { data: bigint[] | undefined, isLoading: boolean }
 
   const listCropForSale = () => {
     if (!selectedCrop || !price || !quantity) return
+    
+    const priceNumber = Number(price)
+    if (priceNumber < 0.0001) {
+      toast.error(t('priceTooLow'))
+      return
+    }
 
     setLoading(true)
+    const priceInWei = BigInt(Math.floor(priceNumber * 1e18))
+    
     writeContract({
       address: contractAddress,
       abi: contractABI,
       functionName: 'listCropForSale',
-      args: [selectedCrop, BigInt(price), BigInt(quantity)],
+      args: [selectedCrop, priceInWei, BigInt(quantity)],
     }, {
       onSuccess: () => {
         toast.success(t('cropListedSuccess'))
@@ -65,7 +74,15 @@ export default function SiloPage() {
     )
   }
 
-  if (!farmer?.[6]) { // isRegistered field
+  if (farmerLoading || cropsLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+      </div>
+    )
+  }
+
+  if (!farmer?.[6]) {
     return (
       <div className="text-center py-12">
         <p className="text-lg mb-4">{t('registerFarmerFirst')}</p>
@@ -123,11 +140,12 @@ export default function SiloPage() {
                     onChange={(e) => setQuantity(e.target.value)}
                     className="input-field"
                     placeholder={t('amountToSell')}
+                    min="1"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">{t('totalPrice')} (ETH)</label>
+                  <label className="block text-sm font-medium mb-1">{t('totalPrice')} (APE)</label>
                   <input
                     type="number"
                     value={price}
@@ -135,7 +153,11 @@ export default function SiloPage() {
                     className="input-field"
                     placeholder={t('totalPriceForQuantity')}
                     step="0.0001"
+                    min="0.0001"
                   />
+                  {/* <p className="text-xs text-gray-500 mt-1">
+                    {price && `${price} APE = ${Number(price)*1e18} wei`}
+                  </p> */}
                 </div>
 
                 <button
@@ -145,7 +167,7 @@ export default function SiloPage() {
                 >
                   {loading ? (
                     <span className="flex items-center justify-center">
-                      <span className="animate-spin mr-2">🌀</span>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                       {t('processing')}
                     </span>
                   ) : t('listForSale')}

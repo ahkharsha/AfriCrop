@@ -8,19 +8,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import CropCard from '@/components/CropCard'
 import Card from '@/components/Card'
-import { Sprout } from 'lucide-react'
-
-type Crop = [
-  id: bigint,
-  farmerAddress: string,
-  cropType: bigint,
-  farmId: string,
-  sownTimestamp: bigint,
-  harvestedTimestamp: bigint,
-  stage: bigint,
-  initialSeeds: bigint,
-  harvestedOutput: bigint
-]
+import { Sprout, Loader2 } from 'lucide-react'
 
 export default function FarmPage() {
   const { address, isConnected } = useAccount()
@@ -136,7 +124,7 @@ export default function FarmPage() {
     )
   }
 
-  if (!farmer?.[6]) { // isRegistered field
+  if (!farmer?.[6]) {
     return (
       <div className="text-center py-12">
         <p className="text-lg mb-4">{t('registerFarmerFirst')}</p>
@@ -188,7 +176,7 @@ export default function FarmPage() {
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <span className="animate-spin mr-2">🌀</span>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   {t('sowing')}
                 </span>
               ) : (

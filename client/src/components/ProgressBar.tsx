@@ -1,4 +1,4 @@
-// src/components/ProgressBar.tsx (1)
+// src/components/ProgressBar.tsx
 'use client'
 
 import { useTranslations } from '../utils/i18n'
@@ -15,9 +15,9 @@ export default function ProgressBar({
   const t = useTranslations()
   
   return (
-    <div className={`w-full bg-secondary-200 rounded-full h-2 ${className}`}>
+    <div className={`w-full bg-secondary-200 rounded-full h-2.5 ${className}`}>
       <div 
-        className={`h-2 rounded-full ${color} transition-all duration-500 flex items-center justify-end`}
+        className={`h-2.5 rounded-full ${color} transition-all duration-500 flex items-center justify-end`}
         style={{ width: `${progress}%` }}
       >
         <span className="text-white text-xs font-medium px-1">

@@ -1,4 +1,4 @@
-// src/app/providers.tsx (1)
+// src/app/providers.tsx
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -14,7 +14,7 @@ import { toast } from 'react-hot-toast'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 5, // 20 seconds
+      staleTime: 1000 * 5, // 5 seconds
     },
   },
 })
