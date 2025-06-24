@@ -4,12 +4,12 @@
 [![Deployment](https://img.shields.io/badge/LIVE-DEPLOYMENT-2ECC71)](https://africrop.vercel.app/)  
 [![Twitter](https://img.shields.io/badge/Follow-%40HarshaK360-1DA1F2)](https://x.com/HarshaK360)  
 
-<img src="https://github.com/yourusername/AfriCrop/blob/main/public/logo.png?raw=true" alt="AfriCrop Logo" width="150"/>  
+<img src="https://github.com/user-attachments/assets/a8506666-2dde-4d7a-ab82-bb40fb5952e2" alt="AfriCrop Logo" width="150"/>  
 
 ---
 
 ### 🔥 **Game-Changer for African Agriculture**  
-AfriCrop leverages **blockchain + IoT + ML** to create Africa's first farmer-led DAO for sustainable agriculture. By tracking crop stages and farming practices on-chain, we’re building a verifiable supply chain that automatically calculates sustainability scores and distributes rewards.  
+AfriCrop will leverage **blockchain + IoT + ML** to create Africa's first farmer-led DAO for sustainable agriculture. By tracking crop stages and farming practices on-chain, we’re building a verifiable supply chain that automatically calculates sustainability scores and distributes rewards.  
 
 **Backed by Research**:  
 - FAO reports 60% of African farms lack access to credit ([Source](https://www.fao.org/africa/news/detail-news/en/c/1613472/))  
@@ -31,7 +31,7 @@ AfriCrop leverages **blockchain + IoT + ML** to create Africa's first farmer-led
 
 ### 3. **IoT + ML Integration** *(In Development)*  
 - **Soil sensors** feed real-time data to smart contracts  
-- **ML model** predicts optimal planting times  
+- **ML model** predicts optimal planting times - [ML Model](https://colab.research.google.com/drive/1nwcDoqiyOYtraUq-0d7T2aTHGibSsxRi)
 - **Satellite imagery** verifies farm activities  
 
 ---
@@ -58,7 +58,7 @@ AfriCrop leverages **blockchain + IoT + ML** to create Africa's first farmer-led
 | **Harvest**       | Yield efficiency                       | 30%    |  
 | **Distribution**  | Transportation emissions               | 10%    |  
 
-*Example: A farmer using drip irrigation (+25pts) and organic compost (+20pts) would score 45/100 in the Growth stage.*  
+Example: A farmer using drip irrigation (+25pts) and organic compost (+20pts) would score 45/100 in the Growth stage. *(IoT and model under implementation)*
 
 ---
 
@@ -67,7 +67,7 @@ AfriCrop leverages **blockchain + IoT + ML** to create Africa's first farmer-led
 1. **Financial Inclusion**  
    - Unlocks DeFi loans using sustainability scores as collateral  
 2. **Climate Resilience**  
-   - 70% of African farms are rain-fed (World Bank) - our system incentivizes water conservation  
+   - 70% of African farms are rain-fed crop-based (World Bank) - our system incentivizes crop cycle management
 3. **Supply Chain Transparency**  
    - Buyers trace produce from seed to market  
 
