@@ -11,6 +11,7 @@ import StatsCard from '@/components/StatsCard'
 import { Users, FileText, Vote, Clock, Gift } from 'lucide-react'
 import { Loader2 } from 'lucide-react'
 import { formatUnits, parseUnits } from 'viem'
+import ProgressBar from '@/components/ProgressBar'
 
 export default function DaoPage() {
   const { address, isConnected } = useAccount()
@@ -165,6 +166,7 @@ export default function DaoPage() {
     switch (Number(type)) {
       case 0: return t('adminChange')
       case 1: return t('fundAllocation')
+      case 2: return t('generalProposal')
       default: return t('unknown')
     }
   }
@@ -184,6 +186,16 @@ export default function DaoPage() {
     if (proposal.executed) return t('alreadyExecuted')
     if (proposal.status !== BigInt(2)) return t('proposalNotPassed')
     return t('cannotExecute')
+  }
+
+  const calculateVotePercentages = (proposal: any) => {
+    const totalMembers = registeredFarmers?.length || 1
+    const requiredVotes = (totalMembers * 2) / 3
+    
+    const yesPercentage = (Number(proposal.yesVotes) / requiredVotes) * 100
+    const noPercentage = (Number(proposal.noVotes) / requiredVotes) * 100
+    
+    return { yesPercentage, noPercentage }
   }
 
   if (!isConnected) {
@@ -244,86 +256,115 @@ export default function DaoPage() {
 
         <div className="space-y-4">
           {proposals?.length ? (
-            proposals.map((proposal) => (
-              <Card key={proposal.id.toString()}>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-semibold text-lg">{proposal.title}</h3>
-                      <p className="text-secondary-600 mt-1">{proposal.description}</p>
+            proposals.map((proposal) => {
+              const { yesPercentage, noPercentage } = calculateVotePercentages(proposal)
+              const totalVotes = Number(proposal.yesVotes) + Number(proposal.noVotes)
+              const requiredVotes = registeredFarmers ? (registeredFarmers.length * 2) / 3 : 0
+              
+              return (
+                <Card key={proposal.id.toString()}>
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-semibold text-lg">{proposal.title}</h3>
+                        <p className="text-secondary-600 mt-1">{proposal.description}</p>
+                      </div>
+                      <div className="text-sm text-right">
+                        <p className="font-medium">{getProposalType(proposal.proposalType)}</p>
+                        <p className={`${proposal.status === BigInt(1) ? 'text-primary-600' :
+                            proposal.status === BigInt(2) ? 'text-green-600' :
+                              proposal.status === BigInt(3) ? 'text-red-600' : 'text-secondary-600'
+                          }`}>
+                          {getStatus(proposal.status)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-sm text-right">
-                      <p className="font-medium">{getProposalType(proposal.proposalType)}</p>
-                      <p className={`${proposal.status === BigInt(1) ? 'text-primary-600' :
-                          proposal.status === BigInt(2) ? 'text-green-600' :
-                            proposal.status === BigInt(3) ? 'text-red-600' : 'text-secondary-600'
-                        }`}>
-                        {getStatus(proposal.status)}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="w-full bg-secondary-200 rounded-full h-2.5">
-                      <div
-                        className="bg-primary-600 h-2.5 rounded-full"
-                        style={{
-                          width: `${(Number(proposal.yesVotes) + Number(proposal.noVotes)) > 0
-                            ? (Number(proposal.yesVotes) / (Number(proposal.yesVotes) + Number(proposal.noVotes)) * 100)
-                            : 0}%`
-                        }}
-                      ></div>
+                    <div className="mb-4">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Yes: {proposal.yesVotes.toString()} votes</span>
+                        <span>No: {proposal.noVotes.toString()} votes</span>
+                      </div>
+                      
+                      {/* Yes Progress Bar */}
+                      <div className="mb-2">
+                        <ProgressBar 
+                          progress={yesPercentage} 
+                          color="bg-green-500" 
+                          className="h-2 mb-1"
+                        />
+                        <div className="text-xs text-secondary-500">
+                          {yesPercentage.toFixed(1)}% of required votes
+                        </div>
+                      </div>
+                      
+                      {/* No Progress Bar */}
+                      <div>
+                        <ProgressBar 
+                          progress={noPercentage} 
+                          color="bg-red-500" 
+                          className="h-2 mb-1"
+                        />
+                        <div className="text-xs text-secondary-500">
+                          {noPercentage.toFixed(1)}% of required votes
+                        </div>
+                      </div>
+                      
+                      <div className="text-xs text-secondary-500 mt-2">
+                        {totalVotes >= requiredVotes ? 
+                          `Proposal has enough votes (${totalVotes} >= ${requiredVotes})` : 
+                          `Needs ${Math.ceil(requiredVotes - totalVotes)} more weighted votes to pass`}
+                      </div>
                     </div>
-                    <div className="ml-4 text-sm">
-                      {proposal.yesVotes.toString()} {t('yes')} / {proposal.noVotes.toString()} {t('no')}
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-                    <button
-                      onClick={() => voteOnProposal(Number(proposal.id), true)}
-                      disabled={loading.vote}
-                      className="btn btn-outline flex-1"
-                    >
-                      {loading.vote ? (
-                        <span className="flex items-center justify-center">
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          {t('processing')}
-                        </span>
-                      ) : t('voteYes')}
-                    </button>
-                    <button
-                      onClick={() => voteOnProposal(Number(proposal.id), false)}
-                      disabled={loading.vote}
-                      className="btn btn-outline flex-1"
-                    >
-                      {loading.vote ? (
-                        <span className="flex items-center justify-center">
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          {t('processing')}
-                        </span>
-                      ) : t('voteNo')}
-                    </button>
-                    <button
-                      onClick={() => executeProposal(Number(proposal.id))}
-                      disabled={proposal.status !== BigInt(2) || proposal.executed || loading.execute}
-                      className={`btn flex-1 ${proposal.status === BigInt(2) && !proposal.executed
-                          ? 'btn-primary'
-                          : 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
-                        }`}
-                      title={proposal.status !== BigInt(2) || proposal.executed ? getDisabledReason(proposal) : ''}
-                    >
-                      {loading.execute ? (
-                        <span className="flex items-center justify-center">
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          {t('processing')}
-                        </span>
-                      ) : t('execute')}
-                    </button>
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                      <button
+                        onClick={() => voteOnProposal(Number(proposal.id), true)}
+                        disabled={loading.vote}
+                        className="btn btn-outline flex-1"
+                      >
+                        {loading.vote ? (
+                          <span className="flex items-center justify-center">
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {t('processing')}
+                          </span>
+                        ) : t('voteYes')}
+                      </button>
+                      <button
+                        onClick={() => voteOnProposal(Number(proposal.id), false)}
+                        disabled={loading.vote}
+                        className="btn btn-outline flex-1"
+                      >
+                        {loading.vote ? (
+                          <span className="flex items-center justify-center">
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            {t('processing')}
+                          </span>
+                        ) : t('voteNo')}
+                      </button>
+                      {proposal.proposalType !== BigInt(2) && ( // Don't show execute for General Proposals
+                        <button
+                          onClick={() => executeProposal(Number(proposal.id))}
+                          disabled={proposal.status !== BigInt(2) || proposal.executed || loading.execute}
+                          className={`btn flex-1 ${proposal.status === BigInt(2) && !proposal.executed
+                              ? 'btn-primary'
+                              : 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
+                            }`}
+                          title={proposal.status !== BigInt(2) || proposal.executed ? getDisabledReason(proposal) : ''}
+                        >
+                          {loading.execute ? (
+                            <span className="flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              {t('processing')}
+                            </span>
+                          ) : t('execute')}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))
+                </Card>
+              )
+            })
           ) : (
             <Card className="text-center py-12">
               <FileText className="w-12 h-12 mx-auto text-secondary-400" />
@@ -374,6 +415,7 @@ export default function DaoPage() {
                 >
                   <option value={0}>{t('adminChange')}</option>
                   <option value={1}>{t('fundAllocation')}</option>
+                  <option value={2}>{t('generalProposal')}</option>
                 </select>
               </div>
 

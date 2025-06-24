@@ -2,7 +2,7 @@ const { ethers } = require("hardhat");
 
 async function main() {
   // Replace with your contract address
-  const contractAddress = "0x0d44d332eBE03164A50798194603784155aec0CA"; // Localhost example
+  const contractAddress = "0xf07467d15d0Acbc191778ed972d234518ce3129E"; // Localhost example
   
   // Get the contract instance
   const AfriCropDAO = await ethers.getContractFactory("AfriCropDAO");

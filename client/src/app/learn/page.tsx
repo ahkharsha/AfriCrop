@@ -6,9 +6,10 @@ import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
 import Card from '@/components/Card'
 import QuizCard from '@/components/QuizCard'
-import { BookOpen, Trophy, CheckCircle, XCircle } from 'lucide-react'
+import { BookOpen, Trophy, CheckCircle, XCircle, Check } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { Loader2 } from 'lucide-react'
 
 type Lesson = {
   id: bigint
@@ -50,6 +51,13 @@ export default function LearnPage() {
     args: [address!],
   }) as { data: any }
 
+  const { data: completedLessons, refetch: refetchCompletedLessons } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'completedLessons',
+    args: [address!, activeLesson?.id || BigInt(0)],
+  }) as { data: boolean, refetch: () => void }
+
   const completeLesson = async () => {
     if (!activeLesson) return
 
@@ -64,8 +72,13 @@ export default function LearnPage() {
       toast.success(`${t('lessonCompleted')} +${activeLesson.knowledgePointsReward.toString()} ${t('knowledgePoints')}`)
       setActiveLesson(null)
       setQuizResults([])
+      refetchCompletedLessons()
     } catch (error: any) {
-      toast.error(`${t('completeLessonError')}: ${error.shortMessage || error.message}`)
+      if (error.message.includes('LessonAlreadyCompleted')) {
+        toast.error(t('lessonAlreadyCompleted'))
+      } else {
+        toast.error(`${t('completeLessonError')}: ${error.shortMessage || error.message}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -81,6 +94,18 @@ export default function LearnPage() {
     }
   }
 
+  const isLessonCompleted = (lessonId: bigint) => {
+    if (!lessons) return false
+    
+    // Check if we have the completed status for the active lesson
+    if (activeLesson && lessonId === activeLesson.id && typeof completedLessons === 'boolean') {
+      return completedLessons
+    }
+    
+    // Default return false if we can't determine
+    return false
+  }
+
   if (!isConnected) {
     return (
       <div className="text-center py-12">
@@ -89,7 +114,7 @@ export default function LearnPage() {
     )
   }
 
-  if (!farmer?.[6]) { // isRegistered field
+  if (!farmer?.[6]) {
     return (
       <div className="text-center py-12">
         <p className="text-lg mb-4">{t('registerFarmerFirst')}</p>
@@ -176,24 +201,31 @@ export default function LearnPage() {
                     ))}
                   </div>
 
-                  <button
-                    onClick={completeLesson}
-                    disabled={quizResults.length < 3 || !quizResults.every(r => r) || loading}
-                    className={`btn w-full mt-4 ${
-                      quizResults.length === 3 && quizResults.every(r => r) 
-                        ? 'btn-primary' 
-                        : 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
-                    }`}
-                  >
-                    {loading ? (
-                      <span className="flex items-center justify-center">
-                        <span className="animate-spin mr-2">🌀</span>
-                        {t('completing')}
-                      </span>
-                    ) : (
-                      t('completeLesson')
-                    )}
-                  </button>
+                  {isLessonCompleted(activeLesson.id) ? (
+                    <div className="p-3 bg-green-100 text-green-700 rounded-lg flex items-center">
+                      <Check className="w-5 h-5 mr-2" />
+                      {t('lessonAlreadyCompleted')}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={completeLesson}
+                      disabled={quizResults.length < 3 || !quizResults.every(r => r) || loading}
+                      className={`btn w-full mt-4 ${
+                        quizResults.length === 3 && quizResults.every(r => r) 
+                          ? 'btn-primary' 
+                          : 'bg-secondary-200 text-secondary-500 cursor-not-allowed'
+                      }`}
+                    >
+                      {loading ? (
+                        <span className="flex items-center justify-center">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          {t('completing')}
+                        </span>
+                      ) : (
+                        t('completeLesson')
+                      )}
+                    </button>
+                  )}
 
                   <button
                     onClick={() => {
@@ -213,15 +245,29 @@ export default function LearnPage() {
             {lessons?.map((lesson) => (
               <Card 
                 key={lesson.id.toString()} 
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => setActiveLesson(lesson)}
+                className={`hover:shadow-lg transition-shadow cursor-pointer ${
+                  isLessonCompleted(lesson.id) ? 'border-green-300 bg-green-50' : ''
+                }`}
+                onClick={() => {
+                  setActiveLesson(lesson)
+                  // Trigger refetch of completion status when selecting a lesson
+                  refetchCompletedLessons()
+                }}
               >
                 <div className="p-6">
                   <div className="flex items-center mb-4">
-                    <div className="p-3 bg-primary-100 rounded-lg mr-4">
-                      <BookOpen className="w-6 h-6 text-primary-600" />
+                    <div className={`p-3 rounded-lg mr-4 ${
+                      isLessonCompleted(lesson.id) ? 'bg-green-100 text-green-600' : 'bg-primary-100 text-primary-600'
+                    }`}>
+                      <BookOpen className="w-6 h-6" />
                     </div>
                     <h3 className="font-semibold text-lg">{lesson.title}</h3>
+                    {isLessonCompleted(lesson.id) && (
+                      <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                        <Check className="w-3 h-3 mr-1" />
+                        {t('completed')}
+                      </span>
+                    )}
                   </div>
                   
                   <p className="text-secondary-600 mb-4 line-clamp-2">
@@ -232,8 +278,14 @@ export default function LearnPage() {
                     <span className="text-sm text-secondary-500">
                       {lesson.knowledgePointsReward.toString()} {t('points')}
                     </span>
-                    <button className="btn btn-primary px-4 py-2 text-sm">
-                      {t('startLesson')}
+                    <button 
+                      className={`btn text-sm ${
+                        isLessonCompleted(lesson.id) 
+                          ? 'bg-green-100 text-green-600 hover:bg-green-200' 
+                          : 'btn-primary'
+                      }`}
+                    >
+                      {isLessonCompleted(lesson.id) ? t('viewAgain') : t('startLesson')}
                     </button>
                   </div>
                 </div>

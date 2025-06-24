@@ -6,14 +6,29 @@ import { contractAddress, contractABI } from '@/utils/contract'
 import { useTranslations } from '@/utils/i18n'
 import Card from '@/components/Card'
 import StatsCard from '@/components/StatsCard'
-import { Leaf, Award, Droplet, Cloud, Loader2 } from 'lucide-react'
+import { Leaf, Award, Droplet, Cloud, Loader2, TrendingUp } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Line } from 'react-chartjs-2'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
+import { useEffect, useState } from 'react'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 export default function ClimatePage() {
   const { address, isConnected } = useAccount()
   const t = useTranslations()
   const router = useRouter()
-  
+  const [historyData, setHistoryData] = useState<any>(null)
+  const [loadingHistory, setLoadingHistory] = useState(true)
+
   const { data: farmer, isLoading: farmerLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
@@ -21,12 +36,101 @@ export default function ClimatePage() {
     args: [address!],
   }) as { data: any, isLoading: boolean }
 
+  const { data: history } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getFarmerHistory',
+    args: [address!],
+  }) as { data: any[] | undefined }
+  console.log('Raw history data from contract:', history);
+
   const { data: topFarmers, isLoading: topFarmersLoading } = useReadContract({
     address: contractAddress,
     abi: contractABI,
     functionName: 'getTopFarmersBySustainability',
     args: [20],
   }) as { data: [string[], bigint[]] | undefined, isLoading: boolean }
+
+  useEffect(() => {
+    if (history) {
+      console.log('Raw history before processing:', history);
+
+      const processHistoryData = (rawHistory: any[]) => {
+        if (!rawHistory || rawHistory.length === 0) return { labels: [], scores: [] };
+
+        // Convert BigInt to numbers and format dates
+        const processed = rawHistory.map(item => ({
+          date: new Date(Number(item.timestamp) * 1000).toLocaleDateString(),
+          reputation: Number(item.reputationPoints),
+          harvest: Number(item.harvestPoints),
+          knowledge: Number(item.knowledgePoints),
+          sustainability: Number(item.sustainabilityScore)
+        }));
+
+        // Get labels (dates)
+        const labels = processed.map(item => item.date);
+
+        // Get scores (using reputation as primary metric)
+        const scores = processed.map(item => item.reputation);
+
+        return { labels, scores };
+      };
+
+      const { labels, scores } = processHistoryData(history);
+
+      console.log('Processed labels:', labels);
+      console.log('Processed scores:', scores);
+
+      setHistoryData({
+        labels,
+        datasets: [
+          {
+            label: t('sustainabilityScore'),
+            data: scores,
+            borderColor: '#22c55e',
+            backgroundColor: '#86efac',
+            tension: 0.3,
+            fill: true,
+          },
+        ],
+      });
+      setLoadingHistory(false);
+    }
+  }, [history, t]);
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: t('yourSustainabilityProgress'),
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: t('score'),
+        },
+        ticks: {
+          stepSize: 500, // Set y-axis to increment by 500
+          callback: function(tickValue: string | number) {
+            return tickValue; // Display the raw value (already in 500 increments)
+          }
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: t('timePeriod'),
+        },
+      },
+    },
+  }
 
   if (!isConnected) {
     return (
@@ -36,7 +140,7 @@ export default function ClimatePage() {
     )
   }
 
-  if (farmerLoading || topFarmersLoading) {
+  if (farmerLoading || topFarmersLoading || loadingHistory) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
@@ -88,7 +192,53 @@ export default function ClimatePage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
+            <Card title={t('sustainabilityProgress')}>
+              {loadingHistory ? (
+                <div className="flex justify-center items-center h-64">
+                  <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                </div>
+              ) : historyData && historyData.labels.length > 0 ? (
+                <div className="p-4">
+                  <div className="h-[400px]">
+                    <Line
+                      data={historyData}
+                      options={{
+                        ...chartOptions,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          ...chartOptions.plugins,
+                          tooltip: {
+                            callbacks: {
+                              label: (context) => {
+                                return `${t('sustainabilityScore')}: ${context.parsed.y}`
+                              }
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  {history && history.length > 1 && (
+                    <div className="mt-4 flex items-center text-green-600">
+                      <TrendingUp className="w-5 h-5 mr-2" />
+                      <span>
+                        {t('trendingUp')} {(
+                          ((Number(history[history.length - 1].sustainabilityScore) - Number(history[0].sustainabilityScore)) /
+                            Number(history[0].sustainabilityScore)) * 100
+                        ).toFixed(2)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-secondary-500">
+                  <p className="mb-4">{t('noSustainabilityData')}</p>
+                  <p className="text-primary-600 font-medium">{t('harvestCropsToGainScores')}</p>
+                </div>
+              )}
+            </Card>
+
             <Card title={t('sustainabilityLeaderboard')}>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -101,11 +251,10 @@ export default function ClimatePage() {
                   </thead>
                   <tbody>
                     {topFarmers?.[0]?.map((farmerAddress, index) => (
-                      <tr 
-                        key={farmerAddress} 
-                        className={`border-b border-secondary-100 ${
-                          farmerAddress === address ? 'bg-primary-50' : ''
-                        }`}
+                      <tr
+                        key={farmerAddress}
+                        className={`border-b border-secondary-100 ${farmerAddress === address ? 'bg-primary-50' : ''
+                          }`}
                       >
                         <td className="py-3 px-4">{index + 1}</td>
                         <td className="py-3 px-4">

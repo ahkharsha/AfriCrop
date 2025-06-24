@@ -15,7 +15,7 @@ export const config = createConfig(
   })
 )
 
-export const contractAddress = '0x0d44d332eBE03164A50798194603784155aec0CA' // Replace with actual address
+export const contractAddress = '0xf07467d15d0Acbc191778ed972d234518ce3129E' // Replace with actual address
 
 export const contractABI = [
     {
@@ -419,6 +419,49 @@ export const contractABI = [
         {
           "indexed": false,
           "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "reputationPoints",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "sustainabilityScore",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "knowledgePoints",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "harvestPoints",
+          "type": "uint256"
+        }
+      ],
+      "name": "FarmerHistoryRecorded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "farmerAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
           "name": "initialReputation",
           "type": "uint256"
         }
@@ -654,6 +697,12 @@ export const contractABI = [
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "reputationAdded",
+          "type": "uint256"
         }
       ],
       "name": "TreasuryDonation",
@@ -698,6 +747,12 @@ export const contractABI = [
           "internalType": "bool",
           "name": "vote",
           "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
         }
       ],
       "name": "VoteCast",
@@ -1080,6 +1135,50 @@ export const contractABI = [
           "type": "uint256"
         }
       ],
+      "name": "farmerHistory",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reputationPoints",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "sustainabilityScore",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "knowledgePoints",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "harvestPoints",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "name": "farmerStoredCrops",
       "outputs": [
         {
@@ -1413,6 +1512,52 @@ export const contractABI = [
           "type": "address"
         }
       ],
+      "name": "getFarmerHistory",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reputationPoints",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sustainabilityScore",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "knowledgePoints",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "harvestPoints",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct AfriCropDAO.FarmerHistory[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_farmerAddress",
+          "type": "address"
+        }
+      ],
       "name": "getFarmerProfile",
       "outputs": [
         {
@@ -1605,9 +1750,9 @@ export const contractABI = [
       "name": "getProposalTypes",
       "outputs": [
         {
-          "internalType": "string[2]",
+          "internalType": "string[3]",
           "name": "",
-          "type": "string[2]"
+          "type": "string[3]"
         }
       ],
       "stateMutability": "pure",
@@ -1737,6 +1882,44 @@ export const contractABI = [
     {
       "inputs": [],
       "name": "getTreasuryBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_farmerAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getVoteWeight",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lastUpdateTimestamp",
       "outputs": [
         {
           "internalType": "uint256",
