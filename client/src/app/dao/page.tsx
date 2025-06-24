@@ -59,7 +59,6 @@ export default function DaoPage() {
     functionName: 'getRegisteredFarmers',
   }) as { data: string[] | undefined }
 
-  // Format APE balance for display with 4 decimal places
   const formatApeBalance = (balance: bigint | undefined) => {
     if (!balance) return '0.0000 APE'
     const apeAmount = formatUnits(balance, 18)
@@ -86,7 +85,7 @@ export default function DaoPage() {
           newProposal.targetAddress,
           newProposal.type === 1 ? parseUnits(newProposal.amount || '0', 18) : BigInt(0)
         ],
-        value: parseUnits('0.01', 18), // 0.01 APE stake
+        value: parseUnits('0.01', 18),
       })
       toast.success('Proposal created successfully!')
       setShowCreateModal(false)
@@ -235,19 +234,19 @@ export default function DaoPage() {
           />
         </div>
 
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h2 className="text-xl font-semibold">{t('activeProposals')}</h2>
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
             <button
               onClick={() => setShowDonateModal(true)}
-              className="btn btn-outline flex items-center"
+              className="btn btn-outline flex items-center flex-1 sm:flex-none"
             >
               <Gift className="w-4 h-4 mr-2" />
               {t('donate')}
             </button>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="btn btn-primary"
+              className="btn btn-primary flex-1 sm:flex-none"
             >
               {t('createProposal')}
             </button>
@@ -264,12 +263,12 @@ export default function DaoPage() {
               return (
                 <Card key={proposal.id.toString()}>
                   <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
+                      <div className="flex-1">
                         <h3 className="font-semibold text-lg">{proposal.title}</h3>
                         <p className="text-secondary-600 mt-1">{proposal.description}</p>
                       </div>
-                      <div className="text-sm text-right">
+                      <div className="text-sm md:text-right w-full md:w-auto">
                         <p className="font-medium">{getProposalType(proposal.proposalType)}</p>
                         <p className={`${proposal.status === BigInt(1) ? 'text-primary-600' :
                             proposal.status === BigInt(2) ? 'text-green-600' :
@@ -287,27 +286,29 @@ export default function DaoPage() {
                       </div>
                       
                       {/* Yes Progress Bar */}
-                      <div className="mb-2">
+                      <div className="mb-5">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span>Yes votes</span>
+                          <span className="text-secondary-500">{yesPercentage.toFixed(1)}% of required</span>
+                        </div>
                         <ProgressBar 
                           progress={yesPercentage} 
                           color="bg-green-500" 
-                          className="h-2 mb-1"
+                          // className="h-"
                         />
-                        <div className="text-xs text-secondary-500">
-                          {yesPercentage.toFixed(1)}% of required votes
-                        </div>
                       </div>
                       
                       {/* No Progress Bar */}
-                      <div>
+                      <div className="mb-4">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span>No votes</span>
+                          <span className="text-secondary-500">{noPercentage.toFixed(1)}% of required</span>
+                        </div>
                         <ProgressBar 
                           progress={noPercentage} 
                           color="bg-red-500" 
-                          className="h-2 mb-1"
+                          // className="h-4"
                         />
-                        <div className="text-xs text-secondary-500">
-                          {noPercentage.toFixed(1)}% of required votes
-                        </div>
                       </div>
                       
                       <div className="text-xs text-secondary-500 mt-2">
@@ -317,11 +318,11 @@ export default function DaoPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <button
                         onClick={() => voteOnProposal(Number(proposal.id), true)}
                         disabled={loading.vote}
-                        className="btn btn-outline flex-1"
+                        className="btn btn-outline bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 flex-1 border-green-200"
                       >
                         {loading.vote ? (
                           <span className="flex items-center justify-center">
@@ -333,7 +334,7 @@ export default function DaoPage() {
                       <button
                         onClick={() => voteOnProposal(Number(proposal.id), false)}
                         disabled={loading.vote}
-                        className="btn btn-outline flex-1"
+                        className="btn btn-outline bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 flex-1 border-red-200"
                       >
                         {loading.vote ? (
                           <span className="flex items-center justify-center">
@@ -342,7 +343,7 @@ export default function DaoPage() {
                           </span>
                         ) : t('voteNo')}
                       </button>
-                      {proposal.proposalType !== BigInt(2) && ( // Don't show execute for General Proposals
+                      {proposal.proposalType !== BigInt(2) && (
                         <button
                           onClick={() => executeProposal(Number(proposal.id))}
                           disabled={proposal.status !== BigInt(2) || proposal.executed || loading.execute}
@@ -380,7 +381,7 @@ export default function DaoPage() {
       {/* Create Proposal Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-md w-full">
+          <Card className="max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-4">{t('createProposal')}</h2>
 
             <div className="space-y-4">
@@ -390,7 +391,7 @@ export default function DaoPage() {
                   type="text"
                   value={newProposal.title}
                   onChange={(e) => setNewProposal({ ...newProposal, title: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder={t('proposalTitlePlaceholder')}
                 />
               </div>
@@ -400,7 +401,7 @@ export default function DaoPage() {
                 <textarea
                   value={newProposal.description}
                   onChange={(e) => setNewProposal({ ...newProposal, description: e.target.value })}
-                  className="input-field"
+                  className="input-field w-full"
                   rows={3}
                   placeholder={t('proposalDescPlaceholder')}
                 />
@@ -411,7 +412,7 @@ export default function DaoPage() {
                 <select
                   value={newProposal.type}
                   onChange={(e) => setNewProposal({ ...newProposal, type: Number(e.target.value) })}
-                  className="input-field"
+                  className="input-field w-full"
                 >
                   <option value={0}>{t('adminChange')}</option>
                   <option value={1}>{t('fundAllocation')}</option>
@@ -427,7 +428,7 @@ export default function DaoPage() {
                       type="text"
                       value={newProposal.targetAddress}
                       onChange={(e) => setNewProposal({ ...newProposal, targetAddress: e.target.value })}
-                      className="input-field"
+                      className="input-field w-full"
                       placeholder="0x..."
                     />
                   </div>
@@ -438,7 +439,7 @@ export default function DaoPage() {
                       type="number"
                       value={newProposal.amount}
                       onChange={(e) => setNewProposal({ ...newProposal, amount: e.target.value })}
-                      className="input-field"
+                      className="input-field w-full"
                       placeholder="0.0"
                       step="0.0001"
                     />
@@ -449,7 +450,7 @@ export default function DaoPage() {
                 </>
               )}
 
-              <div className="flex justify-end space-x-4 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="btn btn-outline"
@@ -479,7 +480,7 @@ export default function DaoPage() {
       {/* Donate Modal */}
       {showDonateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-md w-full">
+          <Card className="max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-4">{t('donateToTreasury')}</h2>
 
             <div className="space-y-4">
@@ -489,7 +490,7 @@ export default function DaoPage() {
                   type="number"
                   value={donationAmount}
                   onChange={(e) => setDonationAmount(e.target.value)}
-                  className="input-field"
+                  className="input-field w-full"
                   placeholder="0.0"
                   step="0.0001"
                   min="0.0001"
@@ -499,7 +500,7 @@ export default function DaoPage() {
                 </p>
               </div>
 
-              <div className="flex justify-end space-x-4 pt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
                 <button
                   onClick={() => setShowDonateModal(false)}
                   className="btn btn-outline"

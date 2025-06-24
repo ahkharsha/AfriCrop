@@ -8,7 +8,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import CropCard from '@/components/CropCard'
 import Card from '@/components/Card'
-import { Sprout, Loader2 } from 'lucide-react'
+import { Sprout, Loader2, X } from 'lucide-react'
 
 export default function FarmPage() {
   const { address, isConnected } = useAccount()
@@ -17,6 +17,7 @@ export default function FarmPage() {
   const [selectedCropType, setSelectedCropType] = useState(0)
   const [seedsAmount, setSeedsAmount] = useState(100)
   const [loading, setLoading] = useState(false)
+  const [showSowModal, setShowSowModal] = useState(false)
 
   const { data: farmerCrops, refetch: refetchCrops } = useReadContract({
     address: contractAddress,
@@ -48,6 +49,7 @@ export default function FarmPage() {
       })
       toast.success(t('cropSownSuccess'))
       refetchCrops()
+      setShowSowModal(false)
     } catch (error: any) {
       toast.error(t('sowCropError') + (error.shortMessage || error.message))
     } finally {
@@ -143,50 +145,13 @@ export default function FarmPage() {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
-            <select 
-              value={selectedCropType}
-              onChange={(e) => setSelectedCropType(Number(e.target.value))}
-              className="input-field flex-1 min-w-[150px]"
-            >
-              {cropTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {t(type.name)}
-                </option>
-              ))}
-            </select>
-            
-            <div className="relative flex-1 w-full">
-              <input
-                type="number"
-                value={seedsAmount}
-                onChange={(e) => setSeedsAmount(Number(e.target.value))}
-                min="1"
-                className="input-field w-full pl-12"
-              />
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-500">
-                {t('seeds')}
-              </span>
-            </div>
-            
-            <button 
-              onClick={sowCrop}
-              disabled={loading}
-              className="btn btn-primary w-full sm:w-auto"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t('sowing')}
-                </span>
-              ) : (
-                <>
-                  <Sprout className="w-4 h-4 mr-2" />
-                  {t('sowNewCrop')}
-                </>
-              )}
-            </button>
-          </div>
+          <button 
+            onClick={() => setShowSowModal(true)}
+            className="btn btn-primary w-full md:w-auto"
+          >
+            <Sprout className="w-4 h-4 mr-2" />
+            {t('sowNewCrop')}
+          </button>
         </div>
 
         {farmerCrops?.length ? (
@@ -210,6 +175,73 @@ export default function FarmPage() {
           </Card>
         )}
       </div>
+
+      {/* Sow Modal */}
+      {showSowModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">{t('sowNewCrop')}</h3>
+              <button 
+                onClick={() => setShowSowModal(false)}
+                className="text-secondary-500 hover:text-secondary-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t('cropType')}
+                </label>
+                <select 
+                  value={selectedCropType}
+                  onChange={(e) => setSelectedCropType(Number(e.target.value))}
+                  className="input-field w-full"
+                >
+                  {cropTypes.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {t(type.name)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  {t('seedsAmount')}
+                </label>
+                <input
+                  type="number"
+                  value={seedsAmount}
+                  onChange={(e) => setSeedsAmount(Number(e.target.value))}
+                  min="1"
+                  className="input-field w-full"
+                />
+              </div>
+              
+              <button 
+                onClick={sowCrop}
+                disabled={loading}
+                className="btn btn-primary w-full mt-4"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t('sowing')}
+                  </span>
+                ) : (
+                  <>
+                    <Sprout className="w-4 h-4 mr-2" />
+                    {t('sowCrop')}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

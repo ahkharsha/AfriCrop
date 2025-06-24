@@ -47,7 +47,7 @@ export default function FarmerQRCode() {
         <div className="p-4 bg-white rounded-lg border border-secondary-200">
           <QRCode 
             value={verificationUrl}
-            size={128}
+            size={208}
             bgColor="#ffffff"
             fgColor="#000000"
             level="Q"

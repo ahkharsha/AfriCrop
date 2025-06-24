@@ -7,9 +7,10 @@ import { useTranslations } from '@/utils/i18n'
 import Card from '@/components/Card'
 import QuizCard from '@/components/QuizCard'
 import { BookOpen, Trophy, CheckCircle, XCircle, Check } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { Loader2 } from 'lucide-react'
+import Cookies from 'js-cookie'
 
 type Lesson = {
   id: bigint
@@ -30,6 +31,8 @@ type Lesson = {
   knowledgePointsReward: bigint
 }
 
+type CompletedLessonsCookie = Record<string, boolean>
+
 export default function LearnPage() {
   const { address, isConnected } = useAccount()
   const { writeContract } = useWriteContract()
@@ -37,6 +40,8 @@ export default function LearnPage() {
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null)
   const [quizResults, setQuizResults] = useState<boolean[]>([])
   const [loading, setLoading] = useState(false)
+  const [completedLessonIds, setCompletedLessonIds] = useState<bigint[]>([])
+  const [cookieCompleted, setCookieCompleted] = useState<CompletedLessonsCookie>({})
 
   const { data: lessons } = useReadContract({
     address: contractAddress,
@@ -51,12 +56,60 @@ export default function LearnPage() {
     args: [address!],
   }) as { data: any }
 
-  const { data: completedLessons, refetch: refetchCompletedLessons } = useReadContract({
-    address: contractAddress,
-    abi: contractABI,
-    functionName: 'completedLessons',
-    args: [address!, activeLesson?.id || BigInt(0)],
-  }) as { data: boolean, refetch: () => void }
+  // Load cookie data on initial render
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cookieData = Cookies.get('completedLessons')
+      if (cookieData) {
+        try {
+          const parsedData = JSON.parse(cookieData) as CompletedLessonsCookie
+          setCookieCompleted(parsedData)
+        } catch (e) {
+          console.error('Error parsing cookie data', e)
+          Cookies.remove('completedLessons')
+        }
+      }
+    }
+  }, [])
+
+  // Function to check if a lesson is completed (either on-chain or in cookies)
+  const isLessonCompleted = (lessonId: bigint): boolean => {
+    const idStr = lessonId.toString()
+    return completedLessonIds.includes(lessonId) || cookieCompleted[idStr] === true
+  }
+
+  // Fetch all completed lessons for the user from blockchain
+  useEffect(() => {
+    if (!address || !lessons) return
+
+    const fetchCompletedLessons = async () => {
+      const completed = await Promise.all(
+        lessons.map(async (lesson) => {
+          const result = await refetchCompletedLessons(lesson.id)
+          return result ? lesson.id : null
+        })
+      )
+      setCompletedLessonIds(completed.filter(Boolean) as bigint[])
+    }
+
+    fetchCompletedLessons()
+  }, [address, lessons])
+
+  // Helper function to refetch completion status for a specific lesson
+  const refetchCompletedLessons = async (lessonId: bigint): Promise<boolean> => {
+    try {
+      const result = await useReadContract({
+        address: contractAddress,
+        abi: contractABI,
+        functionName: 'completedLessons',
+        args: [address!, lessonId],
+      })
+      return Boolean(result.data)
+    } catch (error) {
+      console.error('Error fetching completion status:', error)
+      return false
+    }
+  }
 
   const completeLesson = async () => {
     if (!activeLesson) return
@@ -70,9 +123,18 @@ export default function LearnPage() {
         args: [activeLesson.id],
       })
       toast.success(`${t('lessonCompleted')} +${activeLesson.knowledgePointsReward.toString()} ${t('knowledgePoints')}`)
+      
+      // Update completed lessons in state
+      setCompletedLessonIds([...completedLessonIds, activeLesson.id])
+      
+      // Update cookie
+      const idStr = activeLesson.id.toString()
+      const updatedCookies: CompletedLessonsCookie = { ...cookieCompleted, [idStr]: true }
+      setCookieCompleted(updatedCookies)
+      Cookies.set('completedLessons', JSON.stringify(updatedCookies), { expires: 365 })
+      
       setActiveLesson(null)
       setQuizResults([])
-      refetchCompletedLessons()
     } catch (error: any) {
       if (error.message.includes('LessonAlreadyCompleted')) {
         toast.error(t('lessonAlreadyCompleted'))
@@ -92,18 +154,6 @@ export default function LearnPage() {
     if (newResults.length === 3 && newResults.every(r => r)) {
       toast.success(t('allAnswersCorrect'))
     }
-  }
-
-  const isLessonCompleted = (lessonId: bigint) => {
-    if (!lessons) return false
-    
-    // Check if we have the completed status for the active lesson
-    if (activeLesson && lessonId === activeLesson.id && typeof completedLessons === 'boolean') {
-      return completedLessons
-    }
-    
-    // Default return false if we can't determine
-    return false
   }
 
   if (!isConnected) {
@@ -243,53 +293,52 @@ export default function LearnPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {lessons?.map((lesson) => (
-              <Card 
-                key={lesson.id.toString()} 
-                className={`hover:shadow-lg transition-shadow cursor-pointer ${
-                  isLessonCompleted(lesson.id) ? 'border-green-300 bg-green-50' : ''
-                }`}
-                onClick={() => {
-                  setActiveLesson(lesson)
-                  // Trigger refetch of completion status when selecting a lesson
-                  refetchCompletedLessons()
-                }}
-              >
-                <div className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className={`p-3 rounded-lg mr-4 ${
-                      isLessonCompleted(lesson.id) ? 'bg-green-100 text-green-600' : 'bg-primary-100 text-primary-600'
-                    }`}>
-                      <BookOpen className="w-6 h-6" />
+              <div key={lesson.id.toString()} className="h-full">
+                <Card 
+                  className={`h-full hover:shadow-lg transition-shadow cursor-pointer ${
+                    isLessonCompleted(lesson.id) ? 'border-green-300 bg-green-50' : ''
+                  }`}
+                  onClick={() => {
+                    setActiveLesson(lesson)
+                  }}
+                >
+                  <div className="p-6 h-full flex flex-col">
+                    <div className="flex items-center mb-4">
+                      <div className={`p-3 rounded-lg mr-4 ${
+                        isLessonCompleted(lesson.id) ? 'bg-green-100 text-green-600' : 'bg-primary-100 text-primary-600'
+                      }`}>
+                        <BookOpen className="w-6 h-6" />
+                      </div>
+                      <h3 className="font-semibold text-lg">{lesson.title}</h3>
+                      {isLessonCompleted(lesson.id) && (
+                        <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                          <Check className="w-3 h-3 mr-1" />
+                          {t('completed')}
+                        </span>
+                      )}
                     </div>
-                    <h3 className="font-semibold text-lg">{lesson.title}</h3>
-                    {isLessonCompleted(lesson.id) && (
-                      <span className="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
-                        <Check className="w-3 h-3 mr-1" />
-                        {t('completed')}
+                    
+                    <p className="text-secondary-600 mb-4 line-clamp-2 flex-grow">
+                      {lesson.content.substring(0, 100)}...
+                    </p>
+                    
+                    <div className="flex justify-between items-center mt-auto">
+                      <span className="text-sm text-secondary-500">
+                        {lesson.knowledgePointsReward.toString()} {t('points')}
                       </span>
-                    )}
+                      <button 
+                        className={`btn text-sm ${
+                          isLessonCompleted(lesson.id) 
+                            ? 'bg-green-100 text-green-600 hover:bg-green-200' 
+                            : 'btn-primary'
+                        }`}
+                      >
+                        {isLessonCompleted(lesson.id) ? t('reviewLesson') : t('startLesson')}
+                      </button>
+                    </div>
                   </div>
-                  
-                  <p className="text-secondary-600 mb-4 line-clamp-2">
-                    {lesson.content.substring(0, 100)}...
-                  </p>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-secondary-500">
-                      {lesson.knowledgePointsReward.toString()} {t('points')}
-                    </span>
-                    <button 
-                      className={`btn text-sm ${
-                        isLessonCompleted(lesson.id) 
-                          ? 'bg-green-100 text-green-600 hover:bg-green-200' 
-                          : 'btn-primary'
-                      }`}
-                    >
-                      {isLessonCompleted(lesson.id) ? t('viewAgain') : t('startLesson')}
-                    </button>
-                  </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             ))}
           </div>
         )}

@@ -108,8 +108,8 @@ export default function Home() {
   }
 
   return (
-    <main className="py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <main className="py-1">
+      <div className="max-w-7xl mx-auto text-center">
         <h1 className="text-3xl font-bold mb-6">{t('welcome')}</h1>
 
         {isConnected ? (
@@ -129,52 +129,67 @@ export default function Home() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatsCard
-                  title={t('reputationPoints')}
-                  value={farmerStats.reputation}
-                  icon={<Users className="w-5 h-5" />}
-                />
-                <StatsCard
-                  title={t('sustainabilityScore')}
-                  value={farmerStats.sustainability}
-                  icon={<Leaf className="w-5 h-5" />}
-                />
-                <StatsCard
-                  title={t('knowledgePoints')}
-                  value={farmerStats.knowledge}
-                  icon={<BookOpen className="w-5 h-5" />}
-                />
-                <StatsCard
-                  title={t('harvestPoints')}
-                  value={farmerStats.harvest}
-                  icon={<Crop className="w-5 h-5" />}
-                />
-                <StatsCard
-                  title={t('activeLands')}
-                  value={farmerStats.activeCrops}
-                  icon={<Leaf className="w-5 h-5" />}
-                  link="/farm"
-                />
-                <StatsCard
-                  title={t('storedCrops')}
-                  value={farmerStats.storedCrops}
-                  icon={<ShoppingBag className="w-5 h-5" />}
-                  link="/silo"
-                />
-                <StatsCard
-                  title={t('marketListings')}
-                  value={farmerStats.marketCrops}
-                  icon={<ShoppingBag className="w-5 h-5" />}
-                  link="/market"
-                />
-                <StatsCard
-                  title={t('lastActivity')}
-                  value={formatDate(farmerStats.lastActivity)}
-                  icon={<Users className="w-5 h-5" />}
-                />
-                <FarmerQRCode />
-              </div>
+              <>
+                {/* QR Code Card - Centered at Top */}
+                <div className="flex justify-center mb-8">
+                  <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md border border-gray-100">
+                    {/* <h2 className="text-xl font-semibold text-center mb-4">{t('Farmer QR Code')}</h2> */}
+                    <div className="flex justify-center">
+                      <FarmerQRCode />
+                    </div>
+                    {/* <p className="text-sm text-gray-500 text-center mt-4">
+                      {t('qrCodeDescription')}
+                    </p> */}
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <StatsCard
+                    title={t('reputationPoints')}
+                    value={farmerStats.reputation}
+                    icon={<Users className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('sustainabilityScore')}
+                    value={farmerStats.sustainability}
+                    icon={<Leaf className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('knowledgePoints')}
+                    value={farmerStats.knowledge}
+                    icon={<BookOpen className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('harvestPoints')}
+                    value={farmerStats.harvest}
+                    icon={<Crop className="w-5 h-5" />}
+                  />
+                  <StatsCard
+                    title={t('activeLands')}
+                    value={farmerStats.activeCrops}
+                    icon={<Leaf className="w-5 h-5" />}
+                    link="/farm"
+                  />
+                  <StatsCard
+                    title={t('storedCrops')}
+                    value={farmerStats.storedCrops}
+                    icon={<ShoppingBag className="w-5 h-5" />}
+                    link="/silo"
+                  />
+                  <StatsCard
+                    title={t('marketListings')}
+                    value={farmerStats.marketCrops}
+                    icon={<ShoppingBag className="w-5 h-5" />}
+                    link="/market"
+                  />
+                  <StatsCard
+                    title={t('lastActivity')}
+                    value={formatDate(farmerStats.lastActivity)}
+                    icon={<Users className="w-5 h-5" />}
+                  />
+                </div>
+              </>
             )}
           </>
         ) : (

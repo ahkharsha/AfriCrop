@@ -24,6 +24,7 @@
     "fake-indexeddb": "^6.0.1",
     "i18next": "^25.2.1",
     "i18next-browser-languagedetector": "^8.2.0",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.264.0",
     "next": "^15.3.4",
     "next-themes": "^0.4.6",
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.10",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
