@@ -12,7 +12,7 @@ admin.initializeApp({
 // Configuration
 // const POLL_INTERVAL = 3600000; // 1 hour = 60 mins × 60 secs × 1000 ms
 const POLL_INTERVAL = 10000; // 10 seconds
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const CONTRACT_ADDRESS = "0x537232173A5076650cCa759360B695BF562F1B94";
 const MAX_RETRIES = 1;
 
 async function processDevice(contract, deviceId, deviceData, attempt = 1) {
