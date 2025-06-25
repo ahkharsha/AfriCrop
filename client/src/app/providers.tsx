@@ -10,6 +10,7 @@ import { useAccount, useSwitchChain } from 'wagmi'
 import { useModal } from 'connectkit'
 import { useEffect } from 'react'
 import { toast } from 'react-hot-toast'
+import { CookiesProvider } from 'react-cookie'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,9 +48,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
             initialChainId: curtis.id,
           }}
         >
-          <ChainValidator>
-            {children}
-          </ChainValidator>
+          <CookiesProvider>
+            <ChainValidator>
+              {children}
+            </ChainValidator>
+          </CookiesProvider>
         </ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

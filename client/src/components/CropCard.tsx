@@ -6,9 +6,10 @@ import { contractAddress, contractABI } from '../utils/contract'
 import { useTranslations } from '../utils/i18n'
 import Image from 'next/image'
 import ProgressBar from './ProgressBar'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { Loader2, Award, SatelliteDish, X } from 'lucide-react'
+import { useCookies } from 'react-cookie'
 
 type CropData = [
   id: bigint,
@@ -22,11 +23,15 @@ type CropData = [
   harvestedOutput: bigint
 ]
 
-export default function CropCard({ 
+type SensorDataResponse = {
+  data?: [number, number, number]
+}
+
+export default function CropCard({
   cropId,
   onUpdateStage,
   onStore
-}: { 
+}: {
   cropId: number
   onUpdateStage: (cropId: number, newStage: number, lossPercentage?: number) => void
   onStore: (cropId: number) => void
@@ -39,13 +44,14 @@ export default function CropCard({
   const [showSensorModal, setShowSensorModal] = useState(false)
   const [deviceId, setDeviceId] = useState('')
   const [sensorData, setSensorData] = useState<{
-    moisture: number
-    temperature: number
-    humidity: number
+    moisture: number | null
+    temperature: number | null
+    humidity: number | null
   } | null>(null)
   const [sensorLoading, setSensorLoading] = useState(false)
   const [sensorError, setSensorError] = useState('')
-  
+  const [cookies, setCookie] = useCookies([`crop_${cropId}_device`])
+
   const { data: crop, refetch } = useReadContract({
     address: contractAddress,
     abi: contractABI,
@@ -58,9 +64,45 @@ export default function CropCard({
     abi: contractABI,
     functionName: 'getSensorReadings',
     args: [deviceId],
-  }) as { 
+  }) as {
     data: [number, number, number] | undefined,
-    refetch: () => Promise<{ data: [number, number, number] | undefined }>
+    refetch: () => Promise<SensorDataResponse>
+  }
+
+  // Load saved device ID on component mount
+  useEffect(() => {
+    const savedDeviceId = cookies[`crop_${cropId}_device`]
+    if (savedDeviceId) {
+      setDeviceId(savedDeviceId)
+      fetchSensorDataForDevice(savedDeviceId)
+    }
+  }, [cropId])
+
+  const fetchSensorDataForDevice = async (device: string) => {
+    setSensorLoading(true)
+    setSensorError('')
+    try {
+      const response = await fetchSensorData()
+      const data = response.data
+
+      if (data && data[0] !== 0 && data[1] !== 0 && data[2] !== 0) {
+        setSensorData({
+          moisture: data[0],
+          temperature: data[1],
+          humidity: data[2]
+        })
+        setCookie(`crop_${cropId}_device`, device, { path: '/', maxAge: 30 * 24 * 60 * 60 }) // Store for 30 days
+      } else {
+        setSensorData(null)
+        setSensorError('No sensor found with this device ID')
+        setCookie(`crop_${cropId}_device`, '', { path: '/', maxAge: -1 }) // Remove cookie
+      }
+    } catch (error) {
+      setSensorError('Failed to fetch sensor data')
+      setSensorData(null)
+    } finally {
+      setSensorLoading(false)
+    }
   }
 
   if (!crop) return (
@@ -70,12 +112,12 @@ export default function CropCard({
   )
 
   const cropTypes = [
-    'maize', 'rice', 'wheat', 'cassava', 'beans', 
+    'maize', 'rice', 'wheat', 'cassava', 'beans',
     'sorghum', 'millet', 'yam', 'potatoes', 'coffee', 'cotton'
   ]
 
   const cropStage = (stage: bigint) => {
-    switch(Number(stage)) {
+    switch (Number(stage)) {
       case 0: return { text: t('sown'), color: 'bg-blue-500', progress: 30 }
       case 1: return { text: t('growing'), color: 'bg-green-500', progress: 60 }
       case 2: return { text: t('harvested'), color: 'bg-yellow-500', progress: 100 }
@@ -119,7 +161,7 @@ export default function CropCard({
 
   const handleHarvest = async () => {
     if (!lossPercentage) return
-    
+
     setLoading(true)
     try {
       await writeContract({
@@ -169,60 +211,45 @@ export default function CropCard({
       return
     }
 
-    setSensorLoading(true)
-    setSensorError('')
-    try {
-      const { data } = await fetchSensorData()
-      if (data) {
-        setSensorData({
-          moisture: data[0],
-          temperature: data[1],
-          humidity: data[2]
-        })
-        setShowSensorModal(false)
-      } else {
-        setSensorError('No sensor found with this device ID')
-      }
-    } catch (error) {
-      setSensorError('Failed to fetch sensor data')
-    } finally {
-      setSensorLoading(false)
-    }
+    await fetchSensorDataForDevice(deviceId)
   }
 
   return (
     <div className="card border border-secondary-200 hover:border-primary-300 transition-colors">
       <div className="p-4 flex items-start space-x-4">
-        <div className="flex-shrink-0 relative">
-          <Image 
-            src={`/crops/${cropTypes[Number(crop[2])]}.png`} 
+        <div className="flex-shrink-0">
+          <Image
+            src={`/crops/${cropTypes[Number(crop[2])]}.png`}
             alt={t(cropTypes[Number(crop[2])])}
             width={80}
             height={80}
             className="rounded-lg object-cover"
           />
-          <button 
-            onClick={() => setShowSensorModal(true)}
-            className="absolute -top-2 -right-2 bg-white p-1.5 rounded-full shadow-md hover:bg-gray-100 transition-colors"
-            title="Connect Hardware Sensors"
-          >
-            <SatelliteDish className="w-4 h-4 text-primary-600" />
-          </button>
         </div>
-        
+
         <div className="flex-1">
           <div className="flex justify-between items-start">
             <div>
               <h3 className="font-bold text-lg capitalize">{t(cropTypes[Number(crop[2])])}</h3>
               <p className="text-secondary-600 text-sm">ID: {cropId}</p>
             </div>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${stageInfo.color} text-white`}>
-              {stageInfo.text}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${stageInfo.color} text-white`}>
+                {stageInfo.text}
+              </span>
+              <button
+                onClick={() => setShowSensorModal(true)}
+                className="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 transition-colors"
+                title="Connect IoT Sensors"
+              >
+                <SatelliteDish className="w-4 h-4" />
+                <span>IoT</span>
+              </button>
+            </div>
           </div>
-          
+
           <ProgressBar progress={stageInfo.progress} className="my-3" />
-          
+
           <div className="grid grid-cols-2 gap-2 text-sm mb-2">
             <div>
               <p className="text-secondary-500">{t('seedsPlanted')}</p>
@@ -236,7 +263,11 @@ export default function CropCard({
             )}
           </div>
 
-          {sensorData && (
+          {sensorLoading ? (
+            <div className="mt-2 border-t border-secondary-100 pt-2 flex justify-center">
+              <Loader2 className="w-5 h-5 animate-spin text-primary-600" />
+            </div>
+          ) : sensorData ? (
             <div className="mt-2 border-t border-secondary-100 pt-2">
               <h4 className="text-sm font-medium text-secondary-500 mb-1">Sensor Data</h4>
               <div className="grid grid-cols-3 gap-2 text-xs">
@@ -254,10 +285,14 @@ export default function CropCard({
                 </div>
               </div>
             </div>
+          ) : sensorError && (
+            <div className="mt-2 border-t border-secondary-100 pt-2 text-red-500 text-sm">
+              {sensorError}
+            </div>
           )}
         </div>
       </div>
-      
+
       <div className="border-t border-secondary-200 p-4">
         {showLossInput ? (
           <div className="space-y-3">
@@ -292,7 +327,7 @@ export default function CropCard({
             </div>
           </div>
         ) : Number(crop[6]) === 0 ? (
-          <button 
+          <button
             onClick={() => handleUpdateStage(1)}
             disabled={loading}
             className="btn btn-outline w-full"
@@ -302,7 +337,7 @@ export default function CropCard({
             ) : t('markAsGrowing')}
           </button>
         ) : Number(crop[6]) === 1 ? (
-          <button 
+          <button
             onClick={() => setShowLossInput(true)}
             disabled={loading}
             className="btn btn-outline w-full"
@@ -312,7 +347,7 @@ export default function CropCard({
             ) : t('markAsHarvested')}
           </button>
         ) : Number(crop[6]) === 2 ? (
-          <button 
+          <button
             onClick={handleStore}
             disabled={loading}
             className="btn btn-primary w-full"
@@ -331,12 +366,11 @@ export default function CropCard({
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <SatelliteDish className="w-5 h-5" />
-                Hardware Sensors Connection
+                IoT Sensors Connection
               </h3>
-              <button 
+              <button
                 onClick={() => {
                   setShowSensorModal(false)
-                  setDeviceId('')
                   setSensorError('')
                 }}
                 className="text-secondary-500 hover:text-secondary-700"
@@ -344,7 +378,7 @@ export default function CropCard({
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -362,8 +396,8 @@ export default function CropCard({
               {sensorError && (
                 <div className="text-red-500 text-sm">{sensorError}</div>
               )}
-              
-              <button 
+
+              <button
                 onClick={handleGetSensorData}
                 disabled={sensorLoading}
                 className="btn btn-primary w-full"
