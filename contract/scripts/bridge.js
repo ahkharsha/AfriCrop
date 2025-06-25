@@ -10,9 +10,11 @@ admin.initializeApp({
 });
 
 // Configuration
+// const POLL_INTERVAL = 3600000; // 1 hour = 60 mins × 60 secs × 1000 ms
 const POLL_INTERVAL = 10000; // 10 seconds
-const CONTRACT_ADDRESS = "0xa843eFc9CAB8E0E9bFdBbc076034Df87992a1734";
-const MAX_RETRIES = 3; // Increased from 1 to 3 for better reliability
+const CONTRACT_ADDRESS = "0xA79974A617cFD0658bCedD0821A46255d5Df57c9";
+const MAX_RETRIES = 1; // Increase from 1 to 3 for better reliability
+// const MAX_RETRIES = 3; // Increase from 1 to 3 for better reliability
 const GAS_LIMIT = 1000000; // Increased gas limit
 
 async function processDevice(contract, deviceId, deviceData, attempt = 1) {
