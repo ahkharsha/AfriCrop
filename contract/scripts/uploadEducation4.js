@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const contractAddress = "0xf07467d15d0Acbc191778ed972d234518ce3129E";
+  const contractAddress = "0xa843eFc9CAB8E0E9bFdBbc076034Df87992a1734";
   const AfriCropDAO = await ethers.getContractFactory("AfriCropDAO");
   const africropDAO = await AfriCropDAO.attach(contractAddress);
 
