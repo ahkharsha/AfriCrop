@@ -200,6 +200,19 @@
   "sowYourFirstCrop":"Sow Your First Crop",
   "noActiveCrops":"No Active Crops",
   "noActiveProposals":"No Active Proposals",
-  "noActiveProposalsDesc":"No Active Proposals Description"
-  
+  "noActiveProposalsDesc":"No Active Proposals Description",
+    "connectSensor": "Connect Sensor",
+    "hardwareSensorsConnection": "Hardware Sensors Connection",
+    "deviceId": "Device ID",
+    "deviceIdHint": "Enter your sensor device ID (e.g. f61hk927bv)",
+    "fetchingData": "Fetching Data...",
+    "connectDevice": "Connect Device",
+    "sensorReadings": "Sensor Readings",
+    "moisture": "Moisture",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "enterDeviceId": "Please enter a device ID",
+    "deviceNotFound": "Device not found",
+    "failedToFetchSensorData": "Failed to fetch sensor data",
+    "sensorDataLoaded": "Sensor data loaded successfully"
 }
