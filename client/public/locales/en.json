@@ -196,7 +196,10 @@
   "yourSustainabilityProgress":"Your Sustainability Progress",
   "timePeriod":"Time Period",
   "sustainabilityLeaderboard":"Sustainability Leaderboard",
-  "you":"You"
-  
+  "you":"You",
+  "sowYourFirstCrop":"Sow Your First Crop",
+  "noActiveCrops":"No Active Crops",
+  "noActiveProposals":"No Active Proposals",
+  "noActiveProposalsDesc":"No Active Proposals Description"
   
 }
