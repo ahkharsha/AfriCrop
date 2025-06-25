@@ -8,7 +8,7 @@ import Image from 'next/image'
 import ProgressBar from './ProgressBar'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { Loader2, Award, Wifi } from 'lucide-react'
+import { Loader2, Award, SatelliteDish, X } from 'lucide-react'
 
 type CropData = [
   id: bigint,
@@ -21,17 +21,6 @@ type CropData = [
   initialSeeds: bigint,
   harvestedOutput: bigint
 ]
-
-type SensorData = {
-  moisture: bigint
-  temperature: bigint
-  humidity: bigint
-  status: string
-  localDate: string
-  localTime: string
-  timestamp: bigint
-  blockNumber: bigint
-}
 
 export default function CropCard({ 
   cropId,
@@ -49,8 +38,13 @@ export default function CropCard({
   const [showLossInput, setShowLossInput] = useState(false)
   const [showSensorModal, setShowSensorModal] = useState(false)
   const [deviceId, setDeviceId] = useState('')
-  const [sensorData, setSensorData] = useState<SensorData | null>(null)
+  const [sensorData, setSensorData] = useState<{
+    moisture: number
+    temperature: number
+    humidity: number
+  } | null>(null)
   const [sensorLoading, setSensorLoading] = useState(false)
+  const [sensorError, setSensorError] = useState('')
   
   const { data: crop, refetch } = useReadContract({
     address: contractAddress,
@@ -58,6 +52,22 @@ export default function CropCard({
     functionName: 'crops',
     args: [BigInt(cropId)],
   }) as { data: CropData | undefined, refetch: () => void }
+
+  const { refetch: fetchSensorData } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getSensorReadings',
+    args: [deviceId],
+  }) as { 
+    data: [number, number, number] | undefined,
+    refetch: () => Promise<{ data: [number, number, number] | undefined }>
+  }
+
+  if (!crop) return (
+    <div className="card border border-secondary-200 p-6 flex justify-center items-center h-64">
+      <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+    </div>
+  )
 
   const cropTypes = [
     'maize', 'rice', 'wheat', 'cassava', 'beans', 
@@ -73,35 +83,7 @@ export default function CropCard({
     }
   }
 
-  const fetchSensorData = async () => {
-    if (!deviceId.trim()) {
-      toast.error(t('enterDeviceId'))
-      return
-    }
-
-    setSensorLoading(true)
-    try {
-      const data = await writeContract({
-        address: contractAddress,
-        abi: contractABI,
-        functionName: 'getSensorData',
-        args: [deviceId],
-      }) as SensorData
-
-      if (data && data.timestamp > 0) {
-        setSensorData(data)
-        toast.success(t('sensorDataLoaded'))
-      } else {
-        toast.error(t('deviceNotFound'))
-        setSensorData(null)
-      }
-    } catch (error) {
-      toast.error(t('failedToFetchSensorData'))
-      setSensorData(null)
-    } finally {
-      setSensorLoading(false)
-    }
-  }
+  const stageInfo = cropStage(crop[6])
 
   const handleUpdateStage = async (newStage: number) => {
     if (newStage === 2) {
@@ -181,13 +163,32 @@ export default function CropCard({
     }
   }
 
-  if (!crop) return (
-    <div className="card border border-secondary-200 p-6 flex justify-center items-center h-64">
-      <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-    </div>
-  )
+  const handleGetSensorData = async () => {
+    if (!deviceId) {
+      setSensorError('Please enter a device ID')
+      return
+    }
 
-  const stageInfo = cropStage(crop[6])
+    setSensorLoading(true)
+    setSensorError('')
+    try {
+      const { data } = await fetchSensorData()
+      if (data) {
+        setSensorData({
+          moisture: data[0],
+          temperature: data[1],
+          humidity: data[2]
+        })
+        setShowSensorModal(false)
+      } else {
+        setSensorError('No sensor found with this device ID')
+      }
+    } catch (error) {
+      setSensorError('Failed to fetch sensor data')
+    } finally {
+      setSensorLoading(false)
+    }
+  }
 
   return (
     <div className="card border border-secondary-200 hover:border-primary-300 transition-colors">
@@ -202,10 +203,10 @@ export default function CropCard({
           />
           <button 
             onClick={() => setShowSensorModal(true)}
-            className="absolute -top-2 -right-2 bg-white p-1 rounded-full shadow-md hover:bg-gray-100 transition-colors"
-            title={t('connectSensor')}
+            className="absolute -top-2 -right-2 bg-white p-1.5 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+            title="Connect Hardware Sensors"
           >
-            <Wifi className="w-4 h-4 text-primary-600" />
+            <SatelliteDish className="w-4 h-4 text-primary-600" />
           </button>
         </div>
         
@@ -235,27 +236,23 @@ export default function CropCard({
             )}
           </div>
 
-          {/* Sensor Data Display */}
           {sensorData && (
-            <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-sm mb-2">{t('sensorReadings')}</h4>
+            <div className="mt-2 border-t border-secondary-100 pt-2">
+              <h4 className="text-sm font-medium text-secondary-500 mb-1">Sensor Data</h4>
               <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="bg-white p-2 rounded">
-                  <p className="text-secondary-500">{t('moisture')}</p>
-                  <p className="font-medium">{Number(sensorData.moisture)}%</p>
+                <div className="bg-blue-50 p-1.5 rounded">
+                  <p className="text-blue-600">Moisture</p>
+                  <p className="font-bold">{sensorData.moisture}</p>
                 </div>
-                <div className="bg-white p-2 rounded">
-                  <p className="text-secondary-500">{t('temperature')}</p>
-                  <p className="font-medium">{Number(sensorData.temperature) / 100}°C</p>
+                <div className="bg-orange-50 p-1.5 rounded">
+                  <p className="text-orange-600">Temp</p>
+                  <p className="font-bold">{sensorData.temperature}°C</p>
                 </div>
-                <div className="bg-white p-2 rounded">
-                  <p className="text-secondary-500">{t('humidity')}</p>
-                  <p className="font-medium">{Number(sensorData.humidity) / 100}%</p>
+                <div className="bg-green-50 p-1.5 rounded">
+                  <p className="text-green-600">Humidity</p>
+                  <p className="font-bold">{sensorData.humidity}%</p>
                 </div>
               </div>
-              <p className="text-xs text-secondary-500 mt-1">
-                Last updated: {sensorData.localDate} {sensorData.localTime}
-              </p>
             </div>
           )}
         </div>
@@ -330,13 +327,17 @@ export default function CropCard({
       {/* Sensor Connection Modal */}
       {showSensorModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">{t('hardwareSensorsConnection')}</h3>
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <SatelliteDish className="w-5 h-5" />
+                Hardware Sensors Connection
+              </h3>
               <button 
                 onClick={() => {
                   setShowSensorModal(false)
                   setDeviceId('')
+                  setSensorError('')
                 }}
                 className="text-secondary-500 hover:text-secondary-700"
               >
@@ -347,35 +348,33 @@ export default function CropCard({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  {t('deviceId')}
+                  Device ID
                 </label>
                 <input
                   type="text"
                   value={deviceId}
                   onChange={(e) => setDeviceId(e.target.value)}
-                  placeholder="Enter device ID"
                   className="input-field w-full"
+                  placeholder="Enter sensor device ID"
                 />
-                <p className="text-xs text-secondary-500 mt-1">
-                  {t('deviceIdHint')}
-                </p>
               </div>
+
+              {sensorError && (
+                <div className="text-red-500 text-sm">{sensorError}</div>
+              )}
               
               <button 
-                onClick={fetchSensorData}
-                disabled={sensorLoading || !deviceId.trim()}
-                className="btn btn-primary w-full mt-4"
+                onClick={handleGetSensorData}
+                disabled={sensorLoading}
+                className="btn btn-primary w-full"
               >
                 {sensorLoading ? (
                   <span className="flex items-center justify-center">
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t('fetchingData')}
+                    Connecting...
                   </span>
                 ) : (
-                  <>
-                    <Wifi className="w-4 h-4 mr-2" />
-                    {t('connectDevice')}
-                  </>
+                  'Connect Device'
                 )}
               </button>
             </div>

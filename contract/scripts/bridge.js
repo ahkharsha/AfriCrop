@@ -11,7 +11,7 @@ admin.initializeApp({
 
 // Configuration
 // const POLL_INTERVAL = 3600000; // 1 hour = 60 mins × 60 secs × 1000 ms
-const POLL_INTERVAL = 10000; // 10 seconds
+const POLL_INTERVAL = 20000; // 20 seconds
 const CONTRACT_ADDRESS = "0xA79974A617cFD0658bCedD0821A46255d5Df57c9";
 const MAX_RETRIES = 1; // Increase from 1 to 3 for better reliability
 // const MAX_RETRIES = 3; // Increase from 1 to 3 for better reliability
