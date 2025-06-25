@@ -10,7 +10,7 @@ import { Leaf, Award, Droplet, Cloud, Loader2, TrendingUp } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 ChartJS.register(
   CategoryScale,
@@ -26,7 +26,6 @@ export default function ClimatePage() {
   const { address, isConnected } = useAccount()
   const t = useTranslations()
   const router = useRouter()
-  const [historyData, setHistoryData] = useState<any>(null)
   const [loadingHistory, setLoadingHistory] = useState(true)
 
   const { data: farmer, isLoading: farmerLoading } = useReadContract({
@@ -42,7 +41,6 @@ export default function ClimatePage() {
     functionName: 'getFarmerHistory',
     args: [address!],
   }) as { data: any[] | undefined }
-  console.log('Raw history data from contract:', history);
 
   const { data: topFarmers, isLoading: topFarmersLoading } = useReadContract({
     address: contractAddress,
@@ -51,54 +49,37 @@ export default function ClimatePage() {
     args: [20],
   }) as { data: [string[], bigint[]] | undefined, isLoading: boolean }
 
-  useEffect(() => {
-    if (history) {
-      console.log('Raw history before processing:', history);
+  const historyData = useMemo(() => {
+    if (!history || history.length === 0) return null;
 
-      const processHistoryData = (rawHistory: any[]) => {
-        if (!rawHistory || rawHistory.length === 0) return { labels: [], scores: [] };
+    const processed = history.map(item => ({
+      date: new Date(Number(item.timestamp) * 1000).toLocaleDateString(),
+      reputation: Number(item.reputationPoints),
+      harvest: Number(item.harvestPoints),
+      knowledge: Number(item.knowledgePoints),
+      sustainability: Number(item.sustainabilityScore)
+    }));
 
-        // Convert BigInt to numbers and format dates
-        const processed = rawHistory.map(item => ({
-          date: new Date(Number(item.timestamp) * 1000).toLocaleDateString(),
-          reputation: Number(item.reputationPoints),
-          harvest: Number(item.harvestPoints),
-          knowledge: Number(item.knowledgePoints),
-          sustainability: Number(item.sustainabilityScore)
-        }));
-
-        // Get labels (dates)
-        const labels = processed.map(item => item.date);
-
-        // Get scores (using reputation as primary metric)
-        const scores = processed.map(item => item.reputation);
-
-        return { labels, scores };
-      };
-
-      const { labels, scores } = processHistoryData(history);
-
-      console.log('Processed labels:', labels);
-      console.log('Processed scores:', scores);
-
-      setHistoryData({
-        labels,
-        datasets: [
-          {
-            label: t('sustainabilityScore'),
-            data: scores,
-            borderColor: '#22c55e',
-            backgroundColor: '#86efac',
-            tension: 0.3,
-            fill: true,
-          },
-        ],
-      });
-      setLoadingHistory(false);
-    }
+    return {
+      labels: processed.map(item => item.date),
+      datasets: [{
+        label: t('sustainabilityScore'),
+        data: processed.map(item => item.reputation),
+        borderColor: '#22c55e',
+        backgroundColor: '#86efac',
+        tension: 0.3,
+        fill: true,
+      }],
+    };
   }, [history, t]);
 
-  const chartOptions = {
+  useEffect(() => {
+    if (history) {
+      setLoadingHistory(false);
+    }
+  }, [history]);
+
+  const chartOptions = useMemo(() => ({
     responsive: true,
     plugins: {
       legend: {
@@ -117,10 +98,7 @@ export default function ClimatePage() {
           text: t('score'),
         },
         ticks: {
-          stepSize: 500, // Set y-axis to increment by 500
-          callback: function(tickValue: string | number) {
-            return tickValue; // Display the raw value (already in 500 increments)
-          }
+          stepSize: 500,
         }
       },
       x: {
@@ -130,7 +108,7 @@ export default function ClimatePage() {
         },
       },
     },
-  }
+  }), [t]);
 
   if (!isConnected) {
     return (
@@ -198,7 +176,7 @@ export default function ClimatePage() {
                 <div className="flex justify-center items-center h-64">
                   <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
                 </div>
-              ) : historyData && historyData.labels.length > 0 ? (
+              ) : historyData ? (
                 <div className="p-4">
                   <div className="h-[400px]">
                     <Line
@@ -253,8 +231,7 @@ export default function ClimatePage() {
                     {topFarmers?.[0]?.map((farmerAddress, index) => (
                       <tr
                         key={farmerAddress}
-                        className={`border-b border-secondary-100 ${farmerAddress === address ? 'bg-primary-50' : ''
-                          }`}
+                        className={`border-b border-secondary-100 ${farmerAddress === address ? 'bg-primary-50' : ''}`}
                       >
                         <td className="py-3 px-4">{index + 1}</td>
                         <td className="py-3 px-4">

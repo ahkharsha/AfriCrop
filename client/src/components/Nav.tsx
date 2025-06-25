@@ -70,7 +70,6 @@ export default function Nav() {
                       ? 'text-white font-semibold border-b-2 border-white' 
                       : 'text-primary-200 hover:text-white'
                   } transition-colors px-2 py-1`}
-                  prefetch={false} // Disable prefetching to improve performance
                 >
                   {link.label}
                 </Link>
