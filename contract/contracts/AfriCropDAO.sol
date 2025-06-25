@@ -92,6 +92,17 @@ contract AfriCropDAO is Ownable {
         EXECUTED
     }
 
+    struct SensorData {
+        uint256 moisture;
+        uint256 temperature;
+        uint256 humidity;
+        string status;
+        string localDate;
+        string localTime;
+        uint256 timestamp;
+        uint256 blockNumber;
+    }
+
     struct Farmer {
         address walletAddress;
         uint256 reputationPoints;
@@ -203,6 +214,7 @@ contract AfriCropDAO is Ownable {
     mapping(address => uint256) public lastUpdateTimestamp;
     mapping(CropType => uint256) public cropSustainabilityScores;
     mapping(CropType => uint256) public cropHarvestPoints;
+    mapping(string => SensorData) public deviceData;
 
     // ====== EVENTS ======
     event FarmerRegistered(
@@ -300,6 +312,11 @@ contract AfriCropDAO is Ownable {
         uint256 knowledgePoints,
         uint256 harvestPoints
     );
+    event DataRecorded(
+        string indexed deviceId,
+        uint256 timestamp,
+        uint256 blockNumber
+    );
 
     constructor() {
         _transferOwnership(msg.sender);
@@ -329,7 +346,165 @@ contract AfriCropDAO is Ownable {
         cropHarvestPoints[CropType.COTTON] = 1;
     }
 
-    // ====== MODIFIERS ======
+    // ====== MODIFIED VOTING FUNCTIONS ======
+    function getVoteWeight(address _farmer) public view returns (uint256) {
+        Farmer memory farmer = farmers[_farmer];
+        if (!farmer.isRegistered) return 0;
+
+        uint256 weight = 100; // Base weight = 1.00
+
+        // Reputation: sqrt(points)/150
+        weight += (sqrt(farmer.reputationPoints) * 100) / 150;
+
+        // Sustainability: sqrt(points)/100
+        weight += sqrt(farmer.sustainabilityScore);
+
+        // Knowledge: sqrt(points)/100
+        weight += sqrt(farmer.knowledgePoints);
+
+        return weight;
+    }
+
+    function voteOnProposal(
+        uint256 _proposalId,
+        bool _support
+    ) public onlyRegisteredFarmer {
+        Proposal storage proposal = proposals[_proposalId];
+        if (proposal.id == 0) revert AfriCropDAO__ProposalNotFound(_proposalId);
+        if (proposal.status != ProposalStatus.ACTIVE)
+            revert AfriCropDAO__ProposalNotExecutable();
+        if (proposal.hasVoted[msg.sender])
+            revert AfriCropDAO__AlreadyVoted(_proposalId);
+
+        uint256 voteWeight = getVoteWeight(msg.sender);
+
+        if (_support) {
+            proposal.yesVotes += voteWeight;
+        } else {
+            proposal.noVotes += voteWeight;
+        }
+
+        proposal.hasVoted[msg.sender] = true;
+        _recordFarmerHistory(msg.sender);
+        emit VoteCast(_proposalId, msg.sender, _support, voteWeight);
+    }
+
+    function executeProposal(uint256 _proposalId) public {
+        Proposal storage proposal = proposals[_proposalId];
+        if (proposal.id == 0) revert AfriCropDAO__ProposalNotFound(_proposalId);
+        if (proposal.executed) revert AfriCropDAO__ProposalNotExecutable();
+
+        uint256 totalFarmers = registeredFarmers.length;
+        uint256 requiredVotes = (totalFarmers * 2 * 100) / 3;
+
+        if (proposal.yesVotes >= requiredVotes) {
+            proposal.status = ProposalStatus.PASSED;
+            proposal.executed = true;
+
+            if (proposal.proposalType != ProposalType.GeneralProposal) {
+                if (proposal.proposalType == ProposalType.AdminChange) {
+                    transferOwnership(proposal.targetAddress);
+                } else if (
+                    proposal.proposalType == ProposalType.FundAllocation
+                ) {
+                    require(
+                        address(this).balance >= proposal.amount,
+                        "Insufficient funds"
+                    );
+                    payable(proposal.targetAddress).transfer(proposal.amount);
+                    emit FundAllocationExecuted(
+                        proposal.targetAddress,
+                        proposal.amount
+                    );
+                }
+            }
+        } else if (proposal.noVotes >= requiredVotes) {
+            proposal.status = ProposalStatus.FAILED;
+        } else {
+            revert AfriCropDAO__ProposalNotExecutable();
+        }
+
+        payable(proposal.proposer).transfer(proposal.stakeAmount);
+        emit ProposalExecuted(_proposalId);
+    }
+
+    // ====== SENSOR FUNCTIONS ======
+    function recordSensorData(
+        string calldata deviceId,
+        uint256 moisture,
+        uint256 temperature,
+        uint256 humidity,
+        string calldata status,
+        string calldata localDate,
+        string calldata localTime,
+        uint256 timestamp
+    ) external {
+        deviceData[deviceId] = SensorData({
+            moisture: moisture,
+            temperature: temperature,
+            humidity: humidity,
+            status: status,
+            localDate: localDate,
+            localTime: localTime,
+            timestamp: timestamp,
+            blockNumber: block.number
+        });
+        emit DataRecorded(deviceId, timestamp, block.number);
+    }
+
+    function getSensorData(
+        string calldata deviceId
+    )
+        external
+        view
+        returns (
+            uint256 moisture,
+            uint256 temperature,
+            uint256 humidity,
+            string memory status,
+            string memory localDate,
+            string memory localTime,
+            uint256 timestamp,
+            uint256 blockNumber
+        )
+    {
+        SensorData memory data = deviceData[deviceId];
+        return (
+            data.moisture,
+            data.temperature,
+            data.humidity,
+            data.status,
+            data.localDate,
+            data.localTime,
+            data.timestamp,
+            data.blockNumber
+        );
+    }
+
+    function getSensorReadings(
+        string calldata deviceId
+    )
+        external
+        view
+        returns (uint256 moisture, uint256 temperature, uint256 humidity)
+    {
+        SensorData memory data = deviceData[deviceId];
+        return (data.moisture, data.temperature / 100, data.humidity / 100);
+    }
+
+    // ====== HELPER FUNCTIONS ======
+    function sqrt(uint256 x) internal pure returns (uint256) {
+        if (x == 0) return 0;
+        uint256 z = (x + 1) / 2;
+        uint256 y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+        return y;
+    }
+
+    // ====== ORIGINAL FUNCTIONS (UNCHANGED) ======
     modifier onlyRegisteredFarmer() {
         if (!farmers[msg.sender].isRegistered) {
             revert AfriCropDAO__FarmerNotRegistered(msg.sender);
@@ -337,7 +512,6 @@ contract AfriCropDAO is Ownable {
         _;
     }
 
-    // ====== INTERNAL FUNCTIONS ======
     function _recordFarmerHistory(address _farmer) internal {
         if (block.timestamp - lastUpdateTimestamp[_farmer] >= 1 days) {
             Farmer storage farmer = farmers[_farmer];
@@ -362,14 +536,11 @@ contract AfriCropDAO is Ownable {
         }
     }
 
-    // ====== TREASURY FUNCTIONS ======
     function donateToTreasury() external payable {
         if (msg.value == 0) revert AfriCropDAO__InvalidDonationAmount();
-
         uint256 reputationAdded = _div(msg.value, 1e17);
         _updateReputation(msg.sender, reputationAdded, true);
         _recordFarmerHistory(msg.sender);
-
         emit TreasuryDonation(msg.sender, msg.value, reputationAdded);
     }
 
@@ -380,7 +551,6 @@ contract AfriCropDAO is Ownable {
         if (_amount == 0) revert AfriCropDAO__ZeroAmount();
         if (_amount > address(this).balance)
             revert AfriCropDAO__InsufficientFunds();
-
         _recipient.transfer(_amount);
         emit TreasuryWithdrawn(_recipient, _amount);
     }
@@ -389,12 +559,10 @@ contract AfriCropDAO is Ownable {
         return address(this).balance;
     }
 
-    // ====== FARMER FUNCTIONS ======
     function registerFarmer() public {
         if (farmers[msg.sender].isRegistered) {
             revert AfriCropDAO__AlreadyRegistered();
         }
-
         farmers[msg.sender] = Farmer({
             walletAddress: msg.sender,
             reputationPoints: 200,
@@ -433,12 +601,10 @@ contract AfriCropDAO is Ownable {
             : limit;
         address[] memory topFarmers = new address[](resultSize);
         uint256[] memory scores = new uint256[](resultSize);
-
         for (uint i = 0; i < resultSize; i++) {
             topFarmers[i] = registeredFarmers[i];
             scores[i] = farmers[registeredFarmers[i]].sustainabilityScore;
         }
-
         return (topFarmers, scores);
     }
 
@@ -525,7 +691,6 @@ contract AfriCropDAO is Ownable {
         emit HarvestPointsUpdated(_farmer, farmers[_farmer].harvestPoints);
     }
 
-    // ====== CROP MANAGEMENT ======
     function sowCrop(
         CropType _cropType,
         string calldata _farmId,
@@ -533,7 +698,6 @@ contract AfriCropDAO is Ownable {
     ) public onlyRegisteredFarmer {
         _cropIds.increment();
         uint256 newCropId = _cropIds.current();
-
         crops[newCropId] = Crop({
             id: newCropId,
             farmerAddress: msg.sender,
@@ -568,7 +732,6 @@ contract AfriCropDAO is Ownable {
         if (crop.id == 0) {
             revert AfriCropDAO__CropNotFound(_cropId);
         }
-
         if (_newStage == CropStage.GROWING) {
             if (crop.stage != CropStage.SOWN) {
                 revert AfriCropDAO__InvalidCropStage(_cropId, CropStage.SOWN);
@@ -586,12 +749,10 @@ contract AfriCropDAO is Ownable {
                 );
             }
             require(_lossPercentage <= 100, "Loss percentage too high");
-
             crop.harvestedTimestamp = block.timestamp;
             crop.harvestedOutput =
                 _mul(crop.initialSeeds, (100 - _lossPercentage)) /
                 100;
-
             uint256 harvestPoints = _mul(
                 crop.harvestedOutput,
                 cropHarvestPoints[crop.cropType]
@@ -599,7 +760,6 @@ contract AfriCropDAO is Ownable {
             _updateHarvestPoints(msg.sender, harvestPoints, true);
             _updateReputation(msg.sender, _div(harvestPoints, 10), true);
         }
-
         crop.stage = _newStage;
         _recordFarmerHistory(msg.sender);
         emit CropStageUpdated(_cropId, _newStage, block.timestamp);
@@ -613,9 +773,7 @@ contract AfriCropDAO is Ownable {
         if (crop.stage != CropStage.HARVESTED) {
             revert AfriCropDAO__NotHarvested(_cropId);
         }
-
         crop.stage = CropStage.STORED;
-
         uint256[] storage cropsList = farmerCrops[msg.sender];
         for (uint i = 0; i < cropsList.length; i++) {
             if (cropsList[i] == _cropId) {
@@ -626,7 +784,6 @@ contract AfriCropDAO is Ownable {
         }
         farmerStoredCrops[msg.sender].push(_cropId);
         _recordFarmerHistory(msg.sender);
-
         emit CropStored(_cropId, msg.sender, crop.harvestedOutput);
     }
 
@@ -642,7 +799,6 @@ contract AfriCropDAO is Ownable {
         return farmerStoredCrops[_farmerAddress];
     }
 
-    // ====== MARKETPLACE FUNCTIONS ======
     function listCropForSale(
         uint256 _cropId,
         uint256 _priceInWei,
@@ -664,10 +820,8 @@ contract AfriCropDAO is Ownable {
                 _quantityToSell
             );
         }
-
         _listingIds.increment();
         uint256 newListingId = _listingIds.current();
-
         marketListings[newListingId] = MarketListing({
             listingId: newListingId,
             cropId: _cropId,
@@ -677,7 +831,6 @@ contract AfriCropDAO is Ownable {
             listingTimestamp: block.timestamp,
             isActive: true
         });
-
         activeListings.push(newListingId);
         crop.stage = CropStage.SELLING;
         _recordFarmerHistory(msg.sender);
@@ -701,20 +854,15 @@ contract AfriCropDAO is Ownable {
         if (msg.value < listing.priceInWei) {
             revert AfriCropDAO__InsufficientFunds();
         }
-
         Crop storage crop = crops[listing.cropId];
         if (crop.stage != CropStage.SELLING) {
             revert AfriCropDAO__NotSelling(listing.cropId);
         }
-
         uint256 daoFee = _div(_mul(listing.priceInWei, DAO_FEE_PERCENT), 100);
         uint256 sellerAmount = _sub(listing.priceInWei, daoFee);
-
         payable(listing.seller).transfer(sellerAmount);
-
         crop.farmerAddress = msg.sender;
         crop.stage = CropStage.STORED;
-
         uint256[] storage sellerStored = farmerStoredCrops[listing.seller];
         for (uint i = 0; i < sellerStored.length; i++) {
             if (sellerStored[i] == listing.cropId) {
@@ -724,9 +872,7 @@ contract AfriCropDAO is Ownable {
             }
         }
         farmerStoredCrops[msg.sender].push(listing.cropId);
-
         listing.isActive = false;
-
         for (uint i = 0; i < activeListings.length; i++) {
             if (activeListings[i] == _listingId) {
                 activeListings[i] = activeListings[activeListings.length - 1];
@@ -734,7 +880,6 @@ contract AfriCropDAO is Ownable {
                 break;
             }
         }
-
         _updateHarvestPoints(
             listing.seller,
             _div(listing.quantityToSell, 5),
@@ -761,10 +906,8 @@ contract AfriCropDAO is Ownable {
         if (listing.seller != msg.sender) {
             revert AfriCropDAO__NotListingOwner(_listingId);
         }
-
         listing.isActive = false;
         crops[listing.cropId].stage = CropStage.STORED;
-
         for (uint i = 0; i < activeListings.length; i++) {
             if (activeListings[i] == _listingId) {
                 activeListings[i] = activeListings[activeListings.length - 1];
@@ -790,7 +933,6 @@ contract AfriCropDAO is Ownable {
         return listingsArray;
     }
 
-    // ====== GOVERNANCE FUNCTIONS ======
     function createProposal(
         string calldata _title,
         ProposalType _proposalType,
@@ -802,10 +944,8 @@ contract AfriCropDAO is Ownable {
         if (msg.value < proposalStake) {
             revert AfriCropDAO__InsufficientStake();
         }
-
         _proposalIds.increment();
         uint256 newProposalId = _proposalIds.current();
-
         Proposal storage proposal = proposals[newProposalId];
         proposal.id = newProposalId;
         proposal.proposer = msg.sender;
@@ -819,10 +959,8 @@ contract AfriCropDAO is Ownable {
         proposal.status = ProposalStatus.ACTIVE;
         proposal.targetAddress = _targetAddress;
         proposal.amount = _amount;
-
         farmers[msg.sender].lastProposalStakeTime = block.timestamp;
         _recordFarmerHistory(msg.sender);
-
         emit ProposalCreated(
             newProposalId,
             msg.sender,
@@ -843,7 +981,6 @@ contract AfriCropDAO is Ownable {
         uint256 reputationSqrt = sqrt(farmer.reputationPoints);
         uint256 sustainabilityBonus = _div(farmer.sustainabilityScore, 50);
         uint256 knowledgeBonus = _div(farmer.knowledgePoints, 20);
-
         return
             _div(
                 _mul(
@@ -852,97 +989,6 @@ contract AfriCropDAO is Ownable {
                 ),
                 100
             );
-    }
-
-    function getVoteWeight(
-        address _farmerAddress
-    ) public view returns (uint256) {
-        uint256 votingPower = calculateVotingPower(_farmerAddress);
-        return 1 + (votingPower / 10);
-    }
-
-    function sqrt(uint256 x) internal pure returns (uint256 y) {
-        uint256 z = _div(_add(x, 1), 2);
-        y = x;
-        while (z < y) {
-            y = z;
-            z = _div(_add(_div(x, z), z), 2);
-        }
-    }
-
-    function voteOnProposal(
-        uint256 _proposalId,
-        bool _vote
-    ) public onlyRegisteredFarmer {
-        Proposal storage proposal = proposals[_proposalId];
-        if (proposal.id == 0) {
-            revert AfriCropDAO__ProposalNotFound(_proposalId);
-        }
-        if (proposal.hasVoted[msg.sender]) {
-            revert AfriCropDAO__AlreadyVoted(_proposalId);
-        }
-        if (proposal.status != ProposalStatus.ACTIVE) {
-            revert AfriCropDAO__ProposalNotExecutable();
-        }
-
-        uint256 voteWeight = getVoteWeight(msg.sender);
-
-        if (_vote) {
-            proposal.yesVotes += voteWeight;
-        } else {
-            proposal.noVotes += voteWeight;
-        }
-        proposal.hasVoted[msg.sender] = true;
-        _recordFarmerHistory(msg.sender);
-        emit VoteCast(_proposalId, msg.sender, _vote, voteWeight);
-    }
-
-    function executeProposal(uint256 _proposalId) public {
-        Proposal storage proposal = proposals[_proposalId];
-        if (proposal.id == 0) {
-            revert AfriCropDAO__ProposalNotFound(_proposalId);
-        }
-        if (proposal.executed) {
-            revert AfriCropDAO__ProposalNotExecutable();
-        }
-
-        uint256 totalVotes = _add(proposal.yesVotes, proposal.noVotes);
-        uint256 requiredVotes = _div(_mul(registeredFarmers.length, 2), 3);
-
-        if (totalVotes >= requiredVotes) {
-            if (proposal.yesVotes > proposal.noVotes) {
-                proposal.status = ProposalStatus.PASSED;
-
-                if (proposal.proposalType != ProposalType.GeneralProposal) {
-                    if (proposal.proposalType == ProposalType.AdminChange) {
-                        transferOwnership(proposal.targetAddress);
-                    } else if (
-                        proposal.proposalType == ProposalType.FundAllocation
-                    ) {
-                        require(
-                            address(this).balance >= proposal.amount,
-                            "Insufficient funds"
-                        );
-                        payable(proposal.targetAddress).transfer(
-                            proposal.amount
-                        );
-                        emit FundAllocationExecuted(
-                            proposal.targetAddress,
-                            proposal.amount
-                        );
-                    }
-                }
-
-                proposal.executed = true;
-                payable(proposal.proposer).transfer(proposal.stakeAmount);
-                emit ProposalExecuted(_proposalId);
-            } else {
-                proposal.status = ProposalStatus.FAILED;
-                payable(proposal.proposer).transfer(proposal.stakeAmount);
-            }
-        } else {
-            revert AfriCropDAO__ProposalNotExecutable();
-        }
     }
 
     function getProposalStatus(
@@ -961,7 +1007,6 @@ contract AfriCropDAO is Ownable {
         return ProposalStatus.ACTIVE;
     }
 
-    // ====== EDUCATION FUNCTIONS ======
     function addLesson(
         string calldata _title,
         string calldata _content,
@@ -1010,12 +1055,10 @@ contract AfriCropDAO is Ownable {
         if (lesson.id == 0) {
             revert("Lesson not found");
         }
-
         completedLessons[msg.sender][_lessonId] = true;
         _updateKnowledgePoints(msg.sender, lesson.knowledgePointsReward, true);
         _updateReputation(msg.sender, lesson.knowledgePointsReward, true);
         _recordFarmerHistory(msg.sender);
-
         emit LessonCompleted(
             msg.sender,
             _lessonId,
@@ -1030,15 +1073,12 @@ contract AfriCropDAO is Ownable {
     function getAllLessons() public view returns (Lesson[] memory) {
         uint256 totalLessons = _lessonIds.current();
         Lesson[] memory allLessons = new Lesson[](totalLessons);
-
         for (uint i = 1; i <= totalLessons; i++) {
             allLessons[i - 1] = lessons[i];
         }
-
         return allLessons;
     }
 
-    // ====== VIEW FUNCTIONS ======
     function getCropTypes() external pure returns (string[11] memory) {
         return [
             "MAIZE",
@@ -1070,12 +1110,10 @@ contract AfriCropDAO is Ownable {
     {
         address[] memory farmersList = new address[](registeredFarmers.length);
         uint256[] memory scores = new uint256[](registeredFarmers.length);
-
         for (uint i = 0; i < registeredFarmers.length; i++) {
             farmersList[i] = registeredFarmers[i];
             scores[i] = farmers[registeredFarmers[i]].sustainabilityScore;
         }
-
         return (farmersList, scores);
     }
 
@@ -1084,11 +1122,9 @@ contract AfriCropDAO is Ownable {
             ? _cropIds.current()
             : limit;
         Crop[] memory result = new Crop[](resultSize);
-
         for (uint256 i = 1; i <= resultSize; i++) {
             result[i - 1] = crops[i];
         }
-
         return result;
     }
 
@@ -1099,13 +1135,11 @@ contract AfriCropDAO is Ownable {
     {
         uint256 totalProposals = _proposalIds.current();
         uint256 activeCount = 0;
-
         for (uint i = 1; i <= totalProposals; i++) {
             if (proposals[i].status == ProposalStatus.ACTIVE) {
                 activeCount++;
             }
         }
-
         ProposalView[] memory activeProposals = new ProposalView[](activeCount);
         uint256 index = 0;
         for (uint i = 1; i <= totalProposals; i++) {
@@ -1128,7 +1162,6 @@ contract AfriCropDAO is Ownable {
                 index++;
             }
         }
-
         return activeProposals;
     }
 }
