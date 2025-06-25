@@ -8,7 +8,7 @@ import Image from 'next/image'
 import ProgressBar from './ProgressBar'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { Loader2, Award } from 'lucide-react'
+import { Loader2, Award, SatelliteDish, X } from 'lucide-react'
 
 type CropData = [
   id: bigint,
@@ -21,6 +21,17 @@ type CropData = [
   initialSeeds: bigint,
   harvestedOutput: bigint
 ]
+
+type SensorData = {
+  moisture: bigint,
+  temperature: bigint,
+  humidity: bigint,
+  status: string,
+  localDate: string,
+  localTime: string,
+  timestamp: bigint,
+  blockNumber: bigint
+}
 
 export default function CropCard({ 
   cropId,
@@ -36,6 +47,10 @@ export default function CropCard({
   const [loading, setLoading] = useState(false)
   const [lossPercentage, setLossPercentage] = useState('')
   const [showLossInput, setShowLossInput] = useState(false)
+  const [showSensorModal, setShowSensorModal] = useState(false)
+  const [deviceId, setDeviceId] = useState('')
+  const [sensorData, setSensorData] = useState<SensorData | null>(null)
+  const [sensorLoading, setSensorLoading] = useState(false)
   
   const { data: crop, refetch } = useReadContract({
     address: contractAddress,
@@ -43,6 +58,37 @@ export default function CropCard({
     functionName: 'crops',
     args: [BigInt(cropId)],
   }) as { data: CropData | undefined, refetch: () => void }
+
+  const { data: sensorDataFromContract, refetch: refetchSensorData } = useReadContract({
+    address: contractAddress,
+    abi: contractABI,
+    functionName: 'getSensorData',
+    args: [deviceId],
+  }) as { data: SensorData | undefined, refetch: () => void }
+
+  const fetchSensorData = async () => {
+    if (!deviceId.trim()) {
+      toast.error(t('deviceIdRequired'))
+      return
+    }
+
+    setSensorLoading(true)
+    try {
+      await refetchSensorData()
+      if (sensorDataFromContract) {
+        setSensorData(sensorDataFromContract)
+        toast.success(t('sensorDataLoaded'))
+      } else {
+        toast.error(t('deviceNotFound'))
+        setSensorData(null)
+      }
+    } catch (error) {
+      toast.error(t('failedToLoadSensorData'))
+      setSensorData(null)
+    } finally {
+      setSensorLoading(false)
+    }
+  }
 
   if (!crop) return (
     <div className="card border border-secondary-200 p-6 flex justify-center items-center h-64">
@@ -147,7 +193,7 @@ export default function CropCard({
   return (
     <div className="card border border-secondary-200 hover:border-primary-300 transition-colors">
       <div className="p-4 flex items-start space-x-4">
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 relative">
           <Image 
             src={`/crops/${cropTypes[Number(crop[2])]}.png`} 
             alt={t(cropTypes[Number(crop[2])])}
@@ -155,6 +201,13 @@ export default function CropCard({
             height={80}
             className="rounded-lg object-cover"
           />
+          <button 
+            onClick={() => setShowSensorModal(true)}
+            className="absolute -top-2 -right-2 bg-white p-1 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+            title="Connect to sensors"
+          >
+            <SatelliteDish className="w-4 h-4 text-primary-600" />
+          </button>
         </div>
         
         <div className="flex-1">
@@ -182,6 +235,30 @@ export default function CropCard({
               </div>
             )}
           </div>
+
+          {/* Sensor Data Display */}
+          {sensorData && (
+            <div className="mt-4 pt-4 border-t border-secondary-100">
+              <h4 className="text-sm font-medium text-secondary-700 mb-2">Soil Conditions</h4>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="bg-blue-50 p-2 rounded">
+                  <p className="text-blue-600">Moisture</p>
+                  <p className="font-medium">{Number(sensorData.moisture)}%</p>
+                </div>
+                <div className="bg-orange-50 p-2 rounded">
+                  <p className="text-orange-600">Temperature</p>
+                  <p className="font-medium">{Number(sensorData.temperature) / 100}°C</p>
+                </div>
+                <div className="bg-green-50 p-2 rounded">
+                  <p className="text-green-600">Humidity</p>
+                  <p className="font-medium">{Number(sensorData.humidity) / 100}%</p>
+                </div>
+              </div>
+              <p className="text-xs text-secondary-500 mt-2">
+                Last updated: {sensorData.localDate} {sensorData.localTime}
+              </p>
+            </div>
+          )}
         </div>
       </div>
       
@@ -250,6 +327,59 @@ export default function CropCard({
           </button>
         ) : null}
       </div>
+
+      {/* Sensor Connection Modal */}
+      {showSensorModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Hardware Sensors Connection</h3>
+              <button 
+                onClick={() => {
+                  setShowSensorModal(false)
+                  setDeviceId('')
+                }}
+                className="text-secondary-500 hover:text-secondary-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Device ID
+                </label>
+                <input
+                  type="text"
+                  value={deviceId}
+                  onChange={(e) => setDeviceId(e.target.value)}
+                  className="input-field w-full"
+                  placeholder="Enter your device ID"
+                />
+              </div>
+              
+              <button 
+                onClick={fetchSensorData}
+                disabled={sensorLoading}
+                className="btn btn-primary w-full mt-4"
+              >
+                {sensorLoading ? (
+                  <span className="flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading...
+                  </span>
+                ) : (
+                  <>
+                    <SatelliteDish className="w-4 h-4 mr-2" />
+                    Connect to Sensors
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
