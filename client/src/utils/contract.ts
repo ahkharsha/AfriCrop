@@ -15,7 +15,7 @@ export const config = createConfig(
   })
 )
 
-export const contractAddress = '0xa843eFc9CAB8E0E9bFdBbc076034Df87992a1734' // Replace with actual address
+export const contractAddress = '0xA79974A617cFD0658bCedD0821A46255d5Df57c9' // Replace with actual address
 
 export const contractABI = [
     {
@@ -405,6 +405,31 @@ export const contractABI = [
         }
       ],
       "name": "CropStored",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "deviceId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "DataRecorded",
       "type": "event"
     },
     {
@@ -1072,6 +1097,60 @@ export const contractABI = [
         {
           "internalType": "uint256",
           "name": "harvestedOutput",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "deviceData",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "moisture",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "temperature",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "humidity",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "localDate",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "localTime",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
           "type": "uint256"
         }
       ],
@@ -1772,6 +1851,89 @@ export const contractABI = [
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "deviceId",
+          "type": "string"
+        }
+      ],
+      "name": "getSensorData",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "moisture",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "temperature",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "humidity",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "localDate",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "localTime",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "deviceId",
+          "type": "string"
+        }
+      ],
+      "name": "getSensorReadings",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "moisture",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "temperature",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "humidity",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "getSustainabilityScores",
       "outputs": [
@@ -2194,6 +2356,54 @@ export const contractABI = [
       "name": "purchaseCrop",
       "outputs": [],
       "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "deviceId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "moisture",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "temperature",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "humidity",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "localDate",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "localTime",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "recordSensorData",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
