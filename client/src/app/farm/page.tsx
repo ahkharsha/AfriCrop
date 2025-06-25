@@ -68,11 +68,9 @@ export default function FarmPage() {
       })
       
       if (newStage === 1) {
-        // Calculate sustainability points (4 per seed for maize as defined in contract)
         const points = seedsAmount * 4
         toast.success(`${t('cropGrowingSuccess')} +${points} ${t('sustainabilityPoints')}`)
       } else if (newStage === 2) {
-        // Calculate harvest points (2 per harvested plant for maize)
         const harvested = seedsAmount * (100 - (lossPercentage || 0)) / 100
         const points = harvested * 2
         toast.success(`${t('cropHarvestedSuccess')} +${points} ${t('harvestPoints')}`)
