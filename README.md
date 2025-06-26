@@ -10,12 +10,33 @@
 - **Explorer**: [View on Curtis Explorer](https://curtis.explorer.caldera.xyz/address/0xA79974A617cFD0658bCedD0821A46255d5Df57c9)
 - **Network**: Curtis Testnet (APE Chain)
 
+Here’s a cleaner and more professional way to format your two images under appropriate headings with brief captions:
+
 ---
+
+## 🔌 **IoT Hardware Setup**
+
+<img src="https://github.com/user-attachments/assets/5ede7e86-2ee4-4159-bd83-1b55f0c0ed43" alt="AfriCrop Architecture Diagram" width="250"/>
+
+<sub><sup>**Figure 2:** Hardware components used in AfriCrop's IoT setup, including DHT sensor, ESP8266, and real-time data collection modules.</sup></sub>
+
+---
+
+## 🧠 **System Architecture**
+
+<img src="https://github.com/user-attachments/assets/94fb52b1-8944-45f9-b1c9-3ebec8205804" alt="AfriCrop Architecture Diagram" width="250"/>
+
+<sub><sup>**Figure 1:** High-level architecture of AfriCrop DAO — showcasing frontend-backend interaction, smart contract integration, and Firebase-based IoT data pipeline.</sup></sub>
+
+---
+
 
 ### 🔥 **Revolutionizing African Agriculture**  
 AfriCrop DAO combines **blockchain + IoT + ML + governance** to create Africa's first farmer-led decentralized autonomous organization for sustainable agriculture. Our platform tracks complete crop lifecycles, integrates real-time sensor data, and rewards sustainable farming practices through transparent on-chain governance.
 
 **Vision**: *"Empowering African farmers through blockchain-verified sustainable agriculture, IoT monitoring, and community-driven governance for transparent supply chains."*
+
+
 
 **Backed by Research**:  
 - FAO reports 60% of African farms lack access to credit ([Source](https://www.fao.org/africa/news/detail-news/en/c/1613472/))  
